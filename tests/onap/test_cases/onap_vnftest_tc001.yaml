@@ -1,0 +1,42 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+
+---
+schema: "vnftest:task:0.1"
+description: >
+    Vnftest TC001 config file;
+    Create VLM in SDC
+
+{% set csar_name = csar_name or none %}
+{% set csar_id = csar_id or none %}
+{% set csar_package_location = csar_package_location or none %}
+steps:
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/create_vlm.yaml"
+    input:
+    -
+      parameter_name: "vendor_name"
+      value: {{ ["test_vendor_", range(10000)|random ]|join }}
+    output:
+    -
+      parameter_name: "vendor_id"
+      path: "value"
+
+context:
+  type: CSAR
+  csar_name: {{csar_name}}
+  csar_id: {{csar_id}}
+  csar_package_location: {{csar_package_location}}
