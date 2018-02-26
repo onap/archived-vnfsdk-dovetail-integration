@@ -1,0 +1,27 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+# vnftest comment: this is a modified copy of
+# yardstick/tools/README
+
+This directory contains various utilities needed in the vnftest environment.
+
+vnftest-img-modify is a generic script (but ubuntu cloud image specific) that
+takes a another script as an argument. This second script does the actual
+modifications of the image. sudo is required since the base image is mounted
+using qemu's network block device support.
+
+Usage example:
+
+$ sudo vnftest-img-modify $HOME/vnftest/tools/ubuntu-server-cloudimg-modify.sh
+
