@@ -1,0 +1,3 @@
+
+[plot]
+matplotlib>=1.4.2
