@@ -37,6 +37,7 @@ from vnftest.onap.contexts.base import Context
 from vnftest.onap.contexts.csar import CSARContext
 from vnftest.onap.runners import base as base_runner
 from vnftest.onap.runners.duration import DurationRunner
+from vnftest.onap.runners.iteration import IterationRunner
 from vnftest.common.constants import CONF_FILE
 from vnftest.common.yaml_loader import yaml_load
 from vnftest.dispatcher.base import Base as DispatcherBase
@@ -136,8 +137,8 @@ class Task(object):     # pragma: no cover
                 LOG.error('Testcase: "%s" FAILED!!!', case_name, exc_info=True)
                 testcases[case_name] = {'criteria': 'FAIL', 'tc_data': []}
             else:
-                LOG.info('Testcase: "%s" SUCCESS!!!', case_name)
-                testcases[case_name] = {'criteria': 'PASS', 'tc_data': data}
+                criteria = self.evaluate_task_criteria(data)
+                testcases[case_name] = {'criteria': criteria, 'tc_data': data}
 
             if args.keep_deploy:
                 # keep deployment, forget about stack
@@ -238,6 +239,13 @@ class Task(object):     # pragma: no cover
         else:
             return 'PASS'
 
+    def evaluate_task_criteria(self, steps_result_list):
+        for step_result in steps_result_list:
+            errors_list = step_result['errors']
+            if errors_list is not None and len(errors_list) > 0:
+                return 'FAIL'
+        return 'PASS'
+
     def _do_output(self, output_config, result):
         dispatchers = DispatcherBase.get(output_config)
 
@@ -320,9 +328,9 @@ class Task(object):     # pragma: no cover
 
     def run_one_step(self, step_cfg, output_file):
         """run one step using context"""
-        # default runner is Duration
+        # default runner is Iteration
         if 'runner' not in step_cfg:
-            step_cfg['runner'] = dict(type="Duration", duration=1000000000)
+            step_cfg['runner'] = dict(type="Iteration", iterations=1)
         runner_cfg = step_cfg['runner']
         runner_cfg['output_filename'] = output_file
         options = step_cfg.get('options', {})

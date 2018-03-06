@@ -59,3 +59,7 @@ class VnftestException(Exception):
 class FunctionNotImplemented(VnftestException):
     message = ('The function "%(function_name)s" is not implemented in '
                '"%(class_name)" class.')
+
+
+class MandatoryKeyException(VnftestException):
+    message = 'No value found for key %(key_name)" in "%(dict_str)"'
