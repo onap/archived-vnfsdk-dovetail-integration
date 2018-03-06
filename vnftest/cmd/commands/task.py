@@ -63,7 +63,6 @@ class TaskCommands(object):     # pragma: no cover
             LOG.info('Task SUCCESS')
         else:
             LOG.info('Task FAILED')
-            raise RuntimeError('Task Failed')
 
     def _write_error_data(self, error):
         data = {'status': 2, 'result': str(error)}

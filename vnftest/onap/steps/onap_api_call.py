@@ -18,6 +18,8 @@ import time
 import os
 import yaml
 import copy
+
+from vnftest.common.exceptions import MandatoryKeyException
 from vnftest.onap.steps import base
 from vnftest.common import rest_client
 from vnftest.common import constants as consts
@@ -45,16 +47,17 @@ class OnapApiCall(base.Step):
         self.output = options.get("output")
         self.setup_done = True
 
-    def run(self, args):
+    def run(self, result):
         if not self.setup_done:
             self.setup()
+        result['output'] = {}
         params = copy.deepcopy(consts.component_constants)
         for input_parameter in self.input:
             param_name = input_parameter['parameter_name']
             param_value = input_parameter['value']
             params[param_name] = param_value
-        result = self.execute_operation(params)
-        result_body = result['body']
+        execution_result = self.execute_operation(params)
+        result_body = execution_result['body']
         for output_parameter in self.output:
             param_name = output_parameter['parameter_name']
             param_path = output_parameter['path']
@@ -62,7 +65,12 @@ class OnapApiCall(base.Step):
             param_value = result_body
             for path_element in path_list:
                 param_value = param_value[path_element]
-        self.context_cfg[param_name] = param_value
+            if param_value is None:
+                raise MandatoryKeyException(
+                    key_name='param_path', class_name=str(result_body))
+            self.context_cfg[param_name] = param_value
+            result['output'][param_name] = param_value
+        result['status'] = 'PASS'
 
     def execute_operation(self, params, attempt=0):
         try:

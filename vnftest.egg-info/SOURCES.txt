@@ -67,4 +67,3 @@ vnftest/onap/steps/onap_api_call.py
 vnftest/onap/steps/dummy/__init__.py
 vnftest/onap/steps/dummy/dummy.py
 vnftest/onap/steps/onboard/__init__.py
-vnftest/tests/__init__.py

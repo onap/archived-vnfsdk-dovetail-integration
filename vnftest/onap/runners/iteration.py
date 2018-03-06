@@ -67,17 +67,21 @@ def _worker_process(queue, cls, method_name, step_cfg,
                        "sequence": sequence})
 
             data = {}
-            errors = ""
+            errors = []
 
             try:
                 result = method(data)
+                if result:
+                    # add timeout for put so we don't block test
+                    # if we do timeout we don't care about dropping individual KPIs
+                    output_queue.put(result, True, QUEUE_PUT_TIMEOUT)
             except AssertionError as assertion:
                 # SLA validation failed in step, determine what to do now
                 if sla_action == "assert":
                     raise
                 elif sla_action == "monitor":
                     LOG.warning("SLA validation failed: %s", assertion.args)
-                    errors = assertion.args
+                    errors.append(assertion.args)
                 elif sla_action == "rate-control":
                     try:
                         step_cfg['options']['rate']
@@ -89,13 +93,8 @@ def _worker_process(queue, cls, method_name, step_cfg,
                     sequence = 1
                     continue
             except Exception:
-                errors = traceback.format_exc()
+                errors.append(traceback.format_exc())
                 LOG.exception("")
-            else:
-                if result:
-                    # add timeout for put so we don't block test
-                    # if we do timeout we don't care about dropping individual KPIs
-                    output_queue.put(result, True, QUEUE_PUT_TIMEOUT)
 
             time.sleep(interval)
 
