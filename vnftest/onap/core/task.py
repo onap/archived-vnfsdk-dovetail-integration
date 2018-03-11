@@ -22,6 +22,7 @@ import sys
 import os
 from collections import OrderedDict
 
+import copy
 import yaml
 import atexit
 import ipaddress
@@ -338,7 +339,9 @@ class Task(object):     # pragma: no cover
         runner = base_runner.Runner.get(runner_cfg)
 
         LOG.info("Starting runner of type '%s'", runner_cfg["type"])
-        runner.run(step_cfg, self.context)
+        # Previous steps output is the input of the next step.
+        input_params = copy.deepcopy(self.outputs)
+        runner.run(step_cfg, self.context, input_params)
         return runner
 
 

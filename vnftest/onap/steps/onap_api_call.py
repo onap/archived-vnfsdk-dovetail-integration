@@ -19,10 +19,11 @@ import os
 import yaml
 import copy
 
-from vnftest.common.exceptions import MandatoryKeyException
+from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissing
 from vnftest.onap.steps import base
 from vnftest.common import rest_client
 from vnftest.common import constants as consts
+from vnftest.onap.contexts.csar import CSARContext
 
 LOG = logging.getLogger(__name__)
 
@@ -31,11 +32,12 @@ class OnapApiCall(base.Step):
 
     __step_type__ = "OnapApiCall"
 
-    def __init__(self, step_cfg, context_cfg):
+    def __init__(self, step_cfg, context_cfg, input_params):
         self.step_cfg = step_cfg
         self.context_cfg = context_cfg
-        self.input = None
-        self.output = None
+        self.input_params = input_params
+        self.input_cfg = None
+        self.output_cfg = None
         self.rest_def_file = None
         self.setup_done = False
         self.curr_path = os.path.dirname(os.path.abspath(__file__))
@@ -43,22 +45,36 @@ class OnapApiCall(base.Step):
     def setup(self):
         options = self.step_cfg['options']
         self.rest_def_file = options.get("file")
-        self.input = options.get("input")
-        self.output = options.get("output")
+        self.input_cfg = options.get("input", {})
+        self.output_cfg = options.get("output", {})
         self.setup_done = True
+
+    def eval_input(self, params):
+        for input_parameter in self.input_cfg:
+            param_name = input_parameter['parameter_name']
+            value = None
+            if 'value' in input_parameter:
+                value = input_parameter['value']
+            elif 'source' in input_parameter:
+                source = input_parameter['source']
+                if source == 'prev_step':
+                    if param_name in self.input_params:
+                        value = self.input_params[param_name]
+                    else:
+                        raise InputParameterMissing(param_name=param_name, source='input parameters')
+            if value is None:
+                raise InputParameterMissing(param_name=param_name, source="task configuration")
+            params[param_name] = value
 
     def run(self, result):
         if not self.setup_done:
             self.setup()
-        result['output'] = {}
+        output = {}
         params = copy.deepcopy(consts.component_constants)
-        for input_parameter in self.input:
-            param_name = input_parameter['parameter_name']
-            param_value = input_parameter['value']
-            params[param_name] = param_value
+        self.eval_input(params)
         execution_result = self.execute_operation(params)
         result_body = execution_result['body']
-        for output_parameter in self.output:
+        for output_parameter in self.output_cfg:
             param_name = output_parameter['parameter_name']
             param_path = output_parameter['path']
             path_list = param_path.split("|")
@@ -66,11 +82,10 @@ class OnapApiCall(base.Step):
             for path_element in path_list:
                 param_value = param_value[path_element]
             if param_value is None:
-                raise MandatoryKeyException(
-                    key_name='param_path', class_name=str(result_body))
-            self.context_cfg[param_name] = param_value
-            result['output'][param_name] = param_value
-        result['status'] = 'PASS'
+                raise MandatoryKeyException(key_name='param_path', class_name=str(result_body))
+            result[param_name] = param_value
+            output[param_name] = param_value
+        return output
 
     def execute_operation(self, params, attempt=0):
         try:

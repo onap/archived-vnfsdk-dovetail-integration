@@ -12,25 +12,13 @@
 # the License
 ##############################################################################
 
-dir:
-  conf: /etc/nvftest
-  repos: /home/vnftest/repos/vnftest
-  log: /tmp/vnftest
-
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
-
-component:
-  aai_ip: 10.247.43.140
-  aai_port: 30202
-  aai_ssl_port: 30233
-  mso_ip: 10.247.43.140
-  sdc_ip: 10.247.43.140
-  sdc_port: 30205
-  sdc_catalog_port: 30206
-  sdc_designer_user: cs0008
-  sdc_tester_user: jm0007
-  sdc_governance_user: gv0001
-  sdc_operations_user: op0001
+---
+method: "PUT"
+url: "http://{sdc_ip}:{sdc_port}/onboarding-api/v1.0/vendor-license-models/{vendor_id}/versions/0.1/actions"
+headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
+        "USER_ID": "{sdc_designer_user}",
+        "Accept": "application/json"
+        }
+body: {"action":"Submit"}
