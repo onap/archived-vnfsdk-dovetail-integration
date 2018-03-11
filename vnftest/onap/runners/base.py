@@ -154,10 +154,10 @@ class Runner(object):
             log.debug("post-stop data: \n%s", data)
             self.result_queue.put({'post-stop-action-data': data})
 
-    def _run_step(self, cls, method_name, step_cfg, context_cfg):
+    def _run_step(self, cls, method_name, step_cfg, context_cfg, input_params):
         raise NotImplementedError
 
-    def run(self, step_cfg, context_cfg):
+    def run(self, step_cfg, context_cfg, input_params):
         step_type = step_cfg["type"]
         class_name = base_step.Step.get(step_type)
         path_split = class_name.split(".")
@@ -198,7 +198,7 @@ class Runner(object):
                       self.result_queue))
             self.periodic_action_process.start()
 
-        self._run_step(cls, "run", step_cfg, context_cfg)
+        self._run_step(cls, "run", step_cfg, context_cfg, input_params)
 
     def abort(self):
         """Abort the execution of a step"""

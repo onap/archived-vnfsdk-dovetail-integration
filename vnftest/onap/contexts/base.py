@@ -20,6 +20,7 @@ import vnftest.common.utils as utils
 class Context(object):
     """Class that represents a context in the logical model"""
     list = []
+    params = {}
 
     @staticmethod
     def split_name(name, sep='.'):

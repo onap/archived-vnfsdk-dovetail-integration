@@ -14,8 +14,6 @@
 # vnftest comment: this is a modified copy of
 # yardstick/common/exceptions.py
 
-from oslo_utils import excutils
-
 
 class ProcessExecutionError(RuntimeError):
     def __init__(self, message, returncode):
@@ -24,42 +22,24 @@ class ProcessExecutionError(RuntimeError):
 
 
 class VnftestException(Exception):
-    """Base Vnftest Exception.
-
-    To correctly use this class, inherit from it and define
-    a 'message' property. That message will get printf'd
-    with the keyword arguments provided to the constructor.
-
-    Based on NeutronException class.
-    """
-    message = "An unknown exception occurred."
+    message_tmplate = "An unknown exception occurred."
 
     def __init__(self, **kwargs):
-        try:
-            super(VnftestException, self).__init__(self.message % kwargs)
-            self.msg = self.message % kwargs
-        except Exception:  # pylint: disable=broad-except
-            with excutils.save_and_reraise_exception() as ctxt:
-                if not self.use_fatal_exceptions():
-                    ctxt.reraise = False
-                    # at least get the core message out if something happened
-                    super(VnftestException, self).__init__(self.message)
+        self.msg = self.message_tmplate.format(**kwargs)
+        super(VnftestException, self).__init__()
 
     def __str__(self):
         return self.msg
 
-    def use_fatal_exceptions(self):
-        """Is the instance using fatal exceptions.
-
-        :returns: Always returns False.
-        """
-        return False
-
 
 class FunctionNotImplemented(VnftestException):
-    message = ('The function "%(function_name)s" is not implemented in '
-               '"%(class_name)" class.')
+    message_tmplate = ('The function "{function_name}" is not implemented in '
+               '"{class_name}" class.')
 
 
 class MandatoryKeyException(VnftestException):
-    message = 'No value found for key %(key_name)" in "%(dict_str)"'
+    message_tmplate = 'No value found for key "{key_name}" in "{dict_str}"'
+
+
+class InputParameterMissing(VnftestException):
+    message_tmplate = 'No value found for parameter "{param_name}" in "{source}"'

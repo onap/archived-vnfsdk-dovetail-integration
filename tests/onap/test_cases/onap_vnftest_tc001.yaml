@@ -34,6 +34,31 @@ steps:
     -
       parameter_name: "vendor_id"
       path: "value"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/checkin_vlm.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      source: prev_step
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/submit_vlm.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      source: prev_step
+  runner:
+    type: Iteration
+    run_step: "setup,run"
 
 context:
   type: CSAR
