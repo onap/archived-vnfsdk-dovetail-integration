@@ -18,7 +18,7 @@ from __future__ import absolute_import
 
 import prettytable
 
-from vnftest.onap.core.testcase import Testcase
+from vnftest.core.testcase import Testcase
 from vnftest.common.utils import cliargs
 from vnftest.cmd.commands import change_osloobj_to_paras
 from vnftest.cmd.commands import Commands

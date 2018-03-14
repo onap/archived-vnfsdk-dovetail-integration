@@ -14,13 +14,12 @@ from __future__ import absolute_import
 
 import logging
 
-from vnftest.onap.core.task import Task
+from vnftest.core.task import Task
 from vnftest.common.utils import cliargs
 from vnftest.common.utils import write_json_to_file
 from vnftest.cmd.commands import change_osloobj_to_paras
 
 output_file_default = "/tmp/vnftest.out"
-
 
 LOG = logging.getLogger(__name__)
 
@@ -30,8 +29,8 @@ class TaskCommands(object):     # pragma: no cover
 
        Set of commands to manage benchmark tasks.
        """
-
-    @cliargs("inputfile", type=str, help="path to task or suite file", nargs=1)
+    @cliargs("vnfdescriptor", type=str, help="path to vnf descriptor file", metavar="vnf-descriptor")
+    @cliargs("inputfile", type=str, help="path to task or suite file", metavar="input-file")
     @cliargs("--task-args", dest="task_args",
              help="Input task args (dict in json). These args are used"
              "to render input task that is jinja2 template.")

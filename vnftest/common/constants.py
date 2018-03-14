@@ -38,11 +38,12 @@ VNFTEST_ROOT_PATH = dirname(
 
 
 def get_param(key, default=''):
-    # we have to defer this to runtime so that we can mock os.environ.get in unittests
-    default_path = os.path.join(VNFTEST_ROOT_PATH, "etc/vnftest/vnftest.yaml")
-    conf_file = os.environ.get('CONF_FILE', default_path)
     # don't re-parse yaml for each lookup
     if not CONF:
+        # we have to defer this to runtime so that we can mock os.environ.get in unittests
+        default_path = os.path.join(VNFTEST_ROOT_PATH, "etc/vnftest/vnftest.yaml")
+        conf_file = os.environ.get('CONF_FILE', default_path)
+
         # do not use vnftest.common.utils.parse_yaml
         # since vnftest.common.utils creates a logger
         # and so it cannot be imported before this code

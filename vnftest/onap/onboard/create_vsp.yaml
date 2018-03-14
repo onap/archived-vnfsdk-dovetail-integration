@@ -11,13 +11,24 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+method: "POST"
+url: "http://{sdc_ip}:{sdc_port}/onboarding-api/v1.0/vendor-software-products"
+headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
+        "USER_ID": "{sdc_designer_user}",
+        "Accept": "application/json"
+        }
+body: {
+        "vendorId": "{vendor_id}",
+        "name": "{vsp_name}",
+        "category": "resourceNewCategory.application l4+",
+        "subCategory": "resourceNewCategory.application l4+.firewall",
+        "description": "vlm via dovetail",
+        "onboardingMethod": "NetworkPackage",
+        "vendorName": "dovetailVendor",
+        "icon": "icon",
+        "licensingData": {
+        }
+      }

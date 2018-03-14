@@ -11,13 +11,33 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
+from __future__ import absolute_import
 
----
+import logging
 
-schema: "vnftest:suite:0.1"
+from vnftest.steps import base
 
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+LOG = logging.getLogger(__name__)
+
+
+class Dummy(base.Step):
+    """Execute Dummy echo
+    """
+    __step_type__ = "Dummy"
+
+    def __init__(self, step_cfg, context_cfg):
+        self.step_cfg = step_cfg
+        self.context_cfg = context_cfg
+        self.setup_done = False
+
+    def setup(self):
+        """step setup"""
+        self.setup_done = True
+
+    def run(self, result):
+        """execute the benchmark"""
+        if not self.setup_done:
+            self.setup()
+
+        result["hello"] = "vnftest"
+        LOG.info("Dummy echo hello vnftest!")

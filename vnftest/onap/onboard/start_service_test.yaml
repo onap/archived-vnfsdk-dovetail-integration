@@ -11,13 +11,13 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+method: "POST"
+url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{service_id}/lifecycleState/startCertification"
+headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Basic YmVlcDpib29w",
+        "USER_ID": "{sdc_tester_user}",
+        "Accept": "application/json"
+        }
+body: {}

@@ -12,30 +12,33 @@
 # the License
 ##############################################################################
 # vnftest comment: this is a modified copy of
-# yardstick/cmd/commands/runner.py
+# yardstick/benchmark/core/runner.py
 """ Handler for vnftest command 'runner' """
 
-from __future__ import print_function
-
 from __future__ import absolute_import
-from vnftest.core.runner import Runners
-from vnftest.common.utils import cliargs
-from vnftest.cmd.commands import change_osloobj_to_paras
+
+import prettytable
+
+from vnftest.runners.base import Runner
 
 
-class RunnerCommands(object):   # pragma: no cover
+class Runners(object):  # pragma: no cover
     """Runner commands.
 
        Set of commands to discover and display runner types.
     """
 
-    def do_list(self, args):
+    def list_all(self, *args):
         """List existing runner types"""
-        param = change_osloobj_to_paras(args)
-        Runners().list_all(param)
+        types = Runner.get_types()
+        runner_table = prettytable.PrettyTable(['Type', 'Description'])
+        runner_table.align = 'l'
+        for rtype in types:
+            runner_table.add_row([rtype.__execution_type__,
+                                  rtype.__doc__.split("\n")[0]])
+        print(runner_table)
 
-    @cliargs("type", type=str, help="runner type", nargs=1)
-    def do_show(self, args):
+    def show(self, args):
         """Show details of a specific runner type"""
-        param = change_osloobj_to_paras(args)
-        Runners().show(param)
+        rtype = Runner.get_cls(args.type[0])
+        print(rtype.__doc__)

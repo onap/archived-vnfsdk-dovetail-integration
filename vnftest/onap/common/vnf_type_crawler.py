@@ -12,12 +12,20 @@
 # the License
 ##############################################################################
 
----
+from __future__ import absolute_import
+from vnftest.crawlers.default import DefaultCrawler
+import logging
 
-schema: "vnftest:suite:0.1"
+LOG = logging.getLogger(__name__)
 
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+
+class VnfTypeCrawler(DefaultCrawler):
+    __crawler_type__ = 'VnfTypeCrawler'
+
+    def crawl(self, dictionary, path):
+        index = 0
+        vnf_type = dictionary['groups'][0]['name']
+        if ".." not in vnf_type:
+            index = 1
+        dictionary = dictionary['groups'][index]
+        return super(VnfTypeCrawler, self).crawl(dictionary, path)

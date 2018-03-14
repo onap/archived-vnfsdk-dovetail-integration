@@ -15,7 +15,7 @@ from __future__ import print_function
 
 from __future__ import absolute_import
 
-from vnftest.onap.core.report import Report
+from vnftest.core.report import Report
 from vnftest.cmd.commands import change_osloobj_to_paras
 from vnftest.common.utils import cliargs
 
