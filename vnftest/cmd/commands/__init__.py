@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from vnftest.onap.core import Param
+from vnftest.core import Param
 
 
 def change_osloobj_to_paras(args):

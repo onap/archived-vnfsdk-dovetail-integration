@@ -14,10 +14,7 @@
 
 ---
 
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+type: CSAR
+vnf_name: sample_firewall
+vnf_id: 123456
+csar_package_location: /etc/nvftest/sample_fw.csar

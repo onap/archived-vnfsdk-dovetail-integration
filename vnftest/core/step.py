@@ -12,30 +12,33 @@
 # the License
 ##############################################################################
 # vnftest comment: this is a modified copy of
-# yardstick/cmd/commands/runner.py
-""" Handler for vnftest command 'runner' """
+# yardstick/benchmark/core/step.py
 
-from __future__ import print_function
+""" Handler for vnftest command 'step' """
 
 from __future__ import absolute_import
-from vnftest.core.runner import Runners
-from vnftest.common.utils import cliargs
-from vnftest.cmd.commands import change_osloobj_to_paras
+import prettytable
+
+from vnftest.steps.base import Step
 
 
-class RunnerCommands(object):   # pragma: no cover
-    """Runner commands.
+class Steps(object):    # pragma: no cover
+    """Step commands.
 
-       Set of commands to discover and display runner types.
+       Set of commands to discover and display step types.
     """
 
-    def do_list(self, args):
-        """List existing runner types"""
-        param = change_osloobj_to_paras(args)
-        Runners().list_all(param)
+    def list_all(self, *args):
+        """List existing step types"""
+        types = Step.get_types()
+        step_table = prettytable.PrettyTable(['Type', 'Description'])
+        step_table.align = 'l'
+        for step_class in types:
+            step_table.add_row([step_class.get_step_type(),
+                                    step_class.get_description()])
+        print(step_table)
 
-    @cliargs("type", type=str, help="runner type", nargs=1)
-    def do_show(self, args):
-        """Show details of a specific runner type"""
-        param = change_osloobj_to_paras(args)
-        Runners().show(param)
+    def show(self, args):
+        """Show details of a specific step type"""
+        stype = Step.get_cls(args.type[0])
+        print(stype.__doc__)

@@ -12,12 +12,26 @@
 # the License
 ##############################################################################
 
----
+from __future__ import absolute_import
+import logging
 
-schema: "vnftest:suite:0.1"
+from vnftest.common import utils
 
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+log = logging.getLogger(__name__)
+
+
+class Crawler(object):
+
+    @staticmethod
+    def get_cls(crawler_type):
+        """return class of specified type"""
+        for crawler in utils.itersubclasses(Crawler):
+            if crawler_type == crawler.__crawler_type__:
+                return crawler
+        raise RuntimeError("No such crawler_type %s" % crawler_type)
+
+    def __init__(self):
+        pass
+
+    def crawl(self, dictionary, path):
+        raise NotImplementedError

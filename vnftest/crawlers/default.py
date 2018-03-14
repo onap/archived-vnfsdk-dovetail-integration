@@ -12,12 +12,24 @@
 # the License
 ##############################################################################
 
----
+from __future__ import absolute_import
+from vnftest.crawlers import base
+import logging
 
-schema: "vnftest:suite:0.1"
+LOG = logging.getLogger(__name__)
 
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+
+class DefaultCrawler(base.Crawler):
+    __crawler_type__ = 'default'
+
+    def crawl(self, dictionary, path):
+        path_list = path.split("[")
+        value = dictionary
+        for path_element in path_list:
+            if path_element == "":
+                continue
+            path_element = path_element.replace("]", "")
+            if isinstance(value, list):
+                path_element = int(path_element)
+            value = value[path_element]
+        return value

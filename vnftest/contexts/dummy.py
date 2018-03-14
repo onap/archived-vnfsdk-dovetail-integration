@@ -12,12 +12,30 @@
 # the License
 ##############################################################################
 
----
+from __future__ import absolute_import
+import logging
 
-schema: "vnftest:suite:0.1"
+from vnftest.contexts.base import Context
 
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
+
+LOG = logging.getLogger(__name__)
+
+
+class DummyContext(Context):
+    """Class that handle dummy info"""
+
+    __context_type__ = "Dummy"
+
+    def __init__(self):
+        super(DummyContext, self).__init__()
+
+    def init(self, attrs):
+        pass
+
+    def deploy(self):
+        """don't need to deploy"""
+        pass
+
+    def undeploy(self):
+        """don't need to undeploy"""
+        super(DummyContext, self).undeploy()

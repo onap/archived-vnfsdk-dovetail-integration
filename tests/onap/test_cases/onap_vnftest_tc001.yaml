@@ -18,9 +18,11 @@ description: >
     Vnftest TC001 config file;
     Create VLM in SDC
 
-{% set csar_name = csar_name or none %}
-{% set csar_id = csar_id or none %}
-{% set csar_package_location = csar_package_location or none %}
+{% set vsp_name = vsp_name or ['test_vsp_', range(10000)|random ]|join %}
+{% set vendor_name = vendor_name or ['test_vendor_', range(10000)|random ]|join %}
+{% set service_name = service_name or ['test_service_', range(10000)|random ]|join %}
+{% set resource_instance_name = resource_instance_name or ["test_resource_instance_", range(10000)|random ]|join %}
+
 steps:
 -
   type: OnapApiCall
@@ -29,11 +31,11 @@ steps:
     input:
     -
       parameter_name: "vendor_name"
-      value: {{ ["test_vendor_", range(10000)|random ]|join }}
+      value: {{vendor_name}}
     output:
     -
       parameter_name: "vendor_id"
-      path: "value"
+      value: "[value]"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -44,7 +46,7 @@ steps:
     input:
     -
       parameter_name: "vendor_id"
-      source: prev_step
+      value: "{vendor_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -55,13 +57,329 @@ steps:
     input:
     -
       parameter_name: "vendor_id"
-      source: prev_step
+      value: "{vendor_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/create_vsp.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      value: "{vendor_id}"
+    -
+      parameter_name: "vsp_name"
+      value: {{vsp_name}}
+    output:
+    -
+      parameter_name: "vsp_id"
+      value: "[vspId]"
   runner:
     type: Iteration
     run_step: "setup,run"
 
+-
+  type: PackageUpload
+  options:
+    file: "onboard/upload_package.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/process_package.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/checkin_vsp.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/submit_vsp.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/create_package_vsp.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/import_vsp.yaml"
+    input:
+    -
+      parameter_name: "vsp_name"
+      value: {{vsp_name}}
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+    output:
+    -
+      parameter_name: "resource_id"
+      value: "[uniqueId]"
+    -
+      parameter_name: "vnf_type"
+      value: "[name]"
+      type: VnfTypeCrawler
+    -
+      parameter_name: "module_model_invariant_id"
+      value: "[invariantUUID]"
+      type: VnfTypeCrawler
+    -
+      parameter_name: "module_model_version_id"
+      value: "[groupUUID]"
+      type: VnfTypeCrawler
+    -
+      parameter_name: "module_model_version"
+      value: "[version]"
+      type: VnfTypeCrawler
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/submit_resource_for_testing.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/start_resource_test.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/accept_resource_test.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+    output:
+    -
+      parameter_name: "resource_version_id"
+      value: "[allVersions][1.0]"
+    -
+      parameter_name: "resource_model_invariant_id"
+      value: "[invariantUUID]"
+    -
+      parameter_name: "resource_model_version_id"
+      value: "[uuid]"
+    -
+      parameter_name: "resource_model_name"
+      value: "[name]"
+    -
+      parameter_name: "resource_model_version"
+      value: "[version]"
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/add_service.yaml"
+    input:
+    -
+      parameter_name: "service_name"
+      value: {{service_name}}
+    output:
+    -
+      parameter_name: "service_id"
+      value: "[uniqueId]"
+    -
+      parameter_name: "service_model_name"
+      value: "[name]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/add_resource_instance.yaml"
+    input:
+    -
+      parameter_name: "resource_instance_unique_id"
+      value: {{ ["U+007B", "resource_version_id", "U+007D", range(10000)|random ]|join }}
+    -
+      parameter_name: "resource_instance_name"
+      value: {{resource_instance_name}}
+    -
+      parameter_name: "service_id"
+      value: "{service_id}"
+    -
+      parameter_name: "resource_version_id"
+      value: "{resource_version_id}"
+    output:
+    -
+      parameter_name: "resource_model_customization_id"
+      value: "[customizationUUID]"
+    -
+      parameter_name: "resource_model_customization_name"
+      value: "[normalizedName]"
+    -
+      parameter_name: "resource_instance_model_name"
+      value: "[name]"
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/submit_service_for_testing.yaml"
+    input:
+    -
+      parameter_name: "service_id"
+      value: "{service_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/start_service_test.yaml"
+    input:
+    -
+      parameter_name: "service_id"
+      value: "{service_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/accept_service_test.yaml"
+    input:
+    -
+      parameter_name: "service_id"
+      value: "{service_id}"
+    output:
+    -
+      parameter_name: "service_version_id"
+      value: "[allVersions][1.0]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/approve_distribution.yaml"
+    input:
+    -
+      parameter_name: "service_version_id"
+      value: "{service_version_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/distribute.yaml"
+    input:
+    -
+      parameter_name: "service_version_id"
+      value: "{service_version_id}"
+    output:
+    -
+      parameter_name: "distributed_service_id"
+      value: "[uuid]"
+    -
+      parameter_name: "service_model_invariant_id"
+      value: "[invariantUUID]"
+    -
+      parameter_name: "service_model_version_id"
+      value: "[uuid]"
+    -
+      parameter_name: "service_model_normalized_name"
+      value: "[normalizedName]"
+    -
+      parameter_name: "service_model_name"
+      value: "[name]"
+    -
+      parameter_name: "service_model_version"
+      value: "[version]"
+    -
+      parameter_name: "service_model_customization_id"
+      value: "[componentInstances]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: OnapApiCall
+  options:
+    file: "onboard/monitor_distribution.yaml"
+    input:
+    -
+      parameter_name: "distributed_service_id"
+      value: "{distributed_service_id}"
+    output:
+    -
+      parameter_name: "distribution_status"
+      value: "[distributionStatusOfServiceList][0][deployementStatus]"
+  sla:
+    action: assert
+    value: "{distribution_status}"
+    equals: "Distributed"
+    retries: 5
+    interval: 5
+
 context:
   type: CSAR
-  csar_name: {{csar_name}}
-  csar_id: {{csar_id}}
-  csar_package_location: {{csar_package_location}}
