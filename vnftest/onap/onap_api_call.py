@@ -34,22 +34,25 @@ class OnapApiCall(base.Step):
 
     __step_type__ = "OnapApiCall"
 
-    def __init__(self, step_cfg, context_cfg, input_params):
+    def __init__(self, step_cfg, context, input_params):
         self.step_cfg = step_cfg
-        self.context_cfg = context_cfg
+        self.context = context
         self.input_params = input_params
         self.input_cfg = None
         self.output_cfg = None
         self.rest_def_file = None
+        self.delay = None
         self.setup_done = False
         self.curr_path = os.path.dirname(os.path.abspath(__file__))
 
     def setup(self):
         options = self.step_cfg['options']
         self.rest_def_file = options.get("file")
+        self.delay = options.get("delay", 0)
         self.input_cfg = options.get("input", {})
         self.output_cfg = options.get("output", {})
         self.sla_cfg = self.step_cfg.get('sla', {'retries': 0})
+        self.input_params.update(self.context.context_params)
         self.setup_done = True
 
     def eval_input(self, params):
@@ -98,15 +101,17 @@ class OnapApiCall(base.Step):
                 raise MandatoryKeyException(key_name='param_path', class_name=str(result_body))
             result[param_name] = param_value
             output[param_name] = param_value
-        self.handle_sla(output)
         return output
 
     def execute_operation(self, params, attempt=0):
+        if self.delay > 0:
+            time.sleep(self.delay)
+
         try:
             return self.execute_operation_impl(params)
         except Exception as e:
             LOG.info(str(e))
-            if attempt < 2:
+            if attempt < 3:
                 time.sleep(15)
                 LOG.info("############# retry operation ##########")
                 attempt = attempt + 1
@@ -181,7 +186,7 @@ class OnapApiCall(base.Step):
             return st.format(**params)
 
     def handle_sla(self, output):
-        if 'assert' in self.sla_cfg and 'equals' in self.sla_cfg:
+        if self.sla_cfg.get('action', "") == 'assert' and 'equals' in self.sla_cfg:
             value_def = self.sla_cfg['value']
             value = self.format_string(value_def, output)
             expected_value = self.sla_cfg['equals']

@@ -142,7 +142,7 @@ class Task(object):     # pragma: no cover
                 testcases[case_name] = {'criteria': 'FAIL', 'tc_data': []}
             else:
                 criteria = self.evaluate_task_criteria(data)
-                testcases[case_name] = {'criteria': criteria, 'tc_data': data}
+                testcases[case_name] = {'criteria': criteria, 'tc_data': data, 'output': self.outputs}
 
             if args.keep_deploy:
                 # keep deployment, forget about stack

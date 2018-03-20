@@ -13,13 +13,12 @@
 ##############################################################################
 
 ---
-
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
--
-    file_name: onap_vnftest_tc002.yaml
+method: "GET"
+url: "http://{mso_ip}/ecomp/mso/infra/orchestrationRequests/v2/{request_id}"
+headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
+        "X-FromAppId": "AAI",
+        "X-TransactionId": "get_aai_subscr"
+        }

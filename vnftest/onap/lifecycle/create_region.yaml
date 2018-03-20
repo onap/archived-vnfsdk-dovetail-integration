@@ -13,21 +13,28 @@
 ##############################################################################
 
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{sdc_service_id}/resourceInstance"
+method: "PUT"
+url: "http://{aai_ip}:30232/aai/v8/cloud-infrastructure/cloud-regions/cloud-region/{cloud_owner}/RegionOne"
 headers: {
         "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "Authorization": "Basic QUFJOkFBSQ==",
+        "X-FromAppId": "AAI",
+        "X-TransactionId": "get_aai_subscr"
         }
 body: {
-          "uniqueId": "{resource_instance_unique_id}",
-          "posX": "500",
-          "posY": "100",
-          "name": "{resource_instance_name}",
-          "componentVersion": "1.0",
-          "originType": "VF",
-          "icon": "defaulticon",
-          "componentUid": "{resource_version_id}"
+          "cloud-owner": "{cloud_owner}",
+          "cloud-region-id": "RegionOne",
+          "cloud-region-version": "v1",
+          "cloud-type": "SharedNode",
+          "cloud-zone": "CloudZone",
+          "owner-defined-type": "OwnerType",
+          "tenants": {
+              "tenant": [
+                  {
+                      "tenant-id": "{tenant_id}",
+                      "tenant-name": "{tenant_name}"
+                  }
+              ]
+          }
       }

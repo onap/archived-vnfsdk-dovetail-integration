@@ -16,13 +16,13 @@
 schema: "vnftest:task:0.1"
 description: >
     Vnftest TC001 config file;
-    Create VLM in SDC
-
-{% set vsp_name = vsp_name or ['test_vsp_', range(10000)|random ]|join %}
-{% set vendor_name = vendor_name or ['test_vendor_', range(10000)|random ]|join %}
-{% set service_name = service_name or ['test_service_', range(10000)|random ]|join %}
-{% set resource_instance_name = resource_instance_name or ["test_resource_instance_", range(10000)|random ]|join %}
-
+    Onboard VNF package to SDC
+{% set rnd = range(10000)|random %}
+{% set vsp_name = vsp_name or ['test_vsp_', rnd ]|join %}
+{% set vendor_name = vendor_name or ['test_vendor_', rnd ]|join %}
+{% set service_name = service_name or ['test_service_', rnd ]|join %}
+{% set resource_instance_name = resource_instance_name or ["test_resource_instance_", rnd ]|join %}
+{% set resource_instance_unique_id = resource_instance_unique_id or ['\"\u007Bresource_version_id\u007D_', rnd, '\"']|join %}
 steps:
 -
   type: OnapApiCall
@@ -81,13 +81,16 @@ steps:
     run_step: "setup,run"
 
 -
-  type: PackageUpload
+  type: OnapApiCall
   options:
     file: "onboard/upload_package.yaml"
     input:
     -
       parameter_name: "vsp_id"
       value: "{vsp_id}"
+    -
+      parameter_name: "package_file_path"
+      value: "{context|vnf_descriptor|csar_package_location}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -238,7 +241,7 @@ steps:
       value: {{service_name}}
     output:
     -
-      parameter_name: "service_id"
+      parameter_name: "sdc_service_id"
       value: "[uniqueId]"
     -
       parameter_name: "service_model_name"
@@ -254,13 +257,13 @@ steps:
     input:
     -
       parameter_name: "resource_instance_unique_id"
-      value: {{ ["U+007B", "resource_version_id", "U+007D", range(10000)|random ]|join }}
+      value: {{resource_instance_unique_id}}
     -
       parameter_name: "resource_instance_name"
       value: {{resource_instance_name}}
     -
-      parameter_name: "service_id"
-      value: "{service_id}"
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
     -
       parameter_name: "resource_version_id"
       value: "{resource_version_id}"
@@ -285,8 +288,8 @@ steps:
     file: "onboard/submit_service_for_testing.yaml"
     input:
     -
-      parameter_name: "service_id"
-      value: "{service_id}"
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -297,8 +300,8 @@ steps:
     file: "onboard/start_service_test.yaml"
     input:
     -
-      parameter_name: "service_id"
-      value: "{service_id}"
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -308,8 +311,8 @@ steps:
     file: "onboard/accept_service_test.yaml"
     input:
     -
-      parameter_name: "service_id"
-      value: "{service_id}"
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
     output:
     -
       parameter_name: "service_version_id"
@@ -358,7 +361,7 @@ steps:
       value: "[version]"
     -
       parameter_name: "service_model_customization_id"
-      value: "[componentInstances]"
+      value: "[componentInstances][0][groupInstances][0][customizationUUID]"
   runner:
     type: Iteration
     run_step: "setup,run"

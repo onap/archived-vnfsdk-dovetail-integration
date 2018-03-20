@@ -1,0 +1,51 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+
+---
+method: "PUT"
+url: "http://{aai_ip}:30232/aai/v8/business/customers/customer/{customer_name}"
+headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Basic QUFJOkFBSQ==",
+        "X-FromAppId": "AAI",
+        "X-TransactionId": "get_aai_subscr"
+        }
+body: {
+              "global-customer-id": "{customer_name}",
+              "service-subscriptions": {
+                      "service-subscription": [{
+                              "relationship-list": {
+                                      "relationship": [{
+                                              "related-to": "tenant",
+                                              "relationship-data": [{
+                                                      "relationship-key": "cloud-region.cloud-owner",
+                                                      "relationship-value": "{cloud_owner}"
+                                              },
+                                              {
+                                                      "relationship-key": "cloud-region.cloud-region-id",
+                                                      "relationship-value": "RegionOne"
+                                              },
+                                              {
+                                                      "relationship-key": "tenant.tenant-id",
+                                                      "relationship-value": "{tenant_id}"
+                                              }]
+                                      }]
+                              },
+                              "service-type": "vFW"
+                      }]
+              },
+              "subscriber-name": "{customer_name}",
+              "subscriber-type": "INFRA"
+      }

@@ -25,16 +25,10 @@ class CSARContext(Context):
     __context_type__ = "CSAR"
 
     def __init__(self):
-        self.csar_name = None
-        self.csar_id = None
-        self.csar_package_location = None
         super(CSARContext, self).__init__()
 
     def init(self, attrs):
-        """initializes itself from the supplied arguments"""
-        self.csar_name = attrs.get("csar_name")
-        self.csar_id = attrs.get("csar_id")
-        self.csar_package_location = attrs.get("csar_package_location")
+        super(CSARContext, self).init(attrs)
 
     def deploy(self):
         """no need to deploy"""

@@ -13,13 +13,13 @@
 ##############################################################################
 
 ---
-
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases_dir: "tests/onap/test_cases/"
-test_cases:
--
-    file_name: onap_vnftest_tc001.yaml
--
-    file_name: onap_vnftest_tc002.yaml
+method: "PUT"
+url: "http://{aai_ip}:30232/aai/v8/service-design-and-creation/services/service/vFW"
+headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Basic QUFJOkFBSQ==",
+        "X-FromAppId": "AAI",
+        "X-TransactionId": "get_aai_subscr"
+        }
+body: {"service-description":"vFW","service-id":"vFW"}

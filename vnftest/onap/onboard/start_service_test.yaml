@@ -13,7 +13,7 @@
 ##############################################################################
 ---
 method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{service_id}/lifecycleState/startCertification"
+url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{sdc_service_id}/lifecycleState/startCertification"
 headers: {
         "Content-Type": "application/json",
         "Authorization": "Basic YmVlcDpib29w",

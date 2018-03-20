@@ -1,0 +1,52 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+
+---
+method: "POST"
+url: "http://{mso_ip}/ecomp/mso/infra/serviceInstances/v5"
+headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
+        "X-FromAppId": "MSO",
+        "X-TransactionId": "demo"
+        }
+body: {
+          "requestDetails": {
+              "requestInfo": {
+                  "source": "VID",
+                  "requestorId": "vid1",
+                  "suppressRollback": "true",
+                  "instanceName": "{service_instance_name}"
+              },
+              "modelInfo": {
+                  "modelVersionId": "{service_model_version_id}",
+                  "modelVersion": "{service_model_version}",
+                  "modelName": "{service_model_normalized_name}",
+                  "modelInvariantId": "{service_model_invariant_id}",
+                  "modelType": "service"
+              },
+              "requestParameters": {
+                  "userParams": [
+
+                  ],
+                  "aLaCarte": "true",
+                  "subscriptionServiceType": "vFW"
+              },
+              "subscriberInfo": {
+                  "globalSubscriberId": "{customer_name}"
+              }
+          }
+      }
+

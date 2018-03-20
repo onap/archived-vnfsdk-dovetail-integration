@@ -13,6 +13,8 @@
 ##############################################################################
 import abc
 import six
+from vnftest.common import openstack_utils
+
 import vnftest.common.utils as utils
 import yaml
 
@@ -39,10 +41,17 @@ class Context(object):
 
     def __init__(self):
         Context.list.append(self)
+        self.context_params = None
 
-    @abc.abstractmethod
     def init(self, attrs):
-        """Initiate context."""
+        self.context_params = {}
+        for key, value in Context.vnf_descriptor.iteritems():
+            key = "context|vnf_descriptor|" + key
+            self.context_params[key] = value
+
+        for key, value in openstack_utils.get_credentials().iteritems():
+            key = "context|creds|" + key
+            self.context_params[key] = value
 
     @staticmethod
     def get_cls(context_type):
