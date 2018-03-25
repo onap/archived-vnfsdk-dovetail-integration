@@ -24,12 +24,13 @@ setup(
     include_package_data=True,
     package_data={
         'vnftest': [
-            'onap/steps/onboard/*.yaml',
-            'onap/steps/create_service/*.yaml'
+            'onap/onboard/*.yaml',
+            'onap/lifecycle/*.yaml'
         ],
         'etc': [
             'vnftest/*.yaml',
-            'vnftest/*.conf'
+            'vnftest/*.conf',
+            'vnftest/vnf_descriptors/*.yaml'
         ],
         'tests': [
             'onap/*/*.yaml'

@@ -14,7 +14,6 @@ vnftest.egg-info/SOURCES.txt
 vnftest.egg-info/dependency_links.txt
 vnftest.egg-info/entry_points.txt
 vnftest.egg-info/top_level.txt
-vnftest/cmd/NSBperf.py
 vnftest/cmd/__init__.py
 vnftest/cmd/cli.py
 vnftest/cmd/commands/__init__.py
@@ -62,6 +61,7 @@ vnftest/onap/package_upload.py
 vnftest/onap/common/__init__.py
 vnftest/onap/common/vnf_type_crawler.py
 vnftest/onap/onboard/__init__.py
+vnftest/resources/__init__.py
 vnftest/runners/__init__.py
 vnftest/runners/base.py
 vnftest/runners/duration.py
@@ -73,3 +73,5 @@ vnftest/steps/__init__.py
 vnftest/steps/base.py
 vnftest/steps/dummy/__init__.py
 vnftest/steps/dummy/dummy.py
+vnftest/tests/__init__.py
+vnftest/tests/fixture.py
