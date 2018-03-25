@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ##############################################################################
 # Copyright 2018 EuropeanSoftwareMarketingLtd.
 # ===================================================================
@@ -11,32 +13,13 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-from __future__ import absolute_import
+# vnftest comment: this is a modified copy of
+# yardstick/resources/scripts/install/sample.bash
 
-import logging
+# Sample plugin installation script
 
-from vnftest.steps import base
+set -e
 
-LOG = logging.getLogger(__name__)
-
-
-class Dummy(base.Step):
-    """Execute Dummy echo
-    """
-    __step_type__ = "Dummy"
-
-    def __init__(self, step_cfg, context_cfg):
-        self.step_cfg = step_cfg
-        self.context_cfg = context_cfg
-        self.setup_done = False
-
-    def setup(self):
-        """step setup"""
-        self.setup_done = True
-
-    def run(self, result):
-        if not self.setup_done:
-            self.setup()
-
-        result["hello"] = "vnftest"
-        LOG.info("Dummy echo hello vnftest!")
+cat > test.sh <<EOF
+echo "{\"Test Output\": \"Hello world!\"}"
+EOF

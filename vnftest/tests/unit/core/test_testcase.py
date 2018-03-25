@@ -11,32 +11,30 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
+# vnftest comment: this is a modified copy of
+# yardstick/tests/unit/benchmark/core/test_testcase.py
+
 from __future__ import absolute_import
+import unittest
 
-import logging
-
-from vnftest.steps import base
-
-LOG = logging.getLogger(__name__)
+from vnftest.core import testcase
 
 
-class Dummy(base.Step):
-    """Execute Dummy echo
-    """
-    __step_type__ = "Dummy"
+class Arg(object):
 
-    def __init__(self, step_cfg, context_cfg):
-        self.step_cfg = step_cfg
-        self.context_cfg = context_cfg
-        self.setup_done = False
+    def __init__(self):
+        self.casename = ('onap_vnftest_tc001',)
 
-    def setup(self):
-        """step setup"""
-        self.setup_done = True
 
-    def run(self, result):
-        if not self.setup_done:
-            self.setup()
+class TestcaseUT(unittest.TestCase):
 
-        result["hello"] = "vnftest"
-        LOG.info("Dummy echo hello vnftest!")
+    def test_list_all(self):
+        t = testcase.Testcase()
+        result = t.list_all("")
+        self.assertIsInstance(result, list)
+
+    def test_show(self):
+        t = testcase.Testcase()
+        casename = Arg()
+        result = t.show(casename)
+        self.assertTrue(result)

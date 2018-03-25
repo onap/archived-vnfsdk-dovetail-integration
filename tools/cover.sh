@@ -48,7 +48,7 @@ run_coverage_test() {
     coverage combine
 
     # Temporarily omit vnftest/tests from the report
-    coverage report --omit=vnftest/tests/*/* > ${baseline_report}
+    coverage report > ${baseline_report}
     coverage erase
 
     # debug awk

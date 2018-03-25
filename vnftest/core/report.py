@@ -18,14 +18,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import ast
+# import ast
 import re
 import uuid
 
 from django.conf import settings
 from django.template import Context
 from django.template import Template
-from oslo_utils import encodeutils
+# from oslo_utils import encodeutils
 from oslo_utils import uuidutils
 
 from vnftest.common import constants as consts
@@ -37,8 +37,6 @@ settings.configure()
 
 class Report(object):
     """Report commands.
-
-    Set of commands to manage benchmark tasks.
     """
 
     def __init__(self):
@@ -83,39 +81,39 @@ class Report(object):
         """Start report generation."""
         self._validate(args.yaml_name[0], args.task_id[0])
 
-        self.db_fieldkeys = self._get_fieldkeys()
+        # self.db_fieldkeys = self._get_fieldkeys()
 
-        self.db_task = self._get_tasks()
+        # self.db_task = self._get_tasks()
 
-        field_keys = []
+        # field_keys = []
         temp_series = []
         table_vals = {}
 
-        field_keys = [encodeutils.to_utf8(field['fieldKey'])
-                      for field in self.db_fieldkeys]
+        # field_keys = [encodeutils.to_utf8(field['fieldKey'])
+        #               for field in self.db_fieldkeys]
 
-        for key in field_keys:
-            self.Timestamp = []
-            series = {}
-            values = []
-            for task in self.db_task:
-                task_time = encodeutils.to_utf8(task['time'])
-                if not isinstance(task_time, str):
-                    task_time = str(task_time, 'utf8')
-                    key = str(key, 'utf8')
-                task_time = task_time[11:]
-                head, sep, tail = task_time.partition('.')
-                task_time = head + "." + tail[:6]
-                self.Timestamp.append(task_time)
-                if isinstance(task[key], float) is True:
-                    values.append(task[key])
-                else:
-                    values.append(ast.literal_eval(task[key]))
-            table_vals['Timestamp'] = self.Timestamp
-            table_vals[key] = values
-            series['name'] = key
-            series['data'] = values
-            temp_series.append(series)
+        # for key in field_keys:
+        #     self.Timestamp = []
+        #     series = {}
+        #     values = []
+        #     for task in self.db_task:
+        #         task_time = encodeutils.to_utf8(task['time'])
+        #         if not isinstance(task_time, str):
+        #             task_time = str(task_time, 'utf8')
+        #             key = str(key, 'utf8')
+        #         task_time = task_time[11:]
+        #         head, sep, tail = task_time.partition('.')
+        #         task_time = head + "." + tail[:6]
+        #         self.Timestamp.append(task_time)
+        #         if isinstance(task[key], float) is True:
+        #             values.append(task[key])
+        #         else:
+        #             values.append(ast.literal_eval(task[key]))
+        #     table_vals['Timestamp'] = self.Timestamp
+        #     table_vals[key] = values
+        #     series['name'] = key
+        #     series['data'] = values
+        #     temp_series.append(series)
 
         Template_html = Template(template)
         Context_html = Context({"series": temp_series,

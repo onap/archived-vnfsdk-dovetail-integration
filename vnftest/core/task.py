@@ -258,7 +258,8 @@ class Task(object):     # pragma: no cover
 
     def _run(self, steps, run_in_parallel, output_file):
         """Deploys context and calls runners"""
-        self.context.deploy()
+        if self.context:
+            self.context.deploy()
         background_runners = []
 
         result = []
@@ -545,31 +546,6 @@ def _is_background_step(step):
         return step["run_in_background"]
     else:
         return False
-
-
-def parse_nodes_with_context(step_cfg):
-    """parse the 'nodes' fields in step """
-    # ensure consistency in node instantiation order
-    return OrderedDict((nodename, Context.get_server(step_cfg["nodes"][nodename]))
-                       for nodename in sorted(step_cfg["nodes"]))
-
-
-def get_networks_from_nodes(nodes):
-    """parse the 'nodes' fields in step """
-    networks = {}
-    for node in nodes.values():
-        if not node:
-            continue
-        interfaces = node.get('interfaces', {})
-        for interface in interfaces.values():
-            # vld_id is network_name
-            network_name = interface.get('network_name')
-            if not network_name:
-                continue
-            network = Context.get_network(network_name)
-            if network:
-                networks[network['name']] = network
-    return networks
 
 
 def runner_join(runner, background_runners, outputs, result):
