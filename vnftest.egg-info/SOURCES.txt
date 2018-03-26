@@ -1,8 +1,6 @@
 setup.py
 etc/__init__.py
 tests/__init__.py
-tests/unit/__init__.py
-tests/unit/test_yaml_loader.py
 tools/vnftest-img-dpdk-modify
 tools/vnftest-img-lxd-modify
 tools/vnftest-img-modify
@@ -57,7 +55,6 @@ vnftest/dispatcher/file.py
 vnftest/dispatcher/http.py
 vnftest/onap/__init__.py
 vnftest/onap/onap_api_call.py
-vnftest/onap/package_upload.py
 vnftest/onap/common/__init__.py
 vnftest/onap/common/vnf_type_crawler.py
 vnftest/onap/onboard/__init__.py
@@ -75,3 +72,18 @@ vnftest/steps/dummy/__init__.py
 vnftest/steps/dummy/dummy.py
 vnftest/tests/__init__.py
 vnftest/tests/fixture.py
+vnftest/tests/unit/__init__.py
+vnftest/tests/unit/common/__init__.py
+vnftest/tests/unit/common/test_httpClient.py
+vnftest/tests/unit/common/test_process.py
+vnftest/tests/unit/common/test_template_format.py
+vnftest/tests/unit/common/test_utils.py
+vnftest/tests/unit/common/test_yaml_loader.py
+vnftest/tests/unit/core/__init__.py
+vnftest/tests/unit/core/test_commands.py
+vnftest/tests/unit/core/test_plugin.py
+vnftest/tests/unit/core/test_report.py
+vnftest/tests/unit/core/test_task.py
+vnftest/tests/unit/core/test_testcase.py
+vnftest/tests/unit/onap/__init__.py
+vnftest/tests/unit/onap/test_onap_api_call.py

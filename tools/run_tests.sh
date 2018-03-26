@@ -35,9 +35,9 @@ run_tests() {
 
     echo "Running unittest ... "
     if [ $FILE_OPTION == "f" ]; then
-        python -m unittest discover -v -s tests/unit > $logfile 2>&1
+        python -m unittest discover -v -s vnftest/tests/unit > $logfile 2>&1
     else
-        python -m unittest discover -v -s tests/unit
+        python -m unittest discover -v -s vnftest/tests/unit
     fi
 
     if [ $? -ne 0 ]; then

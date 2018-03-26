@@ -42,13 +42,11 @@ run_coverage_test() {
 
     find . -type f -name "*.pyc" -delete
 
-    # Temporarily run tests from two directories, until all tests have moved
-    coverage run -p -m unittest discover ./tests/unit
     coverage run -p -m unittest discover ./vnftest/tests/unit/core
     coverage run -p -m unittest discover ./vnftest/tests/unit/onap
+    coverage run -p -m unittest discover ./vnftest/tests/unit/common
     coverage combine
 
-    # Temporarily omit vnftest/tests from the report
     coverage report > ${baseline_report}
     coverage erase
 
@@ -70,14 +68,12 @@ run_coverage_test() {
 
     find . -type f -name "*.pyc" -delete
 
-    # Temporarily run tests from two directories, until all tests have moved
-    coverage run -p -m unittest discover ./tests/unit
     coverage run -p -m unittest discover ./vnftest/tests/unit/core
     coverage run -p -m unittest discover ./vnftest/tests/unit/onap
+    coverage run -p -m unittest discover ./vnftest/tests/unit/common
     coverage combine
 
-    # Temporarily omit vnftest/tests from the report
-    coverage report --omit=vnftest/tests/*/* > ${current_report}
+    coverage report > ${current_report}
     coverage erase
 
     rm -rf cover-$PY_VER

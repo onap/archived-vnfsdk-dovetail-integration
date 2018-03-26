@@ -153,7 +153,7 @@ def _worker_process(queue, cls, method_name, step_cfg,
 
 
 class IterationRunner(base.Runner):
-    """Run a step to find the max throughput
+    """Run a step several times in a loop
 
 If the step ends before the time has elapsed, it will be started again.
 

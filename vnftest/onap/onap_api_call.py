@@ -31,7 +31,8 @@ LOG = logging.getLogger(__name__)
 
 
 class OnapApiCall(base.Step):
-
+    """Call ONAP API
+    """
     __step_type__ = "OnapApiCall"
 
     def __init__(self, step_cfg, context, input_params):
