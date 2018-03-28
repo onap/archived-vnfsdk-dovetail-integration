@@ -36,6 +36,81 @@ under the License.
         <sonar.inclusions>**/*.py</sonar.inclusions>
         <sonar.skip>false</sonar.skip>
         <sonar.exclusions>version.py,setup.py</sonar.exclusions>
+
+        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+        <docker.push.registry></docker.push.registry>
+        <skip.docker.build>true</skip.docker.build>
+        <skip.docker.tag>true</skip.docker.tag>
+        <skip.docker.push>true</skip.docker.push>
+        <docker.skip>false</docker.skip>
+        <docker.skip.build>false</docker.skip.build>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.16.7</version>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <apiVersion>1.23</apiVersion>
+                            <skipDocker>${docker.skip}</skipDocker>
+                            <images>
+                                <image>
+                                    <name>onap/vnfsdk/vnftest</name>
+                                    <alias>vnftest</alias>
+                                    <build>
+                                        <cleanup>try</cleanup>
+                                        <dockerFileDir>${project.basedir}/docker</dockerFileDir>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>clean-images</id>
+                                <phase>pre-clean</phase>
+                                <goals>
+                                    <goal>remove</goal>
+                                </goals>
+                                <configuration>
+                                    <removeAll>true</removeAll>
+                                    <image>onap/vnfsdk/vnftest</image>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>generate-images</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <configuration>
+                                    <skipDockerBuild>${docker.skip.build}</skipDockerBuild>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>push-images</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                    <goal>push</goal>
+                                </goals>
+                                <configuration>
+                                    <image>onap/vnfsdk/vnftest</image>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
