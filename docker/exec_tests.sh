@@ -84,11 +84,3 @@ if [ ! -d ${VNFTEST_REPO_DIR} ]; then
 fi
 cd ${VNFTEST_REPO_DIR}
 git_checkout ${VNFTEST_BRANCH}
-
-if [[ "${DEPLOY_STEP:0:2}" == "os" ]];then
-    # setup the environment
-    source ${VNFTEST_REPO_DIR}/tests/ci/prepare_env.sh
-fi
-
-# execute tests
-${VNFTEST_REPO_DIR}/tests/ci/vnftest-verify $@

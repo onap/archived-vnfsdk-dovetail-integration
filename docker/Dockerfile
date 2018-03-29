@@ -15,7 +15,7 @@
 # yardstick/docker/Dockerfile
 FROM ubuntu:16.04
 
-LABEL image=onap/vnftest
+LABEL image=onap/vnfsdk/vnftest
 
 ARG BRANCH=master
 
@@ -41,11 +41,6 @@ RUN git clone --depth 1 -b $BRANCH https://gerrit.onap.org/r/vnfsdk/dovetail-int
 
 WORKDIR ${VNFTEST_REPO_DIR}
 RUN ${VNFTEST_REPO_DIR}/install.sh
-RUN ${VNFTEST_REPO_DIR}/docker/supervisor.sh
-
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-
-EXPOSE 6000
 
 ADD http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img ${IMAGE_DIR}
 ADD http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img ${IMAGE_DIR}
@@ -54,6 +49,3 @@ COPY ./exec_tests.sh /usr/local/bin/
 
 ENV NSB_DIR="/opt/nsb_bin" \
     PYTHONPATH="${PYTHONPATH}:${NSB_DIR}/trex_client:${NSB_DIR}/trex_client/stl"
-
-WORKDIR ${REPOS_DIR}
-CMD ["/usr/bin/supervisord"]

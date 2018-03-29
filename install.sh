@@ -23,7 +23,6 @@ UBUNTU_ARCHIVE_URL="http://archive.ubuntu.com/ubuntu/"
 
 source /etc/os-release
 source_file=/etc/apt/sources.list
-NSB_DIR="/opt/nsb_bin"
 
 if [[ "${DOCKER_ARCH}" == "aarch64" ]]; then
     sed -i -e 's/^deb \([^/[]\)/deb [arch=arm64] \1/g' "${source_file}"
@@ -82,9 +81,6 @@ apt-get update && apt-get install -y \
     python-dev \
     libxml2-dev \
     libxslt1-dev \
-    nginx \
-    uwsgi \
-    uwsgi-plugin-python \
     supervisor \
     python-pip \
     vim \
@@ -106,18 +102,3 @@ git config --global http.sslVerify false
 easy_install -U pip
 pip install -r requirements.txt
 pip install -e .
-
-/bin/bash "${PWD}/docker/uwsgi.sh"
-/bin/bash "${PWD}/docker/nginx.sh"
-cd "${PWD}/gui" && /bin/bash gui.sh
-mkdir -p /etc/nginx/vnftest
-mv dist /etc/nginx/vnftest/gui
-
-mkdir -p ${NSB_DIR}
-
-wget -P ${NSB_DIR}/ http://artifacts.onap.org/vnftest/third-party/trex_client.tar.gz
-tar xvf ${NSB_DIR}/trex_client.tar.gz -C ${NSB_DIR}
-rm -f ${NSB_DIR}/trex_client.tar.gz
-
-service nginx restart
-uwsgi -i /etc/vnftest/vnftest.ini

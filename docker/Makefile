@@ -16,7 +16,7 @@
 
 SHELL = /bin/bash
 
-IMAGE = onap/vnftest
+IMAGE = onap/vnfsdk/vnftest
 
 DOCKER_TAG = beijing.0
 
