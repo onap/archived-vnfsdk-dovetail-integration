@@ -37,7 +37,7 @@ under the License.
         <sonar.skip>false</sonar.skip>
         <sonar.exclusions>version.py,setup.py</sonar.exclusions>
 
-        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
         <docker.push.registry></docker.push.registry>
         <skip.docker.build>true</skip.docker.build>
         <skip.docker.tag>true</skip.docker.tag>
