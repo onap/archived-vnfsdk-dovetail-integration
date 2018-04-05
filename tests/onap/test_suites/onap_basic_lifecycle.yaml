@@ -23,3 +23,5 @@ test_cases:
     file_name: onap_vnftest_tc001.yaml
 -
     file_name: onap_vnftest_tc002.yaml
+-
+    file_name: onap_vnftest_tc003.yaml

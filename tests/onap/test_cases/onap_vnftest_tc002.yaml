@@ -313,6 +313,9 @@ steps:
 
     output:
     -
+      parameter_name: "vf_module_instance_id"
+      value: "[requestReferences][instanceId]"
+    -
       parameter_name: "request_id"
       value: "[requestReferences][requestId]"
   runner:
