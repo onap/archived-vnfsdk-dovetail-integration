@@ -11,68 +11,58 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-method: "POST"
-url: "http://{mso_ip}/ecomp/mso/infra/serviceInstances/v5/{service_instance_id}/vnfs/{vnf_instance_id}/vfModules"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
-        "X-FromAppId": "MSO",
-        "X-TransactionId": "demo",
-        "Accept": "application/json"
-        }
-body: {
-        "requestDetails": {
-          "requestInfo": {
-            "instanceName": "{vnf_name}",
-            "source": "VID",
-            "suppressRollback": "true",
-            "requestorId": "vid1"
-          },
-          "modelInfo": {
-            "modelType": "vfModule",
-            "modelInvariantId": "{module_model_invariant_id}",
-            "modelVersionId": "{module_model_version_id}",
-            "modelName": "{vnf_type}",
-            "modelVersion": "{module_model_version}",
-            "modelCustomizationId": "{service_model_customization_id}",
-            "modelCustomizationName": "{vnf_type}"
-          },
-          "requestParameters": {
-            "usePreload": "true"
-          },
-          "cloudConfiguration": {
-            "lcpCloudRegionId": "RegionOne",
-            "tenantId": "{tenant_id}"
-          },
-          "relatedInstanceList": [
-            {
-              "relatedInstance": {
-                "instanceId": "{service_instance_id}",
-                "modelInfo": {
-                  "modelType": "service",
-                  "modelName": "{service_model_name}",
-                  "modelInvariantId": "{service_model_invariant_id}",
-                  "modelVersion": "{service_model_version}",
-                  "modelVersionId": "{distributed_service_id}"
-                }
-              }
-            },
-            {
-              "relatedInstance": {
-                "instanceId": "{vnf_instance_id}",
-                "modelInfo": {
-                  "modelType": "vnf",
-                  "modelName": "{resource_model_name}",
-                  "modelInvariantId": "{resource_model_invariant_id}",
-                  "modelVersion": "{resource_model_version}",
-                  "modelVersionId": "{resource_model_version_id}",
-                  "modelCustomizationId": "{resource_model_customization_id}",
-                  "modelCustomizationName": "{resource_model_customization_name}"
-                }
-              }
-            }
-          ]
-        }
-      }
+method: POST
+url: http://{{mso_ip}}/ecomp/mso/infra/serviceInstances/v5/{{service_instance_id}}/vnfs/{{vnf_instance_id}}/vfModules
+headers:
+  Content-Type: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  X-FromAppId: MSO
+  X-TransactionId: demo
+  Accept: application/json
+
+body:
+  requestDetails:
+    requestInfo:
+      instanceName: {{vnf_name}}
+      source: VID
+      suppressRollback: true
+      requestorId: vid1
+
+    modelInfo:
+      modelType: vfModule
+      modelInvariantId: {{module_model_invariant_id}}
+      modelVersionId: {{module_model_version_id}}
+      modelName: {{vnf_type}}
+      modelVersion: {{module_model_version}}
+      modelCustomizationId: {{service_model_customization_id}}
+      modelCustomizationName: {{vnf_type}}
+
+    requestParameters:
+      usePreload: true
+
+    cloudConfiguration:
+      lcpCloudRegionId: RegionOne
+      tenantId: {{tenant_id}}
+
+    relatedInstanceList:
+    -
+      relatedInstance:
+        instanceId: {{service_instance_id}}
+        modelInfo:
+          modelType: service
+          modelName: {{service_model_name}}
+          modelInvariantId: {{service_model_invariant_id}}
+          modelVersion: {{service_model_version}}
+          modelVersionId: {{distributed_service_id}}
+    -
+      relatedInstance:
+        instanceId: {{vnf_instance_id}}
+        modelInfo:
+          modelType: vnf
+          modelName: {{resource_model_name}}
+          modelInvariantId: {{resource_model_invariant_id}}
+          modelVersion: {{resource_model_version}}
+          modelVersionId: {{resource_model_version_id}}
+          modelCustomizationId: {{resource_model_customization_id}}
+          modelCustomizationName: {{resource_model_customization_name}}

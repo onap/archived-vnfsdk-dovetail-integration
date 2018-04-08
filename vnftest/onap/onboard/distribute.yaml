@@ -12,12 +12,12 @@
 # the License
 ##############################################################################
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{service_version_id}/distribution/PROD/activate"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_operations_user}",
-        "Accept": "application/json"
-        }
-body: {}
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{service_version_id}}/distribution/PROD/activate
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_operations_user}}
+  Accept: application/json
+
+body:

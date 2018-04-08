@@ -26,7 +26,8 @@ from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissi
 from vnftest.crawlers.base import Crawler
 from vnftest.onap.common.vnf_type_crawler import VnfTypeCrawler
 from vnftest.steps import base
-
+import jinja2
+import jinja2.meta
 LOG = logging.getLogger(__name__)
 
 
@@ -121,12 +122,7 @@ class OnapApiCall(base.Step):
                 raise e
 
     def execute_operation_impl(self, params):
-        input_yaml = self.rest_def_file
-        LOG.info("########## processing " + input_yaml + "##########")
-        yaml_path = os.path.join(self.curr_path, input_yaml)
-        with open(yaml_path) as info:
-            operation = yaml.load(info)
-        operation = self.format(operation, params)
+        operation = self.load_file(params)
         url = operation['url']
         headers = operation['headers']
         body = {}
@@ -152,28 +148,6 @@ class OnapApiCall(base.Step):
         LOG.info("Results: " + str(result))
         return result
 
-    def format(self, d, params):
-        ret = None
-        if isinstance(d, dict):
-            ret = {}
-            for k, v in d.iteritems():
-                if isinstance(v, basestring):
-                    v = self.format_string(v, params)
-                else:
-                    v = self.format(v, params)
-                ret[k] = v
-        if isinstance(d, list):
-            ret = []
-            for v in d:
-                if isinstance(v, basestring):
-                    v = self.format_string(v, params)
-                else:
-                    v = self.format(v, params)
-                ret.append(v)
-        if isinstance(d, basestring):
-            ret = self.format_string(d, params)
-        return ret
-
     @staticmethod
     def format_string(st, params):
         try:
@@ -192,3 +166,10 @@ class OnapApiCall(base.Step):
             value = self.format_string(value_def, output)
             expected_value = self.sla_cfg['equals']
             assert value == expected_value
+
+    def load_file(self, params):
+        yaml_path = os.path.join(self.curr_path, self.rest_def_file)
+        with open(yaml_path) as f:
+            operation_template = f.read()
+            operation = jinja2.Template(operation_template).render(**params)
+            return yaml.load(operation)

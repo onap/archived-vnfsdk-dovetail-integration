@@ -13,28 +13,23 @@
 ##############################################################################
 
 ---
-method: "PUT"
-url: "http://{aai_ip}:30232/aai/v8/cloud-infrastructure/cloud-regions/cloud-region/{cloud_owner}/RegionOne"
-headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Basic QUFJOkFBSQ==",
-        "X-FromAppId": "AAI",
-        "X-TransactionId": "get_aai_subscr"
-        }
-body: {
-          "cloud-owner": "{cloud_owner}",
-          "cloud-region-id": "RegionOne",
-          "cloud-region-version": "v1",
-          "cloud-type": "SharedNode",
-          "cloud-zone": "CloudZone",
-          "owner-defined-type": "OwnerType",
-          "tenants": {
-              "tenant": [
-                  {
-                      "tenant-id": "{tenant_id}",
-                      "tenant-name": "{tenant_name}"
-                  }
-              ]
-          }
-      }
+method: PUT
+url: http://{{aai_ip}}:30232/aai/v8/cloud-infrastructure/cloud-regions/cloud-region/{{cloud_owner}}/RegionOne
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Basic QUFJOkFBSQ==
+  X-FromAppId: AAI
+  X-TransactionId: get_aai_subscr
+body:
+  cloud-owner: {{cloud_owner}}
+  cloud-region-id: RegionOne
+  cloud-region-version: v1
+  cloud-type: SharedNode
+  cloud-zone: CloudZone
+  owner-defined-type: OwnerType
+  tenants:
+    tenant:
+    -
+      tenant-id: {{tenant_id}}
+      tenant-name: {{tenant_name}}
