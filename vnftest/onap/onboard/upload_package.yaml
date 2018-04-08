@@ -12,12 +12,11 @@
 # the License
 ##############################################################################
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_port}/onboarding-api/v1.0/vendor-software-products/{vsp_id}/versions/0.1/orchestration-template-candidate"
-headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-file: "{package_file_path}"
+method: POST
+url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/0.1/orchestration-template-candidate
+headers:
+  Content-Type: multipart/form-data
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+file: {{package_file_path}}

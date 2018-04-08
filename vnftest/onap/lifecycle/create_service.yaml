@@ -11,15 +11,16 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-method: "PUT"
-url: "http://{aai_ip}:30232/aai/v8/service-design-and-creation/services/service/vFW"
-headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Basic QUFJOkFBSQ==",
-        "X-FromAppId": "AAI",
-        "X-TransactionId": "get_aai_subscr"
-        }
-body: {"service-description":"vFW","service-id":"vFW"}
+method: PUT
+url: http://{{aai_ip}}:30232/aai/v8/service-design-and-creation/services/service/vFW
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Basic QUFJOkFBSQ==
+  X-FromAppId: AAI
+  X-TransactionId: get_aai_subscr
+
+body:
+  service-description: vFW
+  service-id: vFW

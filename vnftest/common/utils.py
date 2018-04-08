@@ -424,3 +424,10 @@ def open_relative_file(path, task_path):
         if e.errno == errno.ENOENT:
             return open(os.path.join(task_path, path))
         raise
+
+
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__

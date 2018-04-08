@@ -11,57 +11,48 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-method: "POST"
-url: "http://{mso_ip}/ecomp/mso/infra/serviceInstances/v5/{service_instance_id}/vnfs/"
-headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
-        "X-FromAppId": "MSO",
-        "X-TransactionId": "demo"
-        }
-body: {
-        "requestDetails": {
-          "requestInfo": {
-            "instanceName":"{vnf_instance_name}",
-            "source": "VID",
-            "suppressRollback": "true",
-            "requestorId": "vid1",
-            "productFamilyId": "vFW"
-          },
-          "modelInfo": {
-            "modelType": "vnf",
-            "modelInvariantId": "{resource_model_invariant_id}",
-            "modelVersionId": "{resource_model_version_id}",
-            "modelName": "{resource_model_name}",
-            "modelVersion": "{resource_model_version}",
-            "modelCustomizationId": "{resource_model_customization_id}",
-            "modelCustomizationName": "{resource_model_customization_name}"
-          },
-          "requestParameters": {
-            "userParams": []
-          },
-          "cloudConfiguration": {
-            "lcpCloudRegionId": "RegionOne",
-            "tenantId": "{tenant_id}"
-          },
-          "relatedInstanceList": [
-            {
-              "relatedInstance": {
-                "instanceId": "{service_instance_id}",
-                "modelInfo": {
-                  "modelType": "service",
-                  "modelName": "{service_model_name}",
-                  "modelInvariantId": "{service_model_invariant_id}",
-                  "modelVersion": "{service_model_version}",
-                  "modelVersionId": "{distributed_service_id}"
-                }
-              }
-            }
-          ]
-        }
-      }
+method: POST
+url: http://{{mso_ip}}/ecomp/mso/infra/serviceInstances/v5/{{service_instance_id}}/vnfs/
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  X-FromAppId: MSO
+  X-TransactionId: demo
 
+body:
+  requestDetails:
+    requestInfo:
+      instanceName: {{vnf_instance_name}}
+      source: VID
+      suppressRollback: true
+      requestorId: vid1
+      productFamilyId: vFW
 
+    modelInfo:
+      modelType: vnf
+      modelInvariantId: {{resource_model_invariant_id}}
+      modelVersionId: {{resource_model_version_id}}
+      modelName: {{resource_model_name}}
+      modelVersion: {{resource_model_version}}
+      modelCustomizationId: {{resource_model_customization_id}}
+      modelCustomizationName: {{resource_model_customization_name}}
+
+    requestParameters:
+      userParams: []
+
+    cloudConfiguration:
+      lcpCloudRegionId: RegionOne
+      tenantId: {{tenant_id}}
+
+    relatedInstanceList:
+    -
+      relatedInstance:
+        instanceId: {{service_instance_id}}
+        modelInfo:
+          modelType: service
+          modelName: {{service_model_name}}
+          modelInvariantId: {{service_model_invariant_id}}
+          modelVersion: {{service_model_version}}
+          modelVersionId: {{distributed_service_id}}
