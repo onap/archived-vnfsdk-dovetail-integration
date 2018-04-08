@@ -12,12 +12,13 @@
 # the License
 ##############################################################################
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{sdc_service_id}/lifecycleState/certificationRequest"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-body: {"userRemarks":"resource submited for testing"}
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{sdc_service_id}}/lifecycleState/certificationRequest
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+
+body:
+  userRemarks: resource submited for testing

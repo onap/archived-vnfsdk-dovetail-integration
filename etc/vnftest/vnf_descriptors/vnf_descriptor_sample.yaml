@@ -17,4 +17,26 @@
 type: CSAR
 vnf_name: sample_firewall
 vnf_id: 123456
-csar_package_location: /etc/nvftest/sample_fw.csar
+package_location: /etc/nvftest/sample_fw.csar
+
+# List the vf modules to be instantiated in order (if relevant)
+vf_modules:
+-
+  module_name: module_0
+  # List the input parameters for the VF module as expected by the orchestrator
+  input_parameters:
+  -
+    name: param_0
+    value: value_0
+  -
+    name: param_1
+    value: value_1
+-
+  module_name: module_1
+  input_parameters:
+  -
+    name: param_0
+    value: value_0
+  -
+    name: param_1
+    value: value_1

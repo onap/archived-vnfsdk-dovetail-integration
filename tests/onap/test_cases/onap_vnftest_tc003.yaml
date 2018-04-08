@@ -21,13 +21,12 @@ description: >
 {% set service_instance_id = service_instance_id or '\"\u007Bservice_instance_id\u007D\"' %}
 {% set vnf_instance_id = vnf_instance_id or '\"\u007Bvnf_instance_id\u007D\"' %}
 {% set vf_module_instance_id = vf_module_instance_id or '\"\u007Bvf_module_instance_id\u007D\"' %}
-{% set vnf_type = vnf_type or '\"\u007Bvnf_type\u007D\"' %}
-{% set module_model_invariant_id = module_model_invariant_id or '\"\u007Bmodule_model_invariant_id\u007D\"' %}
-{% set module_model_version_id = module_model_version_id or '\"\u007Bmodule_model_version_id\u007D\"' %}
-{% set module_model_version = module_model_version or '\"\u007Bmodule_model_version\u007D\"' %}
 {% set service_model_customization_id = service_model_customization_id or '\"\u007Bservice_model_customization_id\u007D\"' %}
+{% set vf_modules_list = vf_modules_list or {}%}
 
 steps:
+{% for vf_module_definition in vnf_descriptor.vf_modules %}
+  {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
 -
   type: OnapApiCall
   options:
@@ -44,16 +43,16 @@ steps:
       value: {{vf_module_instance_id}}
     -
       parameter_name: "module_model_invariant_id"
-      value: {{module_model_invariant_id}}
+      value: {{vf_module.invariantUUID}}
     -
       parameter_name: "module_model_version_id"
-      value: {{module_model_version_id}}
+      value: {{vf_module.groupUUID}}
     -
       parameter_name: "vnf_type"
-      value: {{vnf_type}}
+      value: {{vf_module.name}}
     -
       parameter_name: "module_model_version"
-      value: {{module_model_version}}
+      value: {{vf_module.version}}
     -
       parameter_name: "service_model_customization_id"
       value: {{service_model_customization_id}}
@@ -87,7 +86,7 @@ steps:
     equals: "COMPLETE"
     retries: 15
     interval: 5
-
+{% endfor %}
   runner:
     type: Iteration
     run_step: "setup,run"

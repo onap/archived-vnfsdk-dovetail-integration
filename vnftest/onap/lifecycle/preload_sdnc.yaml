@@ -11,44 +11,42 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-method: "POST"
-url: "http://{aai_ip}:30202/restconf/operations/VNF-API:preload-vnf-topology-operation"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
-        "X-FromAppId": "AAI",
-        "X-TransactionId": "0a3f6713-ba96-4971-a6f8-c2da85a3176e",
-        "Accept": "application/json"
-        }
-body: {
-          "input": {
-              "request-information": {
-                  "notification-url": "openecomp.org",
-                  "order-number": "1",
-                  "order-version": "1",
-                  "request-action": "PreloadVNFRequest",
-                  "request-id": "test"
-              },
-              "sdnc-request-header": {
-                  "svc-action": "reserve",
-                  "svc-notification-url": "http:openecomp.org:8080",
-                  "svc-request-id": "test"
-              },
-              "vnf-topology-information": {
-                "vnf-assignments": {
-                      "availability-zones": [],
-                      "vnf-networks": [],
-                      "vnf-vms": []
-                  },
-                  "vnf-topology-identifier": {
-                      "generic-vnf-name": "{vnf_instance_name}",
-                      "generic-vnf-type": "{service_model_name}/{resource_instance_model_name} 0",
-                      "service-type": "{service_instance_id}",
-                      "vnf-name": "{vnf_name}",
-                      "vnf-type": "{vnf_type}"
-                  }
-              }
-          }
-      }
+method: POST
+url: http://{{aai_ip}}:30202/restconf/operations/VNF-API:preload-vnf-topology-operation
+headers:
+  Content-Type: application/json
+  Authorization: Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==
+  X-FromAppId: AAI
+  X-TransactionId: 0a3f6713-ba96-4971-a6f8-c2da85a3176e
+  Accept: application/json
+
+body:
+  input:
+    request-information:
+      notification-url: openecomp.org
+      order-number: 1
+      order-version: 1
+      request-action: PreloadVNFRequest
+      request-id: test
+    sdnc-request-header:
+      svc-action: reserve
+      svc-notification-url: "http://openecomp.org:8080"
+      svc-request-id: test
+    vnf-topology-information:
+      vnf-assignments:
+        availability-zones: []
+        vnf-networks: []
+        vnf-vms: []
+      vnf-parameters:
+      {% for vnf_parameter in vnf_parameters %}
+      -
+        vnf-parameter-name: {{vnf_parameter.name}}
+        vnf-parameter-value: {{vnf_parameter.value}}
+      {% endfor %}
+      vnf-topology-identifier:
+        generic-vnf-name: {{vnf_instance_name}}
+        generic-vnf-type: {{service_model_name}}/{{resource_instance_model_name}} 0
+        service-type: {{service_instance_id}}
+        vnf-name: {{vnf_name}}
+        vnf-type: {{vnf_type}}

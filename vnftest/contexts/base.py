@@ -24,11 +24,14 @@ class Context(object):
     """Class that represents a context in the logical model"""
     list = []
     vnf_descriptor = {}
+    creds = {}
 
     @classmethod
-    def load_vnf_descriptor(cls, vnf_descriptor_path):
+    def initialize(cls, vnf_descriptor_path):
         with open(vnf_descriptor_path) as f:
             cls.vnf_descriptor = yaml.safe_load(f)
+        for key, value in openstack_utils.get_credentials().iteritems():
+            cls.creds[key] = value
 
     @staticmethod
     def split_name(name, sep='.'):
@@ -41,17 +44,9 @@ class Context(object):
 
     def __init__(self):
         Context.list.append(self)
-        self.context_params = None
 
     def init(self, attrs):
-        self.context_params = {}
-        for key, value in Context.vnf_descriptor.iteritems():
-            key = "context|vnf_descriptor|" + key
-            self.context_params[key] = value
-
-        for key, value in openstack_utils.get_credentials().iteritems():
-            key = "context|creds|" + key
-            self.context_params[key] = value
+        pass
 
     @staticmethod
     def get_cls(context_type):

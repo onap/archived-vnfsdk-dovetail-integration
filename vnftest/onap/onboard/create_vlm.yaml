@@ -13,16 +13,15 @@
 ##############################################################################
 
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_port}/onboarding-api/v1.0/vendor-license-models"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-body: {
-        "vendorName": "{vendor_name}",
-        "description": "vlm via dovetail",
-        "iconRef": "icon"
-      }
+method: POST
+url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-license-models
+headers:
+  Content-Type: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+
+body:
+  vendorName: {{vendor_name}}
+  description: vlm via dovetail
+  iconRef: icon

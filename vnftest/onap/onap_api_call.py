@@ -22,10 +22,13 @@ import yaml
 
 from vnftest.common import constants as consts
 from vnftest.common import rest_client
+from vnftest.common.utils import dotdict
 from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissing
 from vnftest.crawlers.base import Crawler
-from vnftest.onap.common.vnf_type_crawler import VnfTypeCrawler
+from vnftest.onap.common.vf_module_crawler import VfModuleCrawler
 from vnftest.steps import base
+import jinja2
+import jinja2.meta
 
 LOG = logging.getLogger(__name__)
 
@@ -53,7 +56,10 @@ class OnapApiCall(base.Step):
         self.input_cfg = options.get("input", {})
         self.output_cfg = options.get("output", {})
         self.sla_cfg = self.step_cfg.get('sla', {'retries': 0})
-        self.input_params.update(self.context.context_params)
+        context_dict = {}
+        context_dict['creds'] = dotdict(self.context.creds)
+        context_dict['vnf_descriptor'] = dotdict(self.context.vnf_descriptor)
+        self.input_params['context'] = dotdict(context_dict)
         self.setup_done = True
 
     def eval_input(self, params):
@@ -68,6 +74,7 @@ class OnapApiCall(base.Step):
             params[param_name] = value
 
     def run(self, result, attempt=0):
+        LOG.info("** Handling: " + str(self.rest_def_file))
         output = self.run_impl(result)
         try:
             self.handle_sla(output)
@@ -92,7 +99,7 @@ class OnapApiCall(base.Step):
         result_body = execution_result['body']
         for output_parameter in self.output_cfg:
             param_name = output_parameter['parameter_name']
-            param_value = output_parameter['value']
+            param_value = output_parameter.get('value', "[]")
             if param_value.find("[") > -1:
                 crawler_type = output_parameter.get('type', 'default')
                 crawler_class = Crawler.get_cls(crawler_type)
@@ -107,7 +114,6 @@ class OnapApiCall(base.Step):
     def execute_operation(self, params, attempt=0):
         if self.delay > 0:
             time.sleep(self.delay)
-
         try:
             return self.execute_operation_impl(params)
         except Exception as e:
@@ -121,12 +127,7 @@ class OnapApiCall(base.Step):
                 raise e
 
     def execute_operation_impl(self, params):
-        input_yaml = self.rest_def_file
-        LOG.info("########## processing " + input_yaml + "##########")
-        yaml_path = os.path.join(self.curr_path, input_yaml)
-        with open(yaml_path) as info:
-            operation = yaml.load(info)
-        operation = self.format(operation, params)
+        operation = self.load_file(params)
         url = operation['url']
         headers = operation['headers']
         body = {}
@@ -152,30 +153,10 @@ class OnapApiCall(base.Step):
         LOG.info("Results: " + str(result))
         return result
 
-    def format(self, d, params):
-        ret = None
-        if isinstance(d, dict):
-            ret = {}
-            for k, v in d.iteritems():
-                if isinstance(v, basestring):
-                    v = self.format_string(v, params)
-                else:
-                    v = self.format(v, params)
-                ret[k] = v
-        if isinstance(d, list):
-            ret = []
-            for v in d:
-                if isinstance(v, basestring):
-                    v = self.format_string(v, params)
-                else:
-                    v = self.format(v, params)
-                ret.append(v)
-        if isinstance(d, basestring):
-            ret = self.format_string(d, params)
-        return ret
-
     @staticmethod
     def format_string(st, params):
+        if not isinstance(st, basestring):
+            return st
         try:
             return st.format(**params)
         except Exception as e:
@@ -192,3 +173,10 @@ class OnapApiCall(base.Step):
             value = self.format_string(value_def, output)
             expected_value = self.sla_cfg['equals']
             assert value == expected_value
+
+    def load_file(self, params):
+        yaml_path = os.path.join(self.curr_path, self.rest_def_file)
+        with open(yaml_path) as f:
+            operation_template = f.read()
+            operation = jinja2.Template(operation_template).render(**params)
+            return yaml.load(operation)

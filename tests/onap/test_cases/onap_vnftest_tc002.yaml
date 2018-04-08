@@ -24,7 +24,6 @@ description: >
 {% set customer_name = customer_name or ['test_customer_', rnd ]|join %}
 {% set service_instance_name = service_instance_name or ['test_service_instance_', rnd ]|join %}
 {% set vnf_instance_name = vnf_instance_name or ['test_vnf_instance_', rnd ]|join %}
-{% set vnf_name = vnf_name or ['test_vnf_', rnd ]|join %}
 
 # Mandatory input parameters
 {% set service_model_version_id = service_model_version_id or '\"\u007Bservice_model_version_id\u007D\"' %}
@@ -41,10 +40,7 @@ description: >
 {% set resource_model_customization_name = resource_model_customization_name or '\"\u007Bresource_model_customization_name\u007D\"' %}
 {% set distributed_service_id = distributed_service_id or '\"\u007Bdistributed_service_id\u007D\"' %}
 {% set resource_instance_model_name = resource_instance_model_name or '\"\u007Bresource_instance_model_name\u007D\"' %}
-{% set vnf_type = vnf_type or '\"\u007Bvnf_type\u007D\"' %}
-{% set module_model_invariant_id = module_model_invariant_id or '\"\u007Bmodule_model_invariant_id\u007D\"' %}
-{% set module_model_version_id = module_model_version_id or '\"\u007Bmodule_model_version_id\u007D\"' %}
-{% set module_model_version = module_model_version or '\"\u007Bmodule_model_version\u007D\"' %}
+{% set vf_modules_list = vf_modules_list or {}%}
 
 steps:
 -
@@ -57,10 +53,10 @@ steps:
       value: {{cloud_owner}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: "{context.creds.tenant_id}"
     -
       parameter_name: "tenant_name"
-      value: "{context|creds|tenant_name}"
+      value: "{context.creds.tenant_name}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -86,12 +82,12 @@ steps:
       value: {{cloud_owner}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: "{context.creds.tenant_id}"
 -
   type: OnapApiCall
   options:
     file: "lifecycle/create_service_instance.yaml"
-    delay: 30
+    delay: 60
     input:
     -
       parameter_name: "service_instance_name"
@@ -173,7 +169,7 @@ steps:
       value: {{resource_model_customization_name}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: "{context.creds.tenant_id}"
     -
       parameter_name: "service_model_name"
       value: {{service_model_name}}
@@ -220,11 +216,17 @@ steps:
     type: Iteration
     run_step: "setup,run"
 
+{% for vf_module_definition in vnf_descriptor.vf_modules %}
+  {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
+  {% set vnf_name = ['test_vnf_', rnd, '_', vf_module_definition.module_name ]|join %}
 -
   type: OnapApiCall
   options:
     file: "lifecycle/preload_sdnc.yaml"
     input:
+    -
+      parameter_name: "vnf_parameters"
+      value: {{vf_module_definition.input_parameters}}
     -
       parameter_name: "vnf_name"
       value: {{vnf_name}}
@@ -242,7 +244,7 @@ steps:
       value: "{service_instance_id}"
     -
       parameter_name: "vnf_type"
-      value: {{vnf_type}}
+      value: {{vf_module.groupName}}
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -264,22 +266,22 @@ steps:
       value: {{vnf_name}}
     -
       parameter_name: "module_model_invariant_id"
-      value: {{module_model_invariant_id}}
+      value: {{vf_module.invariantUUID}}
     -
       parameter_name: "module_model_version_id"
-      value: {{module_model_version_id}}
+      value: {{vf_module.groupUUID}}
     -
       parameter_name: "vnf_type"
-      value: {{vnf_type}}
+      value: {{vf_module.groupName}}
     -
       parameter_name: "module_model_version"
-      value: {{module_model_version}}
+      value: {{vf_module.version}}
     -
-      parameter_name: "service_model_customization_id"
-      value: {{service_model_customization_id}}
+      parameter_name: "module_model_customization_id"
+      value: {{vf_module.customizationUUID}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: "{context.creds.tenant_id}"
     -
       parameter_name: "service_model_name"
       value: {{service_model_name}}
@@ -344,6 +346,6 @@ steps:
   runner:
     type: Iteration
     run_step: "setup,run"
-
+{% endfor %}
 context:
   type: CSAR

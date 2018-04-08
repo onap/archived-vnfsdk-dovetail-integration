@@ -13,12 +13,14 @@
 ##############################################################################
 
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/resources/{resource_id}/lifecycleState/certify"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_tester_user}",
-        "Accept": "application/json"
-        }
-body: {"userRemarks":"certified"}
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/resources/{{resource_id}}/lifecycleState/certify
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_tester_user}}
+  Accept: application/json
+
+body:
+  userRemarks: certified
+

@@ -90,7 +90,7 @@ steps:
       value: "{vsp_id}"
     -
       parameter_name: "package_file_path"
-      value: "{context|vnf_descriptor|csar_package_location}"
+      value: "{context.vnf_descriptor.package_location}"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -158,22 +158,7 @@ steps:
     -
       parameter_name: "resource_id"
       value: "[uniqueId]"
-    -
-      parameter_name: "vnf_type"
-      value: "[name]"
-      type: VnfTypeCrawler
-    -
-      parameter_name: "module_model_invariant_id"
-      value: "[invariantUUID]"
-      type: VnfTypeCrawler
-    -
-      parameter_name: "module_model_version_id"
-      value: "[groupUUID]"
-      type: VnfTypeCrawler
-    -
-      parameter_name: "module_model_version"
-      value: "[version]"
-      type: VnfTypeCrawler
+
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -360,8 +345,9 @@ steps:
       parameter_name: "service_model_version"
       value: "[version]"
     -
-      parameter_name: "service_model_customization_id"
-      value: "[componentInstances][0][groupInstances][0][customizationUUID]"
+      parameter_name: "vf_modules_list"
+      type: VfModuleCrawler
+
   runner:
     type: Iteration
     run_step: "setup,run"

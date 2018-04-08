@@ -19,13 +19,17 @@ import logging
 LOG = logging.getLogger(__name__)
 
 
-class VnfTypeCrawler(DefaultCrawler):
-    __crawler_type__ = 'VnfTypeCrawler'
+class VfModuleCrawler(DefaultCrawler):
+    __crawler_type__ = 'VfModuleCrawler'
 
     def crawl(self, dictionary, path):
-        index = 0
-        vnf_type = dictionary['groups'][0]['name']
-        if ".." not in vnf_type:
-            index = 1
-        dictionary = dictionary['groups'][index]
-        return super(VnfTypeCrawler, self).crawl(dictionary, path)
+        result = {}
+        for componentInstance in dictionary['componentInstances']:
+            for groupInstance in componentInstance['groupInstances']:
+                # get the module name without additions. Example:
+                # original name: TestVsp2007..policyVNF_infinity..module-5
+                # name without additions: policyVNF_infinity
+                module_name = groupInstance['groupName'].split("..")
+                module_name = str(module_name[1])
+                result[module_name] = groupInstance
+        return result

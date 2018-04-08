@@ -13,12 +13,12 @@
 ##############################################################################
 
 ---
-method: "PUT"
-url: "http://{sdc_ip}:{sdc_port}/onboarding-api/v1.0/vendor-license-models/{vendor_id}/versions/0.1/actions"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-body: {"action":"Checkin"}
+method: PUT
+url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-license-models/{{vendor_id}}/versions/0.1/actions
+headers:
+  Content-Type: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+body:
+  action: Checkin
