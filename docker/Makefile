@@ -25,7 +25,7 @@ all: .docker
 
 .docker:
 	/usr/bin/docker build --rm=true --no-cache=true -t $(IMAGE):$(DOCKER_TAG) .
-	/usr/bin/docker tag $(IMAGE):$(DOCKER_TAG) $(IMAGE):latest
+	/usr/bin/docker tag $(IMAGE):$(DOCKER_TAG) $(IMAGE):1.1.0
 	touch .docker
 
 
