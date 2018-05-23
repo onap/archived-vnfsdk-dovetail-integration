@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: Moshe Hoadley <moshehoa@amdocs.com>
+Code-Review+2: Avinash S <avinash.s@huawei.com>
+Submitted-by: Avinash S <avinash.s@huawei.com>
+Submitted-at: Wed, 23 May 2018 07:07:50 +0000
+Reviewed-on: https://gerrit.onap.org/r/48111
+Project: vnfsdk/dovetail-integration
+Branch: refs/heads/master
