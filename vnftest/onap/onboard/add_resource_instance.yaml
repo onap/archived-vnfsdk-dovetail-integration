@@ -13,21 +13,20 @@
 ##############################################################################
 
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/services/{sdc_service_id}/resourceInstance"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-body: {
-          "uniqueId": "{resource_instance_unique_id}",
-          "posX": "500",
-          "posY": "100",
-          "name": "{resource_instance_name}",
-          "componentVersion": "1.0",
-          "originType": "VF",
-          "icon": "defaulticon",
-          "componentUid": "{resource_version_id}"
-      }
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{sdc_service_id}}/resourceInstance
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+
+body:
+  uniqueId: {{resource_instance_unique_id}}
+  posX: 500
+  posY: 100
+  name: {{resource_instance_name}}
+  componentVersion: 1.0
+  originType: VF
+  icon: defaulticon
+  componentUid: {{resource_version_id}}

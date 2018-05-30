@@ -13,39 +13,34 @@
 ##############################################################################
 
 ---
-method: "PUT"
-url: "http://{aai_ip}:30232/aai/v8/business/customers/customer/{customer_name}"
-headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Basic QUFJOkFBSQ==",
-        "X-FromAppId": "AAI",
-        "X-TransactionId": "get_aai_subscr"
-        }
-body: {
-              "global-customer-id": "{customer_name}",
-              "service-subscriptions": {
-                      "service-subscription": [{
-                              "relationship-list": {
-                                      "relationship": [{
-                                              "related-to": "tenant",
-                                              "relationship-data": [{
-                                                      "relationship-key": "cloud-region.cloud-owner",
-                                                      "relationship-value": "{cloud_owner}"
-                                              },
-                                              {
-                                                      "relationship-key": "cloud-region.cloud-region-id",
-                                                      "relationship-value": "RegionOne"
-                                              },
-                                              {
-                                                      "relationship-key": "tenant.tenant-id",
-                                                      "relationship-value": "{tenant_id}"
-                                              }]
-                                      }]
-                              },
-                              "service-type": "vFW"
-                      }]
-              },
-              "subscriber-name": "{customer_name}",
-              "subscriber-type": "INFRA"
-      }
+method: PUT
+url: http://{{aai_ip}}:30232/aai/v8/business/customers/customer/{{customer_name}}
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Basic QUFJOkFBSQ==
+  X-FromAppId: AAI
+  X-TransactionId: get_aai_subscr
+
+body:
+  global-customer-id: {{customer_name}}
+  service-subscriptions:
+    service-subscription:
+    -
+      service-type: vFW
+      relationship-list:
+        relationship:
+        -
+          related-to: tenant
+          relationship-data:
+          -
+            relationship-key: cloud-region.cloud-owner
+            relationship-value: {{cloud_owner}}
+          -
+            relationship-key: cloud-region.cloud-region-id
+            relationship-value: RegionOne
+          -
+            relationship-key: tenant.tenant-id
+            relationship-value: {{tenant_id}}
+  subscriber-name: {{customer_name}}
+  subscriber-type: INFRA

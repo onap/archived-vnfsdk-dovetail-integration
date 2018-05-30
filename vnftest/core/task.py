@@ -73,7 +73,7 @@ class Task(object):     # pragma: no cover
         output_config['DEFAULT']['dispatcher'] = out_types
 
     def start(self, args, **kwargs):
-        Context.load_vnf_descriptor(args.vnfdescriptor)
+        Context.initialize(args.vnfdescriptor)
         atexit.register(self.atexit_handler)
 
         task_id = getattr(args, 'task_id')
@@ -120,10 +120,12 @@ class Task(object):     # pragma: no cover
         # parse task_files
         for i in range(0, len(task_files)):
             one_task_start_time = time.time()
+            # the output of the previous task is the input of the new task
+            inputs = copy.deepcopy(self.outputs)
             parser.path = task_files[i]
             steps, run_in_parallel, meet_precondition, ret_context = \
                 parser.parse_task(self.task_id, task_args[i],
-                                  task_args_fnames[i])
+                                  task_args_fnames[i], inputs)
 
             self.context = ret_context
 
@@ -426,16 +428,18 @@ class TaskParser(object):       # pragma: no cover
 
         return valid_task_files, valid_task_args, valid_task_args_fnames
 
-    def parse_task(self, task_id, task_args=None, task_args_file=None):
+    def parse_task(self, task_id, task_args=None, task_args_file=None, inputs=None):
         """parses the task file and return an context and step instances"""
         LOG.info("Parsing task config: %s", self.path)
 
         try:
             kw = {}
+            kw.update(inputs)
             if task_args_file:
                 with open(task_args_file) as f:
                     kw.update(parse_task_args("task_args_file", f.read()))
             kw.update(parse_task_args("task_args", task_args))
+            kw['vnf_descriptor'] = Context.vnf_descriptor
         except TypeError:
             raise TypeError()
 

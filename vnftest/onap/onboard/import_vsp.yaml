@@ -12,80 +12,53 @@
 # the License
 ##############################################################################
 ---
-method: "POST"
-url: "http://{sdc_ip}:{sdc_catalog_port}/sdc1/feProxy/rest/v1/catalog/resources"
-headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic YmVlcDpib29w",
-        "USER_ID": "{sdc_designer_user}",
-        "Accept": "application/json"
-        }
-body: {
-        "artifacts": {
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/resources
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
 
-        },
-        "toscaArtifacts": {
-
-        },
-        "contactId": "{sdc_designer_user}",
-        "categories": [
-          {
-            "name": "Application L4+",
-            "normalizedName": "application l4+",
-            "uniqueId": "resourceNewCategory.application l4+",
-            "icons": null,
-            "subcategories": [
-              {
-                "name": "Firewall",
-                "normalizedName": "firewall",
-                "uniqueId": "resourceNewCategory.application l4+.firewall",
-                "icons": [
-                  "firewall"
-                ],
-                "groupings": null,
-                "ownerId": null
-              }
-            ],
-            "ownerId": null
-          }
-        ],
-        "description": "dovetail initiated",
-        "icon": "defaulticon",
-        "componentInstancesProperties": {
-
-        },
-        "componentInstancesAttributes": {
-
-        },
-        "name": "{vsp_name}",
-        "tags": [
-          "{vsp_name}"
-        ],
-        "capabilities": {
-
-        },
-        "requirements": {
-
-        },
-        "deploymentArtifacts": {
-
-        },
-        "componentType": "RESOURCE",
-        "vendorName": "dovetailVendor",
-        "vendorRelease": "1.0",
-        "componentInstances": [
-
-        ],
-        "properties": [
-
-        ],
-        "attributes": [
-
-        ],
-        "groups": [
-
-        ],
-        "resourceType": "VF",
-        "csarUUID": "{vsp_id}",
-        "csarVersion": "1.0"
-      }
+body:
+  artifacts:
+  toscaArtifacts:
+  contactId: {{sdc_designer_user}}
+  categories:
+  -
+    name: Application L4+
+    normalizedName: application l4+
+    uniqueId: resourceNewCategory.application l4+
+    icons: null
+    subcategories:
+    -
+      name: Firewall
+      normalizedName: firewall
+      uniqueId: resourceNewCategory.application l4+.firewall
+      icons:
+      -
+        firewall
+      groupings: null
+      ownerId: null
+    ownerId: null
+  description: dovetail initiated
+  icon: defaulticon
+  componentInstancesProperties:
+  componentInstancesAttributes:
+  name: {{vsp_name}}
+  tags:
+  -
+    {{vsp_name}}
+  capabilities:
+  requirements:
+  deploymentArtifacts:
+  componentType: RESOURCE
+  vendorName: dovetailVendor
+  vendorRelease: 1.0
+  componentInstances: []
+  properties: []
+  attributes: []
+  groups: []
+  resourceType: VF
+  csarUUID: {{vsp_id}}
+  csarVersion: 1.0
