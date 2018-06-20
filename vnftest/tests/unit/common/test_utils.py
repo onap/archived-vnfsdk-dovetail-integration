@@ -49,7 +49,7 @@ class IterSubclassesTestCase(unittest.TestCase):
         class D(C):
             pass
 
-        self.assertEqual([B, C, D], list(utils.itersubclasses(A)))
+        self.assertEqual([B, C, D], list(utils.findsubclasses(A)))
 
 
 class ImportModulesFromPackageTestCase(unittest.TestCase):
@@ -1123,3 +1123,34 @@ class ReadMeminfoTestCase(unittest.TestCase):
                     'Active(anon)': '3015676',
                     'HugePages_Total': '8',
                     'Hugepagesize': '1048576'}
+
+
+class TestUtils(unittest.TestCase):
+
+    def test_convert_xml_to_dict(self):
+        input_str = "<a><b>dummy1</b><b>dummy2</b></a>"
+        result = utils.xml_to_dict(input_str)
+        self.assertEqual(result, {'a': {'b': ['dummy1', 'dummy2']}})
+
+    def test_format(self):
+        input_str = "{aaa}"
+        params = {'aaa': 'dummy'}
+        result = utils.format(input_str, params)
+        self.assertEqual(result, "dummy")
+
+    def test_obj_to_dict(self):
+        dummy_class = DummyClass()
+        result = utils.normalize_data_struct(dummy_class)
+        self.assertEqual(result, {'aaa': 'aaa', 'bbb': ["1", "2"], 'ccc': {"x": "y"}})
+
+    def test_load_resource(self):
+        input_str = "vnftest/tests/unit/common/config_sample.yaml"
+        resource = utils.load_resource(input_str)
+        assert resource is not None
+
+
+class DummyClass(object):
+    def __init__(self):
+        self.aaa = "aaa"
+        self.bbb = ["1", "2"]
+        self.ccc = {"x": "y"}

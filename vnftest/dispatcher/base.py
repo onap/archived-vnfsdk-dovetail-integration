@@ -30,7 +30,7 @@ class Base(object):
     @staticmethod
     def get_cls(dispatcher_type):
         """Return class of specified type."""
-        for dispatcher in utils.itersubclasses(Base):
+        for dispatcher in utils.findsubclasses(Base):
             if dispatcher_type == dispatcher.__dispatcher_type__:
                 return dispatcher
         raise RuntimeError("No such dispatcher_type %s" % dispatcher_type)

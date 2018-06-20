@@ -13,6 +13,9 @@
 ##############################################################################
 
 from __future__ import absolute_import
+
+from vnftest.common.exceptions import MandatoryKeyException
+
 from vnftest.crawlers import base
 import logging
 
@@ -23,6 +26,9 @@ class DefaultCrawler(base.Crawler):
     __crawler_type__ = 'default'
 
     def crawl(self, dictionary, path):
+        if path.find("[") < 0:
+            return path # the path is a hardcoded value
+
         path_list = path.split("[")
         value = dictionary
         for path_element in path_list:
@@ -32,4 +38,6 @@ class DefaultCrawler(base.Crawler):
             if isinstance(value, list):
                 path_element = int(path_element)
             value = value[path_element]
+        if value is None:
+            raise MandatoryKeyException(key_name='param_path', class_name=str(dictionary))
         return value

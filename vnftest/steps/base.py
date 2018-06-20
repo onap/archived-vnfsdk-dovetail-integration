@@ -39,14 +39,14 @@ class Step(object):
     def get_types():
         """return a list of known runner type (class) names"""
         steps = []
-        for step in utils.itersubclasses(Step):
+        for step in utils.findsubclasses(Step):
             steps.append(step)
         return steps
 
     @staticmethod
     def get_cls(step_type):
         """return class of specified type"""
-        for step in utils.itersubclasses(Step):
+        for step in utils.findsubclasses(Step):
             if step_type == step.__step_type__:
                 return step
 
@@ -56,7 +56,7 @@ class Step(object):
     def get(step_type):
         """Returns instance of a step runner for execution type.
         """
-        for step in utils.itersubclasses(Step):
+        for step in utils.findsubclasses(Step):
             if step_type == step.__step_type__:
                 return step.__module__ + "." + step.__name__
 

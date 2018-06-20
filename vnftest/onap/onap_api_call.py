@@ -12,7 +12,6 @@
 # the License
 ##############################################################################
 from __future__ import absolute_import
-
 import copy
 import logging
 import time
@@ -20,7 +19,7 @@ import time
 import os
 import yaml
 
-from vnftest.common import constants as consts
+from vnftest.common import constants as consts, utils
 from vnftest.common import rest_client
 from vnftest.common.utils import dotdict
 from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissing
@@ -44,10 +43,10 @@ class OnapApiCall(base.Step):
         self.input_params = input_params
         self.input_cfg = None
         self.output_cfg = None
+
         self.rest_def_file = None
         self.delay = None
         self.setup_done = False
-        self.curr_path = os.path.dirname(os.path.abspath(__file__))
 
     def setup(self):
         options = self.step_cfg['options']
@@ -68,7 +67,7 @@ class OnapApiCall(base.Step):
             value = None
             if 'value' in input_parameter:
                 value_def = input_parameter['value']
-                value = self.format_string(value_def, self.input_params)
+                value = utils.format(value_def, self.input_params)
             if value is None or value == "":
                 raise InputParameterMissing(param_name=param_name, source="task configuration")
             params[param_name] = value
@@ -92,23 +91,12 @@ class OnapApiCall(base.Step):
     def run_impl(self, result):
         if not self.setup_done:
             self.setup()
-        output = {}
         params = copy.deepcopy(consts.component_constants)
         self.eval_input(params)
         execution_result = self.execute_operation(params)
         result_body = execution_result['body']
-        for output_parameter in self.output_cfg:
-            param_name = output_parameter['parameter_name']
-            param_value = output_parameter.get('value', "[]")
-            if param_value.find("[") > -1:
-                crawler_type = output_parameter.get('type', 'default')
-                crawler_class = Crawler.get_cls(crawler_type)
-                crawler = crawler_class()
-                param_value = crawler.crawl(result_body, param_value)
-            if param_value is None:
-                raise MandatoryKeyException(key_name='param_path', class_name=str(result_body))
-            result[param_name] = param_value
-            output[param_name] = param_value
+        output = Crawler.crawl(result_body, self.output_cfg)
+        result.update(output)
         return output
 
     def execute_operation(self, params, attempt=0):
@@ -129,10 +117,8 @@ class OnapApiCall(base.Step):
     def execute_operation_impl(self, params):
         operation = self.load_file(params)
         url = operation['url']
-        headers = operation['headers']
-        body = {}
-        if 'body' in operation:
-            body = operation['body']
+        headers = operation.get('headers', {}) or {}
+        body = operation.get('body', {}) or {}
         LOG.info(url)
         LOG.info(headers)
         LOG.info(body)
@@ -153,30 +139,14 @@ class OnapApiCall(base.Step):
         LOG.info("Results: " + str(result))
         return result
 
-    @staticmethod
-    def format_string(st, params):
-        if not isinstance(st, basestring):
-            return st
-        try:
-            return st.format(**params)
-        except Exception as e:
-            s = str(e)
-            s = s.replace("'", "")
-            LOG.info(s)
-            params[s] = ""
-            LOG.info("param" + params[s])
-            return st.format(**params)
-
     def handle_sla(self, output):
         if self.sla_cfg.get('action', "") == 'assert' and 'equals' in self.sla_cfg:
             value_def = self.sla_cfg['value']
-            value = self.format_string(value_def, output)
+            value = utils.format(value_def, output)
             expected_value = self.sla_cfg['equals']
             assert value == expected_value
 
     def load_file(self, params):
-        yaml_path = os.path.join(self.curr_path, self.rest_def_file)
-        with open(yaml_path) as f:
-            operation_template = f.read()
-            operation = jinja2.Template(operation_template).render(**params)
-            return yaml.load(operation)
+        operation_template = utils.resource_as_string(self.rest_def_file)
+        operation = jinja2.Template(operation_template).render(**params)
+        return yaml.load(operation)

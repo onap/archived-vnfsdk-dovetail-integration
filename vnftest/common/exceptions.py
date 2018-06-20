@@ -43,3 +43,7 @@ class MandatoryKeyException(VnftestException):
 
 class InputParameterMissing(VnftestException):
     message_tmplate = 'No value found for parameter "{param_name}" in "{source}"'
+
+
+class ResourceNotFound(VnftestException):
+    message_tmplate = 'Resource not found "{resource}"'

@@ -11,3 +11,15 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
+
+---
+method: GET
+
+url: http://{{aai_ip}}:30232/aai/v11/network/generic-vnfs/generic-vnf/{{vnf_instance_id}}/vf-modules/vf-module/{{vf_module_instance_id}}
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Basic QUFJOkFBSQ==
+  X-FromAppId: AAI
+
+body:
