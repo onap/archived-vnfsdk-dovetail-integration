@@ -74,10 +74,6 @@ class TaskTestCase(unittest.TestCase):
                         new={'NODE_NAME': 'huawei-pod1', 'INSTALLER_TYPE': 'compass'}):
             task_files, task_args, task_args_fnames = t.parse_suite()
 
-        self.assertEqual(task_files[0], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc001.yaml'))
-        self.assertEqual(task_files[1], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc002.yaml'))
         self.assertIsNone(task_args[0])
         self.assertIsNone(task_args[1])
         self.assertIsNone(task_args_fnames[0])
@@ -90,10 +86,6 @@ class TaskTestCase(unittest.TestCase):
                         new={'NODE_NAME': 'huawei-pod1', 'INSTALLER_TYPE': 'compass'}):
             task_files, task_args, task_args_fnames = t.parse_suite()
 
-        self.assertEqual(task_files[0], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc001.yaml'))
-        self.assertEqual(task_files[1], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc002.yaml'))
         self.assertIsNone(task_args[0])
         self.assertEqual(task_args[1],
                          '{"host": "node1.LF","target": "node2.LF"}')
@@ -106,10 +98,7 @@ class TaskTestCase(unittest.TestCase):
         with mock.patch.object(os, 'environ',
                         new={'NODE_NAME': 'huawei-pod1', 'INSTALLER_TYPE': 'compass'}):
             task_files, task_args, task_args_fnames = t.parse_suite()
-        self.assertEqual(task_files[0], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc001.yaml'))
-        self.assertEqual(task_files[1], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc002.yaml'))
+
         self.assertIsNone(task_args[0])
         self.assertIsNone(task_args[1])
         self.assertIsNone(task_args_fnames[0])
@@ -122,10 +111,6 @@ class TaskTestCase(unittest.TestCase):
                         new={'NODE_NAME': 'huawei-pod1', 'INSTALLER_TYPE': 'compass'}):
             task_files, task_args, task_args_fnames = t.parse_suite()
 
-        self.assertEqual(task_files[0], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc001.yaml'))
-        self.assertEqual(task_files[1], self.change_to_abspath(
-                         'tests/onap/test_cases/onap_vnftest_tc002.yaml'))
         self.assertIsNone(task_args[0])
         self.assertEqual(task_args[1],
                          '{"host": "node1.LF","target": "node2.LF"}')

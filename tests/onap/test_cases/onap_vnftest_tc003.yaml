@@ -30,7 +30,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/delete_vf_module.yaml"
+    file: "onap/lifecycle/delete_vf_module.yaml"
     input:
     -
       parameter_name: "service_instance_id"
@@ -71,7 +71,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/monitor_request.yaml"
+    file: "onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"

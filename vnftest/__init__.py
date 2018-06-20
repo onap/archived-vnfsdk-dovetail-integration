@@ -21,6 +21,7 @@ import errno
 # not require loggers to be created, so this cannot
 # include vnftest.common.utils
 from vnftest.common import constants
+import vnftest.common.utils as utils
 
 try:
     # do not use vnftest.common.utils.makedirs
@@ -59,3 +60,10 @@ def _init_logging():
     logging.root.addHandler(_LOG_STREAM_HDLR)
     logging.root.addHandler(_LOG_FILE_HDLR)
     logging.debug("logging.root.handlers = %s", logging.root.handlers)
+
+
+utils.import_modules_from_package("vnftest.contexts")
+utils.import_modules_from_package("vnftest.runners")
+utils.import_modules_from_package("vnftest.steps")
+utils.import_modules_from_package("vnftest.crawlers")
+utils.import_modules_from_package("vnftest.openstack")

@@ -40,6 +40,12 @@ body:
 
     requestParameters:
       usePreload: true
+      userParams:
+        {% for user_parameter in user_parameters %}
+        -
+          name: {{user_parameter.name}}
+          value: {{user_parameter.value}}
+        {% endfor %}
 
     cloudConfiguration:
       lcpCloudRegionId: RegionOne

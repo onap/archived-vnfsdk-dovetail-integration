@@ -25,7 +25,7 @@ class Crawler(object):
     @staticmethod
     def get_cls(crawler_type):
         """return class of specified type"""
-        for crawler in utils.itersubclasses(Crawler):
+        for crawler in utils.findsubclasses(Crawler):
             if crawler_type == crawler.__crawler_type__:
                 return crawler
         raise RuntimeError("No such crawler_type %s" % crawler_type)
@@ -35,3 +35,16 @@ class Crawler(object):
 
     def crawl(self, dictionary, path):
         raise NotImplementedError
+
+    @staticmethod
+    def crawl(json_as_dict, output_config):
+        output = {}
+        for output_parameter in output_config:
+            param_name = output_parameter['parameter_name']
+            param_value = output_parameter.get('value', "[]")
+            crawler_type = output_parameter.get('type', 'default')
+            crawler_class = Crawler.get_cls(crawler_type)
+            crawler = crawler_class()
+            param_value = crawler.crawl(json_as_dict, param_value)
+            output[param_name] = param_value
+        return output

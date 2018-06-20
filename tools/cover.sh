@@ -29,7 +29,7 @@ show_diff () {
 
 run_coverage_test() {
 
-    ALLOWED_EXTRA_MISSING=10
+    ALLOWED_EXTRA_MISSING=150
     # enable debugging
     set -x
 

@@ -27,6 +27,7 @@ from cinderclient import client as cinderclient
 from novaclient import client as novaclient
 from glanceclient import client as glanceclient
 from neutronclient.neutron import client as neutronclient
+from heatclient.client import Client as heatclient
 
 log = logging.getLogger(__name__)
 
@@ -159,6 +160,11 @@ def get_neutron_client():   # pragma: no cover
     return neutronclient.Client(get_neutron_client_version(), session=sess)
 
 
+def get_heat_client():   # pragma: no cover
+    sess = get_session()
+    return heatclient(get_heat_api_version(), session=sess)
+
+
 def get_glance_client_version():    # pragma: no cover
     try:
         api_version = os.environ['OS_IMAGE_API_VERSION']
@@ -197,6 +203,14 @@ def get_instance_by_name(nova_client, instance_name):   # pragma: no cover
     except Exception:
         log.exception("Error [get_instance_by_name(nova_client, '%s')]",
                       instance_name)
+
+
+def get_instance_by_id(instance_id):   # pragma: no cover
+    try:
+        return get_nova_client().servers.find(id=instance_id)
+    except Exception:
+        log.exception("Error [get_instance_by_id(nova_client, '%s')]",
+                      instance_id)
 
 
 def get_aggregates(nova_client):    # pragma: no cover
@@ -440,6 +454,15 @@ def delete_keypair(nova_client, key):     # pragma: no cover
 # *********************************************
 #   NEUTRON
 # *********************************************
+def get_network_by_name(network_name):       # pragma: no cover
+    try:
+        networks = get_neutron_client().list_networks()['networks']
+        return next((n for n in networks if n['name'] == network_name), None)
+    except Exception:
+        log.exception("Error [get_instance_by_id(nova_client, '%s')]",
+                      network_name)
+
+
 def get_network_id(neutron_client, network_name):       # pragma: no cover
     networks = neutron_client.list_networks()['networks']
     return next((n['id'] for n in networks if n['name'] == network_name), None)
@@ -760,3 +783,31 @@ def detach_volume(server_id, volume_id):      # pragma: no cover
         log.exception("Error [detach_server_volume(nova_client, '%s', '%s')]",
                       server_id, volume_id)
         return False
+# *********************************************
+#   HEAT
+# *********************************************
+
+
+def get_stack(heat_stack_id):    # pragma: no cover
+    try:
+        client = get_heat_client()
+        return client.stacks.get(heat_stack_id)
+    except Exception as e:
+        log.exception("Error [get_stack(heat_stack_id)]", e)
+
+
+def get_stack_resources(heat_stack_id):    # pragma: no cover
+    try:
+        client = get_heat_client()
+        return client.resources.list(heat_stack_id)
+    except Exception as e:
+        log.exception("Error [get_stack_resources(heat_stack_id)]", e)
+
+
+def get_stack_vms(heat_stack_id):    # pragma: no cover
+    resources = get_stack_resources(heat_stack_id)
+    ret_vms = []
+    for resource in resources:
+        if resource.resource_type == "OS::Nova::Server":
+            ret_vms.append(resource)
+    return ret_vms

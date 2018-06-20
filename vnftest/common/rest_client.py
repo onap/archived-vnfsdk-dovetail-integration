@@ -14,8 +14,16 @@
 ##############################################################################
 
 import json
+
+import logging
+import os
 import urllib2
 import requests
+
+from vnftest.common import utils
+
+logger = logging.getLogger(__name__)
+os.putenv('PYTHONHTTPSVERIFY', "0")
 
 
 def post(url, headers, data, logger):
@@ -31,10 +39,15 @@ def call(url, method, headers, data, logger):
         f = urllib2.urlopen(req)
         return_code = f.code
         response_body = f.read()
+        headers = f.headers
+        content_type = headers.dict['content-type'] if 'content-type' in headers.dict else 'application/json'
         f.close()
         if len(str(response_body)) == 0:
             response_body = "{}"
-        response_body = json.loads(response_body)
+        if 'application/xml' in content_type:
+            response_body = utils.xml_to_dict(response_body)
+        else:
+            response_body = json.loads(response_body)
         result = {'return_code': return_code, 'body': response_body}
         return result
 

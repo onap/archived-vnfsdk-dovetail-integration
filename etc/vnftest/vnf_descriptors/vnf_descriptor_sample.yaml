@@ -24,19 +24,33 @@ vf_modules:
 -
   module_name: module_0
   # List the input parameters for the VF module as expected by the orchestrator
-  input_parameters:
+  vnf_parameters:
   -
     name: param_0
     value: value_0
   -
     name: param_1
     value: value_1
+  user_parameters:
+  -
+    name: user_param_0
+    value: user_value_0
+  -
+    name: user_param_1
+    value: user_value_1
 -
   module_name: module_1
-  input_parameters:
+  vnf_parameters:
   -
     name: param_0
     value: value_0
   -
     name: param_1
     value: value_1
+  user_parameters:
+  -
+    name: user_param_0
+    value: user_value_0
+  -
+    name: user_param_1
+    value: user_value_1
