@@ -25,7 +25,8 @@ setup(
     package_data={
         'vnftest': [
             'onap/onboard/*.yaml',
-            'onap/lifecycle/*.yaml'
+            'onap/lifecycle/*.yaml',
+            'onap/steps/validation/*.yaml'
         ],
         'etc': [
             'vnftest/*.yaml',
@@ -40,7 +41,7 @@ setup(
     entry_points={
         'console_scripts': [
             'vnftest=vnftest.main:main'
-        ],
+        ]
     },
     scripts=[
         'tools/vnftest-img-modify',

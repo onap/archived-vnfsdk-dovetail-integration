@@ -82,7 +82,7 @@ class Runner(object):
     @staticmethod
     def get_cls(runner_type):
         """return class of specified type"""
-        for runner in utils.itersubclasses(Runner):
+        for runner in utils.findsubclasses(Runner):
             if runner_type == runner.__execution_type__:
                 return runner
         raise RuntimeError("No such runner_type %s" % runner_type)
@@ -91,7 +91,7 @@ class Runner(object):
     def get_types():
         """return a list of known runner type (class) names"""
         types = []
-        for runner in utils.itersubclasses(Runner):
+        for runner in utils.findsubclasses(Runner):
             types.append(runner)
         return types
 

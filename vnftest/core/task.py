@@ -52,7 +52,6 @@ from vnftest.common import constants
 from vnftest.common.html_template import report_template
 
 output_file_default = "/tmp/vnftest.out"
-test_cases_dir_default = "tests/onap/test_cases/"
 LOG = logging.getLogger(__name__)
 
 
@@ -395,12 +394,6 @@ class TaskParser(object):       # pragma: no cover
         self._check_schema(cfg["schema"], "suite")
         LOG.info("\nStarting step:%s", cfg["name"])
 
-        test_cases_dir = cfg.get("test_cases_dir", test_cases_dir_default)
-        test_cases_dir = os.path.join(constants.VNFTEST_ROOT_PATH,
-                                      test_cases_dir)
-        if test_cases_dir[-1] != os.sep:
-            test_cases_dir += os.sep
-
         cur_pod = os.environ.get('NODE_NAME', None)
         cur_installer = os.environ.get('INSTALLER_TYPE', None)
 
@@ -418,7 +411,7 @@ class TaskParser(object):       # pragma: no cover
                 continue
             # 2.check constraint
             if self._meet_constraint(task, cur_pod, cur_installer):
-                valid_task_files.append(test_cases_dir + task_fname)
+                valid_task_files.append(task_fname)
             else:
                 continue
             # 3.fetch task parameters
@@ -444,7 +437,7 @@ class TaskParser(object):       # pragma: no cover
             raise TypeError()
 
         try:
-            with open(self.path) as f:
+            with utils.load_resource(self.path) as f:
                 try:
                     input_task = f.read()
                     rendered_task = TaskTemplate.render(input_task, **kw)

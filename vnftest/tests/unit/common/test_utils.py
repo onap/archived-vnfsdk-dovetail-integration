@@ -49,7 +49,7 @@ class IterSubclassesTestCase(unittest.TestCase):
         class D(C):
             pass
 
-        self.assertEqual([B, C, D], list(utils.itersubclasses(A)))
+        self.assertEqual([B, C, D], list(utils.findsubclasses(A)))
 
 
 class ImportModulesFromPackageTestCase(unittest.TestCase):
