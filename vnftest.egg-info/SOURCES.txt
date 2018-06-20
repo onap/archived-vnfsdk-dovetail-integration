@@ -56,8 +56,16 @@ vnftest/dispatcher/http.py
 vnftest/onap/__init__.py
 vnftest/onap/onap_api_call.py
 vnftest/onap/common/__init__.py
-vnftest/onap/common/vnf_type_crawler.py
+vnftest/onap/common/vf_module_crawler.py
+vnftest/onap/lifecycle/__init__.py
 vnftest/onap/onboard/__init__.py
+vnftest/onap/steps/__init__.py
+vnftest/onap/steps/validation/__init__.py
+vnftest/onap/steps/validation/vf_module_validator.py
+vnftest/openstack/__init__.py
+vnftest/openstack/steps/__init__.py
+vnftest/openstack/steps/heat.py
+vnftest/openstack/steps/nova.py
 vnftest/resources/__init__.py
 vnftest/runners/__init__.py
 vnftest/runners/base.py

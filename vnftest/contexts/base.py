@@ -51,7 +51,7 @@ class Context(object):
     @staticmethod
     def get_cls(context_type):
         """Return class of specified type."""
-        for context in utils.itersubclasses(Context):
+        for context in utils.findsubclasses(Context):
             if context_type == context.__context_type__:
                 return context
         raise RuntimeError("No such context_type %s" % context_type)

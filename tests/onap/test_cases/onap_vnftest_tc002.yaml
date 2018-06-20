@@ -46,7 +46,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_region.yaml"
+    file: "onap/lifecycle/create_region.yaml"
     input:
     -
       parameter_name: "cloud_owner"
@@ -64,7 +64,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_service.yaml"
+    file: "onap/lifecycle/create_service.yaml"
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -72,7 +72,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_customer.yaml"
+    file: "onap/lifecycle/create_customer.yaml"
     input:
     -
       parameter_name: "customer_name"
@@ -86,7 +86,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_service_instance.yaml"
+    file: "onap/lifecycle/create_service_instance.yaml"
     delay: 60
     input:
     -
@@ -121,7 +121,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/monitor_request.yaml"
+    file: "onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"
@@ -140,7 +140,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_vnf_instance.yaml"
+    file: "onap/lifecycle/create_vnf_instance.yaml"
     delay: 30
     input:
     -
@@ -197,7 +197,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/monitor_request.yaml"
+    file: "onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"
@@ -222,11 +222,11 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/preload_sdnc.yaml"
+    file: "onap/lifecycle/preload_sdnc.yaml"
     input:
     -
       parameter_name: "vnf_parameters"
-      value: {{vf_module_definition.input_parameters}}
+      value: {{vf_module_definition.vnf_parameters}}
     -
       parameter_name: "vnf_name"
       value: {{vnf_name}}
@@ -252,9 +252,12 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/create_vf_module.yaml"
+    file: "onap/lifecycle/create_vf_module.yaml"
     delay: 30
     input:
+    -
+      parameter_name: "user_parameters"
+      value: {{vf_module_definition.user_parameters}}
     -
       parameter_name: "service_instance_id"
       value: "{service_instance_id}"
@@ -327,7 +330,7 @@ steps:
 -
   type: OnapApiCall
   options:
-    file: "lifecycle/monitor_request.yaml"
+    file: "onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"
@@ -346,6 +349,15 @@ steps:
   runner:
     type: Iteration
     run_step: "setup,run"
+-
+  type: VfModuleValidator
+  options:
+    vnf_instance_id: "{vnf_instance_id}"
+    vf_module_instance_id: "{vf_module_instance_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
 {% endfor %}
 context:
   type: CSAR

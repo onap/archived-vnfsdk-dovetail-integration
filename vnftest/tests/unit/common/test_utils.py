@@ -49,7 +49,7 @@ class IterSubclassesTestCase(unittest.TestCase):
         class D(C):
             pass
 
-        self.assertEqual([B, C, D], list(utils.itersubclasses(A)))
+        self.assertEqual([B, C, D], list(utils.findsubclasses(A)))
 
 
 class ImportModulesFromPackageTestCase(unittest.TestCase):
@@ -1123,3 +1123,11 @@ class ReadMeminfoTestCase(unittest.TestCase):
                     'Active(anon)': '3015676',
                     'HugePages_Total': '8',
                     'Hugepagesize': '1048576'}
+
+
+class XMLToDict(unittest.TestCase):
+
+    def test_convert_xml_to_dict(self):
+        input_str = "<a><b>dummy1</b><b>dummy2</b></a>"
+        result = utils.xml_to_dict(input_str)
+        self.assertEqual(result, {'a': {'b': ['dummy1', 'dummy2']}})

@@ -15,10 +15,13 @@
 # yardstick/common/utils.py
 
 import collections
+import formatter
 from contextlib import closing
 import datetime
 import errno
 import importlib
+from string import Formatter
+
 import ipaddress
 import logging
 import os
@@ -27,15 +30,20 @@ import socket
 import subprocess
 import sys
 
+import pkg_resources
 import six
 from flask import jsonify
 from six.moves import configparser
 from oslo_serialization import jsonutils
-
+import xml.etree.ElementTree
 import vnftest
+
+from vnftest.common.exceptions import ResourceNotFound
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+class_implementations = {}
 
 
 # Decorator for cli-args
@@ -46,23 +54,24 @@ def cliargs(*args, **kwargs):
     return _decorator
 
 
-def itersubclasses(cls, _seen=None):
-    """Generator over all subclasses of a given class in depth first order."""
+def findsubclasses(cls):
+    if cls.__name__ not in class_implementations:
+        # Load entrypoint classes just once.
+        if len(class_implementations) == 0:
+            for entrypoint in pkg_resources.iter_entry_points(group='vnftest.extension'):
+                loaded_type = entrypoint.load()
+                logger.info("Loaded: " + str(loaded_type))
 
-    if not isinstance(cls, type):
-        raise TypeError("itersubclasses must be called with "
-                        "new-style classes, not %.100r" % cls)
-    _seen = _seen or set()
-    try:
-        subs = cls.__subclasses__()
-    except TypeError:   # fails only when cls is type
-        subs = cls.__subclasses__(cls)
-    for sub in subs:
-        if sub not in _seen:
-            _seen.add(sub)
-            yield sub
-            for sub in itersubclasses(sub, _seen):
-                yield sub
+        subclasses = []
+        class_implementations[cls.__name__] = subclasses
+
+        def getallnativesubclasses(clazz):
+            for subclass in clazz.__subclasses__():
+                subclasses.append(subclass)
+                getallnativesubclasses(subclass)
+
+        getallnativesubclasses(cls)
+    return class_implementations[cls.__name__]
 
 
 def import_modules_from_package(package):
@@ -431,3 +440,91 @@ class dotdict(dict):
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+
+def normalize_data_struct(obj):
+    if isinstance(obj, basestring):
+        return [obj]
+    if isinstance(obj, list):
+        nomalized_list = []
+        for element in obj:
+            element = normalize_data_struct(element)
+            nomalized_list.append(element)
+        return nomalized_list
+    if isinstance(obj, dict):
+        normalized_dict = {}
+        for k, v in obj:
+            v = normalize_data_struct(v)
+            normalized_dict[k] = v
+        return normalized_dict
+    return change_obj_to_dict(obj)
+
+
+def xml_to_dict(xml_str):
+    return element_tree_to_dict(xml.etree.ElementTree.fromstring(xml_str))
+
+
+def element_tree_to_dict(element_tree):
+    def internal_iter(tree, accum):
+        if tree is None:
+            return accum
+        attribute_target = None
+        if tree.getchildren():
+            accum[tree.tag] = {}
+            attribute_target = accum[tree.tag]
+            for each in tree.getchildren():
+                result = internal_iter(each, {})
+                if each.tag in accum[tree.tag]:
+                    if not isinstance(accum[tree.tag][each.tag], list):
+                        accum[tree.tag][each.tag] = [
+                            accum[tree.tag][each.tag]
+                        ]
+                    accum[tree.tag][each.tag].append(result[each.tag])
+                else:
+                    accum[tree.tag].update(result)
+        else:
+            attribute_target = accum
+            accum[tree.tag] = tree.text
+        # Add attributes
+        attributes = tree.attrib or {}
+        for att_name, att_value in attributes.iteritems():
+            attribute_target[att_name] = att_value
+
+        return accum
+
+    return internal_iter(element_tree, {})
+
+
+def resource_as_string(path):
+    split_path = os.path.split(path)
+    package = split_path[0].replace("/", ".")
+    if not pkg_resources.resource_exists(package, split_path[1]):
+        raise ResourceNotFound(resource=path)
+    return pkg_resources.resource_string(package, split_path[1])
+
+
+def load_resource(path):
+    split_path = os.path.split(path)
+    package = split_path[0].replace("/", ".")
+    if not pkg_resources.resource_exists(package, split_path[1]):
+        raise ResourceNotFound(resource=path)
+    return pkg_resources.resource_stream(package, split_path[1])
+
+
+def format(st, params):
+    if not isinstance(st, basestring):
+        return st
+    ret_str = ""
+    ret_obj = None
+    for literal_text, field_name, format_spec, conversion in \
+            Formatter().parse(st):
+        if field_name is None:
+            ret_str = ret_str + literal_text
+        else:
+            dict = ret_obj or params
+            value = dict[field_name]
+            if isinstance(value, basestring):
+                ret_str = ret_str + value
+            else:
+                ret_obj = value
+    return ret_obj or ret_str
