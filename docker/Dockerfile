@@ -49,3 +49,7 @@ COPY ./exec_tests.sh /usr/local/bin/
 
 ENV NSB_DIR="/opt/nsb_bin" \
     PYTHONPATH="${PYTHONPATH}:${NSB_DIR}/trex_client:${NSB_DIR}/trex_client/stl"
+
+ADD startup.sh /startup.sh
+RUN chmod 755 /startup.sh
+ENTRYPOINT /startup.sh
