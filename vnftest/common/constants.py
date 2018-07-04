@@ -29,13 +29,10 @@ from vnftest.common.yaml_loader import yaml_load
 dirname = os.path.dirname
 abspath = os.path.abspath
 join = os.path.join
-sep = os.path.sep
 
 CONF = {}
 CONF_FILE = None
-VNFTEST_ROOT_PATH = dirname(
-    dirname(abspath(pkg_resources.resource_filename(__name__, "")))) + sep
-
+VNFTEST_ROOT_PATH = os.environ.get('VNFTEST_ROOT_PATH', os.path.sep)
 
 def get_param(key, default=''):
     # don't re-parse yaml for each lookup
@@ -93,8 +90,8 @@ LOG_DIR = get_param('dir.log', join(VNFTEST_ROOT_PATH, 'tmp/vnftest/'))
 TASK_LOG_DIR = get_param('dir.tasklog', join(VNFTEST_ROOT_PATH, 'var/log/vnftest/'))
 CONF_SAMPLE_DIR = join(REPOS_DIR, 'etc/vnftest/')
 SAMPLE_CASE_DIR = join(REPOS_DIR, 'samples')
-TESTCASE_DIR = join(VNFTEST_ROOT_PATH, 'tests/onap/test_cases/')
-TESTSUITE_DIR = join(VNFTEST_ROOT_PATH, 'tests/onap/test_suites/')
+TESTCASE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_cases/')
+TESTSUITE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_suites/')
 
 # file
 DEFAULT_OUTPUT_FILE = get_param('file.output_file', join(VNFTEST_ROOT_PATH, 'tmp/vnftest.out'))

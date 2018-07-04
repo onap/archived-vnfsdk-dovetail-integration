@@ -23,11 +23,11 @@ file:
   reporting_file: /tmp/report.html
 
 component:
-  aai_ip: 10.247.43.140
+  aai_ip: 10.247.58.11
   aai_port: 30202
   aai_ssl_port: 30233
-  mso_ip: 10.247.43.140
-  sdc_ip: 10.247.43.140
+  mso_ip: 10.247.58.11
+  sdc_ip: 10.247.58.11
   sdc_port: 30205
   sdc_catalog_port: 30206
   sdc_designer_user: cs0008

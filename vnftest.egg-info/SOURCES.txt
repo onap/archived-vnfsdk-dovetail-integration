@@ -1,6 +1,6 @@
 setup.py
 etc/__init__.py
-tests/__init__.py
+etc/vnftest/vnftest.yaml
 tools/vnftest-img-dpdk-modify
 tools/vnftest-img-lxd-modify
 tools/vnftest-img-modify
@@ -78,6 +78,10 @@ vnftest/steps/__init__.py
 vnftest/steps/base.py
 vnftest/steps/dummy/__init__.py
 vnftest/steps/dummy/dummy.py
+vnftest/test_config/__init__.py
+vnftest/test_config/onap/__init__.py
+vnftest/test_config/onap/test_cases/__init__.py
+vnftest/test_config/onap/test_suites/__init__.py
 vnftest/tests/__init__.py
 vnftest/tests/fixture.py
 vnftest/tests/unit/__init__.py
