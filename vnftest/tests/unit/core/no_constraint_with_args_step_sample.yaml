@@ -21,9 +21,9 @@ schema: "vnftest:suite:0.1"
 name: "suite_1"
 test_cases:
 -
-    file_name: tests/onap/test_cases/onap_vnftest_tc001.yaml
+    file_name: test_config/onap/test_cases/onap_vnftest_tc001.yaml
 -
-    file_name: tests/onap/test_cases/onap_vnftest_tc002.yaml
+    file_name: test_config/onap/test_cases/onap_vnftest_tc002.yaml
     task_args:
         huawei-pod1: '{"host": "node1.LF","target": "node2.LF"}'
 
