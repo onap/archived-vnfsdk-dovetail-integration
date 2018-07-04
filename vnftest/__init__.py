@@ -61,7 +61,6 @@ def _init_logging():
     logging.root.addHandler(_LOG_FILE_HDLR)
     logging.debug("logging.root.handlers = %s", logging.root.handlers)
 
-
 utils.import_modules_from_package("vnftest.contexts")
 utils.import_modules_from_package("vnftest.runners")
 utils.import_modules_from_package("vnftest.steps")
