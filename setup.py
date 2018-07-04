@@ -26,17 +26,17 @@ setup(
         'vnftest': [
             'onap/onboard/*.yaml',
             'onap/lifecycle/*.yaml',
-            'onap/steps/validation/*.yaml'
+            'onap/steps/validation/*.yaml',
+            'test_config/onap/test_cases/*.yaml',
+            'test_config/onap/test_suites/*.yaml'
         ],
         'etc': [
             'vnftest/*.yaml',
             'vnftest/*.conf',
             'vnftest/vnf_descriptors/*.yaml'
-        ],
-        'tests': [
-            'onap/*/*.yaml'
         ]
     },
+    data_files=[('/etc/vnftest/', ['etc/vnftest/vnftest.yaml'])],
     url="https://www.onap.org",
     entry_points={
         'console_scripts': [

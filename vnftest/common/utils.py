@@ -514,6 +514,7 @@ def load_resource(path):
 def format(st, params):
     if not isinstance(st, basestring):
         return st
+    dotdict(params)
     ret_str = ""
     ret_obj = None
     for literal_text, field_name, format_spec, conversion in \
@@ -522,7 +523,12 @@ def format(st, params):
             ret_str = ret_str + literal_text
         else:
             dict = ret_obj or params
-            value = dict[field_name]
+            try:
+                value = dict[field_name]
+            except KeyError:
+                dict = dotdict(dict)
+                field_name = '{' + field_name + '}'
+                value = field_name.format(**dict)
             if isinstance(value, basestring):
                 ret_str = ret_str + value
             else:
