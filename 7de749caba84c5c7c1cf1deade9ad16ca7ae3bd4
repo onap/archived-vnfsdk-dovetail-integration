@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_a7123d56",
+        "filename": "etc/vnftest/vnftest.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 741
+      },
+      "writtenOn": "2018-07-11T14:45:16Z",
+      "side": 1,
+      "message": "can you try to avoid this kind of hard-coding of configuration, instead you could leave it blank and populate from environment variable, which are the deployment specific",
+      "range": {
+        "startLine": 29,
+        "startChar": 17,
+        "endLine": 29,
+        "endChar": 22
+      },
+      "revId": "7de749caba84c5c7c1cf1deade9ad16ca7ae3bd4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_c70d0937",
+        "filename": "ez_setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 741
+      },
+      "writtenOn": "2018-07-11T14:45:16Z",
+      "side": 1,
+      "message": "pls comment on why its  removed as part of this commit ?",
+      "revId": "7de749caba84c5c7c1cf1deade9ad16ca7ae3bd4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_add53bb8",
+        "filename": "vnftest/common/constants.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 741
+      },
+      "writtenOn": "2018-07-11T14:45:16Z",
+      "side": 1,
+      "message": "why test_config folder is required ? i think dovetail does not mandate it. but correct me if i am wrong.",
+      "range": {
+        "startLine": 93,
+        "startChar": 48,
+        "endLine": 93,
+        "endChar": 59
+      },
+      "revId": "7de749caba84c5c7c1cf1deade9ad16ca7ae3bd4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
