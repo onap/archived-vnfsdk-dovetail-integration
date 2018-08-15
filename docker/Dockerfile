@@ -37,19 +37,18 @@ RUN pip install appdirs==1.4.0 pyopenssl==17.5.0 python-openstackclient==3.11.0
 RUN mkdir -p ${REPOS_DIR}
 
 RUN git config --global http.sslVerify false
+
+#For developers: To test your changes you must comment out the git clone for ${VNFTEST_REPO_DIR}.
+#You must also uncomment the RUN and COPY commands below.
+#You must run docker build from your vnftest directory on the host.
 RUN git clone --depth 1 -b $BRANCH https://gerrit.onap.org/r/vnfsdk/dovetail-integration ${VNFTEST_REPO_DIR}
-
+#RUN mkdir ${VNFTEST_REPO_DIR}
+#COPY ./ ${VNFTEST_REPO_DIR}
 WORKDIR ${VNFTEST_REPO_DIR}
+
 RUN ${VNFTEST_REPO_DIR}/install.sh
-
-ADD http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img ${IMAGE_DIR}
-ADD http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img ${IMAGE_DIR}
-
 COPY ./exec_tests.sh /usr/local/bin/
-
-ENV NSB_DIR="/opt/nsb_bin" \
-    PYTHONPATH="${PYTHONPATH}:${NSB_DIR}/trex_client:${NSB_DIR}/trex_client/stl"
-
+ENV VNFTEST_ROOT_PATH="/"
 ADD startup.sh /startup.sh
 RUN chmod 755 /startup.sh
 ENTRYPOINT /startup.sh

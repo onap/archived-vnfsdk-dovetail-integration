@@ -17,21 +17,32 @@ from vnftest.common import openstack_utils
 
 import vnftest.common.utils as utils
 import yaml
-
+import logging
+LOG = logging.getLogger(__name__)
 
 @six.add_metaclass(abc.ABCMeta)
 class Context(object):
     """Class that represents a context in the logical model"""
     list = []
     vnf_descriptor = {}
-    creds = {}
+    onap_env_config = {}
+    creds = None
 
     @classmethod
-    def initialize(cls, vnf_descriptor_path):
+    def initialize(cls, vnf_descriptor_path, environment_path):
+        LOG.info('vnf descriptor path: %s', str(vnf_descriptor_path))
+        LOG.info('environment path: %s', str(environment_path))
         with open(vnf_descriptor_path) as f:
             cls.vnf_descriptor = yaml.safe_load(f)
-        for key, value in openstack_utils.get_credentials().iteritems():
-            cls.creds[key] = value
+        with open(environment_path) as f:
+            environment_config = yaml.safe_load(f)
+            openstack_env_config = environment_config['openstack']
+            openstack_utils.initialize(openstack_env_config)
+            cls.onap_env_config = environment_config['onap']
+
+        cls.creds = openstack_utils.get_credentials()
+
+
 
     @staticmethod
     def split_name(name, sep='.'):

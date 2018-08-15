@@ -26,7 +26,6 @@ from Queue import Empty
 
 import vnftest.common.utils as utils
 from vnftest.steps import base as base_step
-from vnftest.onap.onap_api_call import OnapApiCall
 
 log = logging.getLogger(__name__)
 

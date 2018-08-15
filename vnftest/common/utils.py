@@ -95,8 +95,8 @@ def import_modules_from_package(package):
         for module_name in missing_modules:
             try:
                 importlib.import_module(module_name)
-            except (ImportError, SyntaxError):
-                logger.exception('Unable to import module %s', module_name)
+            except (ImportError, SyntaxError) as e:
+                logger.exception('Unable to import module %s', module_name, e)
 
 
 def makedirs(d):
@@ -496,19 +496,20 @@ def element_tree_to_dict(element_tree):
 
 
 def resource_as_string(path):
-    split_path = os.path.split(path)
-    package = split_path[0].replace("/", ".")
-    if not pkg_resources.resource_exists(package, split_path[1]):
-        raise ResourceNotFound(resource=path)
-    return pkg_resources.resource_string(package, split_path[1])
+    resource = load_resource(path)
+    return resource.read()
 
 
 def load_resource(path):
-    split_path = os.path.split(path)
-    package = split_path[0].replace("/", ".")
-    if not pkg_resources.resource_exists(package, split_path[1]):
-        raise ResourceNotFound(resource=path)
-    return pkg_resources.resource_stream(package, split_path[1])
+    try:
+        return open(path)
+    except Exception:
+        logger.info("path not loaded as file, trying load as package")
+        split_path = os.path.split(path)
+        package = split_path[0].replace("/", ".")
+        if not pkg_resources.resource_exists(package, split_path[1]):
+            raise ResourceNotFound(resource=path)
+        return pkg_resources.resource_stream(package, split_path[1])
 
 
 def format(st, params):

@@ -14,18 +14,15 @@
 # vnftest comment: this is a modified copy of
 # yardstick/tests/functional/test_cli_runner.py
 
+import sys
 import unittest
+from cStringIO import StringIO
 
 from vnftest.cmd.commands.runner import RunnerCommands
 from vnftest.cmd.commands.step import StepCommands
 from vnftest.core import Param
 from vnftest.core.runner import Runners
 from vnftest.core.step import Steps
-from vnftest.runners.iteration import IterationRunner
-from vnftest.runners.duration import DurationRunner
-from vnftest.onap.onap_api_call import OnapApiCall
-from cStringIO import StringIO
-import sys
 
 
 class Capture(list):
@@ -56,7 +53,7 @@ class CommandsTestCase(unittest.TestCase):
         step_cmd = StepCommands()
         with Capture() as output:
             step_cmd.do_list(None)
-        self.assert_text_in_lines(output, ["OnapApiCall"])
+        self.assert_text_in_lines(output, ["RestCall"])
 
     def test_runner_show_Duration(self):
         param = Param({})
@@ -72,9 +69,9 @@ class CommandsTestCase(unittest.TestCase):
             Runners().show(param)
         self.assert_text_in_lines(output, ["iterations - amount of times"])
 
-    def test_step_show_OnapApiCall(self):
+    def test_step_show_RestCall(self):
         param = Param({})
-        setattr(param, 'type', ['OnapApiCall'])
+        setattr(param, 'type', ['RestCall'])
         with Capture() as output:
             Steps().show(param)
         self.assert_text_in_lines(output, ["Call ONAP API"])

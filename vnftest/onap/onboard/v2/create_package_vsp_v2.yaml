@@ -1,7 +1,7 @@
 ##############################################################################
 # Copyright 2018 EuropeanSoftwareMarketingLtd.
 # ===================================================================
-#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  Licensed under the ApacheLicense Version2.0 (the"License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
 #  http://www.apache.org/licenses/LICENSE-2.0
@@ -11,13 +11,14 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
+---
+method: PUT
+url: http://{{sdc_ip}}:{{sdc_port}}/sdc1/feProxy/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/{{vsp_version_id}}/actions
+headers:
+  Content-Type: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
 
-dir:
-  conf: /etc/nvftest
-  repos: /home/onap/repos/vnftest
-  log: /var/log/vnftest
-
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
+body:
+  action: Create_Package

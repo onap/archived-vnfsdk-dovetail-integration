@@ -12,12 +12,13 @@
 # the License
 ##############################################################################
 
-dir:
-  conf: /etc/nvftest
-  repos: /home/onap/repos/vnftest
-  log: /var/log/vnftest
-
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
+---
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{sdc_service_id}}/lifecycleState/certify
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_tester_user}}
+  Accept: application/json
+body:
+  userRemarks: certified

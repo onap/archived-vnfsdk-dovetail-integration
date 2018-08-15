@@ -12,12 +12,27 @@
 # the License
 ##############################################################################
 
-dir:
-  conf: /etc/nvftest
-  repos: /home/onap/repos/vnftest
-  log: /var/log/vnftest
+---
+onap:
+  aai_ip: 10.247.47.142
+  aai_port: 30202
+  aai_ssl_port: 30233
+  mso_ip: 10.247.47.142
+  sdc_ip: 10.247.47.138
+  sdc_port: 30206
+  sdc_catalog_port: 30206
+  sdc_designer_user: cs0008
+  sdc_tester_user: jm0007
+  sdc_governance_user: gv0001
+  sdc_operations_user: op0001
 
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
+openstack:
+  OS_PASSWORD: moshekiev
+  OS_IDENTITY_API_VERSION: 3
+  OS_USERNAME: moshekiev
+  OS_PROJECT_NAME: moshekiev
+  OS_AUTH_URL: http://10.247.134.65:5000/v3
+  OS_TENANT_NAME: moshekiev
+  OS_TENANT_ID: c2c704ef98d0425f870dfa7a83763d93
+  OS_PROJECT_DOMAIN_NAME: default
+  OS_USER_DOMAIN_NAME: default

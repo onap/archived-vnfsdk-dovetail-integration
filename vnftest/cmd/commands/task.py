@@ -29,6 +29,7 @@ class TaskCommands(object):     # pragma: no cover
 
        Set of commands to manage benchmark tasks.
        """
+    @cliargs("environment", type=str, help="path to environment file", metavar="environment")
     @cliargs("vnfdescriptor", type=str, help="path to vnf descriptor file", metavar="vnf-descriptor")
     @cliargs("inputfile", type=str, help="path to task or suite file", metavar="input-file")
     @cliargs("--task-args", dest="task_args",

@@ -44,9 +44,9 @@ description: >
 
 steps:
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_region.yaml"
+    file: "vnftest/onap/lifecycle/create_region.yaml"
     input:
     -
       parameter_name: "cloud_owner"
@@ -62,17 +62,17 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_service.yaml"
+    file: "vnftest/onap/lifecycle/create_service.yaml"
   runner:
     type: Iteration
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_customer.yaml"
+    file: "vnftest/onap/lifecycle/create_customer.yaml"
     input:
     -
       parameter_name: "customer_name"
@@ -84,9 +84,9 @@ steps:
       parameter_name: "tenant_id"
       value: "{context.creds.tenant_id}"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_service_instance.yaml"
+    file: "vnftest/onap/lifecycle/create_service_instance.yaml"
     delay: 60
     input:
     -
@@ -119,9 +119,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/monitor_request.yaml"
+    file: "vnftest/onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"
@@ -138,9 +138,9 @@ steps:
     interval: 5
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_vnf_instance.yaml"
+    file: "vnftest/onap/lifecycle/create_vnf_instance.yaml"
     delay: 30
     input:
     -
@@ -195,9 +195,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/monitor_request.yaml"
+    file: "vnftest/onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"
@@ -220,9 +220,9 @@ steps:
   {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
   {% set vnf_name = ['test_vnf_', rnd, '_', vf_module_definition.module_name ]|join %}
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/preload_sdnc.yaml"
+    file: "vnftest/onap/lifecycle/preload_sdnc.yaml"
     input:
     -
       parameter_name: "vnf_parameters"
@@ -250,9 +250,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/create_vf_module.yaml"
+    file: "vnftest/onap/lifecycle/create_vf_module.yaml"
     delay: 30
     input:
     -
@@ -328,9 +328,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/monitor_request.yaml"
+    file: "vnftest/onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"

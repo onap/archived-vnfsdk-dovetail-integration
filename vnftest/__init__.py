@@ -43,7 +43,7 @@ LOG = logging.getLogger(__name__)
 
 
 def _init_logging():
-
+    print ("initializing logging. log file: " + str(LOG_FILE))
     LOG.setLevel(logging.DEBUG)
 
     _LOG_STREAM_HDLR.setFormatter(_LOG_FORMATTER)
@@ -66,3 +66,4 @@ utils.import_modules_from_package("vnftest.runners")
 utils.import_modules_from_package("vnftest.steps")
 utils.import_modules_from_package("vnftest.crawlers")
 utils.import_modules_from_package("vnftest.openstack")
+utils.import_modules_from_package("vnftest.onap")

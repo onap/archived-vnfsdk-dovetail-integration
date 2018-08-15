@@ -83,47 +83,22 @@ if not SERVER_IP:
 
 # dir
 CONF_DIR = get_param('dir.conf', join(VNFTEST_ROOT_PATH, 'etc/vnftest'))
+IMAGE_DIR = get_param('dir.images', join(VNFTEST_ROOT_PATH, 'home/onap/images/'))
+PACKAGE_DIR = get_param('dir.packages', join(VNFTEST_ROOT_PATH, 'home/onap/packages/'))
 CONF_FILE = join(CONF_DIR, 'vnftest.conf')
 REPOS_DIR = get_param('dir.repos', join(VNFTEST_ROOT_PATH, 'home/onap/repos/vnftest'))
-LOG_DIR = get_param('dir.log', join(VNFTEST_ROOT_PATH, 'tmp/vnftest/'))
+LOG_DIR = get_param('dir.log', join(VNFTEST_ROOT_PATH, 'var/log/vnftest/'))
 
 TASK_LOG_DIR = get_param('dir.tasklog', join(VNFTEST_ROOT_PATH, 'var/log/vnftest/'))
 CONF_SAMPLE_DIR = join(REPOS_DIR, 'etc/vnftest/')
 SAMPLE_CASE_DIR = join(REPOS_DIR, 'samples')
-TESTCASE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_cases/')
-TESTSUITE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_suites/')
+TESTCASE_DIR = join(REPOS_DIR, 'vnftest/test_config/onap/test_cases/')
+TESTSUITE_DIR = join(REPOS_DIR, 'vnftest/test_config/onap/test_suites/')
 
 # file
 DEFAULT_OUTPUT_FILE = get_param('file.output_file', join(VNFTEST_ROOT_PATH, 'tmp/vnftest.out'))
 DEFAULT_HTML_FILE = get_param('file.html_file', join(VNFTEST_ROOT_PATH, 'tmp/vnftest.htm'))
 REPORTING_FILE = get_param('file.reporting_file', join(VNFTEST_ROOT_PATH, 'tmp/report.html'))
-
-# components
-AAI_IP = get_param('component.aai_ip')
-AAI_PORT = get_param('component.aai_port')
-AAI_SSL_PORT = get_param('component.aai_ssl_port')
-MSO_IP = get_param('component.mso_ip')
-SDC_IP = get_param('component.sdc_ip')
-SDC_PORT = get_param('component.sdc_port')
-SDC_CATALOG_PORT = get_param('component.sdc_catalog_port')
-SDC_DESIGNER_USER = get_param('component.sdc_designer_user')
-SDC_TESTER_USER = get_param('component.sdc_tester_user')
-SDC_GOVERNANCE_USER = get_param('component.sdc_governance_user')
-SDC_OPERATIONS_USER = get_param('component.sdc_operations_user')
-
-component_constants = {}
-component_constants['aai_ip'] = AAI_IP
-component_constants['aai_port'] = AAI_PORT
-component_constants['aai_ssl_port'] = AAI_SSL_PORT
-component_constants['mso_ip'] = MSO_IP
-component_constants['sdc_ip'] = SDC_IP
-component_constants['sdc_port'] = SDC_PORT
-component_constants['sdc_catalog_port'] = SDC_CATALOG_PORT
-component_constants['sdc_designer_user'] = SDC_DESIGNER_USER
-component_constants['sdc_tester_user'] = SDC_TESTER_USER
-component_constants['sdc_governance_user'] = SDC_GOVERNANCE_USER
-component_constants['sdc_operations_user'] = SDC_OPERATIONS_USER
-
 
 # api
 API_PORT = 5000

@@ -184,6 +184,7 @@ report_template = """
                         <td>{{ loop.index }}</td>
                         <td>{{key}}</td>
                         <td>{{value.criteria}}</td>
+                        <td>{{value.output}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

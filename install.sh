@@ -97,7 +97,8 @@ apt-get -y autoremove && apt-get clean
 
 git config --global http.sslVerify false
 
-mkdir /etc/vnftest
+mkdir -p /etc/vnftest
+cp "${PWD}/etc/vnftest/vnftest.yaml" /etc/vnftest
 # install vnftest + dependencies
 easy_install -U pip
 pip install -r requirements.txt

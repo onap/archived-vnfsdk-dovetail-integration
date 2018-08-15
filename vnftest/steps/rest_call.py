@@ -24,7 +24,6 @@ from vnftest.common import rest_client
 from vnftest.common.utils import dotdict
 from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissing
 from vnftest.crawlers.base import Crawler
-from vnftest.onap.common.vf_module_crawler import VfModuleCrawler
 from vnftest.steps import base
 import jinja2
 import jinja2.meta
@@ -32,10 +31,10 @@ import jinja2.meta
 LOG = logging.getLogger(__name__)
 
 
-class OnapApiCall(base.Step):
-    """Call ONAP API
+class RestCall(base.Step):
+    """Call REST API
     """
-    __step_type__ = "OnapApiCall"
+    __step_type__ = "RestCall"
 
     def __init__(self, step_cfg, context, input_params):
         self.step_cfg = step_cfg
@@ -91,7 +90,7 @@ class OnapApiCall(base.Step):
     def run_impl(self, result):
         if not self.setup_done:
             self.setup()
-        params = copy.deepcopy(consts.component_constants)
+        params = copy.deepcopy(self.context.onap_env_config)
         self.eval_input(params)
         execution_result = self.execute_operation(params)
         result_body = execution_result['body']

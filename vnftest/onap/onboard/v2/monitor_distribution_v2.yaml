@@ -1,7 +1,7 @@
 ##############################################################################
 # Copyright 2018 EuropeanSoftwareMarketingLtd.
 # ===================================================================
-#  Licensed under the ApacheLicense Version2.0 (the"License");
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
 #  http://www.apache.org/licenses/LICENSE-2.0
@@ -12,13 +12,12 @@
 # the License
 ##############################################################################
 ---
-method: PUT
-url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/0.1/actions
+method: GET
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{distributed_service_id}}/distribution
 headers:
   Content-Type: application/json
-  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
-  USER_ID: {{sdc_designer_user}}
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_operations_user}}
   Accept: application/json
 
 body:
-  action: Create_Package

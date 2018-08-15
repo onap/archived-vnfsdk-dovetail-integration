@@ -11,13 +11,13 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
+---
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{service_version_id}}/distribution/PROD/activate
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_operations_user}}
+  Accept: application/json
 
-dir:
-  conf: /etc/nvftest
-  repos: /home/onap/repos/vnftest
-  log: /var/log/vnftest
-
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
+body:
