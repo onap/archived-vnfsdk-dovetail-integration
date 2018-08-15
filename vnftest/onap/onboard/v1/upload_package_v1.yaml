@@ -13,7 +13,7 @@
 ##############################################################################
 ---
 method: POST
-url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/0.1/orchestration-template-candidate
+url: http://{{sdc_ip}}:{{sdc_port}}/sdc1/feProxy/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/0.1/orchestration-template-candidate
 headers:
   Content-Type: multipart/form-data
   Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==

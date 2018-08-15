@@ -11,16 +11,11 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
-
-schema: "vnftest:suite:0.1"
-
-name: "onap-basic-lifecycle"
-test_cases:
--
-    file_name: test_config/onap/test_cases/onap_vnftest_tc001.yaml
--
-    file_name: test_config/onap/test_cases/onap_vnftest_tc002.yaml
-#-
-#    file_name: test_config/onap/test_cases/onap_vnftest_tc003.yaml
+method: PUT
+url: http://{{sdc_ip}}:{{sdc_port}}/sdc1/feProxy/onboarding-api/v1.0/vendor-software-products/{{vsp_id}}/versions/0.1/orchestration-template-candidate/process
+headers:
+  Content-Type: application/json
+  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json

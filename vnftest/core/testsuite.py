@@ -18,6 +18,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import fnmatch
+
 import os
 import logging
 
@@ -41,7 +43,7 @@ class Testsuite(object):
 
     def _get_testsuite_file_list(self):
         try:
-            testsuite_files = sorted(os.listdir(consts.TESTSUITE_DIR))
+            testsuite_files = sorted(fnmatch.filter(os.listdir(consts.TESTSUITE_DIR), '*.yaml'))
         except OSError:
             LOG.exception('Failed to list dir:\n%s\n', consts.TESTSUITE_DIR)
             raise

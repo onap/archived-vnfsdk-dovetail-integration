@@ -28,9 +28,9 @@ steps:
 {% for vf_module_definition in vnf_descriptor.vf_modules %}
   {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/delete_vf_module.yaml"
+    file: "vnftest/onap/lifecycle/delete_vf_module.yaml"
     input:
     -
       parameter_name: "service_instance_id"
@@ -69,9 +69,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/lifecycle/monitor_request.yaml"
+    file: "vnftest/onap/lifecycle/monitor_request.yaml"
     input:
     -
       parameter_name: "request_id"

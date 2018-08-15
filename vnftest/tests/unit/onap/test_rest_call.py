@@ -14,16 +14,14 @@
 
 import mock
 import testtools
-
 from vnftest.contexts.base import Context
 from vnftest.core import task
-from vnftest.onap.onap_api_call import OnapApiCall
 
 
-class OnapApiCallTestCase(testtools.TestCase):
+class RestCallTestCase(testtools.TestCase):
 
     step = {
-      'type': 'OnapApiCall',
+      'type': 'RestCall',
       'options': {
         'file': "dummy.yaml",
         'input':
@@ -46,9 +44,9 @@ class OnapApiCallTestCase(testtools.TestCase):
     NAME = 'sample'
 
     def setUp(self):
-        super(OnapApiCallTestCase, self).setUp()
+        super(RestCallTestCase, self).setUp()
 
-    @mock.patch('vnftest.onap.onap_api_call.OnapApiCall.execute_operation_impl')
+    @mock.patch('vnftest.steps.rest_call.RestCall.execute_operation_impl')
     def test_run(self, mock_execute_operation):
         mock_execute_operation.return_value = {'body': {'value': 'output1'}}
         t = task.Task()
@@ -56,5 +54,5 @@ class OnapApiCallTestCase(testtools.TestCase):
         context = Context.get("CSAR")
         context.init(context_cfg)
         t.context = context
-        output = t._run([OnapApiCallTestCase.step], False, "vnftest.out")
+        output = t._run([RestCallTestCase.step], False, "vnftest.out")
         self.assertEquals(output[0]['data']['output1'], 'output1')

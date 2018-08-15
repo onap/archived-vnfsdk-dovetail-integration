@@ -24,8 +24,11 @@ setup(
     include_package_data=True,
     package_data={
         'vnftest': [
-            'onap/onboard/*.yaml',
+            'onap/onboard/v1/*.yaml',
+            'onap/onboard/v2/*.yaml',
             'onap/lifecycle/*.yaml',
+            'onap/lifecycle/v1/*.yaml',
+            'onap/lifecycle/v2/*.yaml',
             'onap/steps/validation/*.yaml',
             'test_config/onap/test_cases/*.yaml',
             'test_config/onap/test_suites/*.yaml'

@@ -14,23 +14,10 @@
 
 dir:
   conf: /etc/nvftest
-  repos: /home/vnftest/repos/vnftest
-  log: /tmp/vnftest
+  repos: /home/onap/repos/vnftest
+  log: /var/log/vnftest
 
 file:
   output_file: /tmp/vnftest.out
   html_file: /tmp/vnftest.htm
   reporting_file: /tmp/report.html
-
-component:
-  aai_ip: 10.247.43.140
-  aai_port: 30202
-  aai_ssl_port: 30233
-  mso_ip: 10.247.43.140
-  sdc_ip: 10.247.43.140
-  sdc_port: 30205
-  sdc_catalog_port: 30206
-  sdc_designer_user: cs0008
-  sdc_tester_user: jm0007
-  sdc_governance_user: gv0001
-  sdc_operations_user: op0001

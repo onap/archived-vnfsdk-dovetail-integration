@@ -11,30 +11,28 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-# vnftest comment: this is a modified copy of
-# yardstick/tests/unit/benchmark/core/test_testcase.py
 
-from __future__ import absolute_import
-import unittest
+---
+onap:
+  aai_ip: 10.247.47.142
+  aai_port: 30202
+  aai_ssl_port: 30233
+  mso_ip: 10.247.47.142
+  sdc_ip: 10.247.47.138
+  sdc_port: 30206
+  sdc_catalog_port: 30206
+  sdc_designer_user: cs0008
+  sdc_tester_user: jm0007
+  sdc_governance_user: gv0001
+  sdc_operations_user: op0001
 
-from vnftest.core import testcase
-
-
-class Arg(object):
-
-    def __init__(self):
-        self.casename = ('onap_vnftest_onboard-v1',)
-
-
-class TestcaseUT(unittest.TestCase):
-
-    def test_list_all(self):
-        t = testcase.Testcase()
-        result = t.list_all("")
-        self.assertIsInstance(result, list)
-
-    def test_show(self):
-        t = testcase.Testcase()
-        casename = Arg()
-        result = t.show(casename)
-        self.assertTrue(result)
+openstack:
+  OS_PASSWORD: moshekiev
+  OS_IDENTITY_API_VERSION: 3
+  OS_USERNAME: moshekiev
+  OS_PROJECT_NAME: moshekiev
+  OS_AUTH_URL: http://10.247.134.65:5000/v3
+  OS_TENANT_NAME: moshekiev
+  OS_TENANT_ID: c2c704ef98d0425f870dfa7a83763d93
+  OS_PROJECT_DOMAIN_NAME: default
+  OS_USER_DOMAIN_NAME: default

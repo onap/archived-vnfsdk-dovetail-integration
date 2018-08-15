@@ -21,7 +21,7 @@ import errno
 # not require loggers to be created, so this cannot
 # include vnftest.common.utils
 from vnftest.common import constants
-import vnftest.common.utils as utils
+import vnftest.common.import_utils as import_utils
 
 try:
     # do not use vnftest.common.utils.makedirs
@@ -43,7 +43,7 @@ LOG = logging.getLogger(__name__)
 
 
 def _init_logging():
-
+    print ("initializing logging. log file: " + str(LOG_FILE))
     LOG.setLevel(logging.DEBUG)
 
     _LOG_STREAM_HDLR.setFormatter(_LOG_FORMATTER)
@@ -61,8 +61,9 @@ def _init_logging():
     logging.root.addHandler(_LOG_FILE_HDLR)
     logging.debug("logging.root.handlers = %s", logging.root.handlers)
 
-utils.import_modules_from_package("vnftest.contexts")
-utils.import_modules_from_package("vnftest.runners")
-utils.import_modules_from_package("vnftest.steps")
-utils.import_modules_from_package("vnftest.crawlers")
-utils.import_modules_from_package("vnftest.openstack")
+import_utils.import_modules_from_package("vnftest.contexts")
+import_utils.import_modules_from_package("vnftest.runners")
+import_utils.import_modules_from_package("vnftest.steps")
+import_utils.import_modules_from_package("vnftest.crawlers")
+import_utils.import_modules_from_package("vnftest.openstack")
+import_utils.import_modules_from_package("vnftest.onap")

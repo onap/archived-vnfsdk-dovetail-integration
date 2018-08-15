@@ -25,9 +25,9 @@ description: >
 {% set resource_instance_unique_id = resource_instance_unique_id or ['\"\u007Bresource_version_id\u007D_', rnd, '\"']|join %}
 steps:
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/create_vlm.yaml"
+    file: "vnftest/onap/onboard/v2/create_vlm_v2.yaml"
     input:
     -
       parameter_name: "vendor_name"
@@ -35,36 +35,31 @@ steps:
     output:
     -
       parameter_name: "vendor_id"
-      value: "[value]"
+      value: "[itemId]"
+    -
+      parameter_name: "vlm_version_id"
+      value: "[version][id]"
   runner:
     type: Iteration
     run_step: "setup,run"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/checkin_vlm.yaml"
+    file: "vnftest/onap/onboard/v2/submit_vlm_v2.yaml"
     input:
     -
       parameter_name: "vendor_id"
       value: "{vendor_id}"
-  runner:
-    type: Iteration
-    run_step: "setup,run"
--
-  type: OnapApiCall
-  options:
-    file: "onap/onboard/submit_vlm.yaml"
-    input:
     -
-      parameter_name: "vendor_id"
-      value: "{vendor_id}"
+      parameter_name: "vlm_version_id"
+      value: "{vlm_version_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/create_vsp.yaml"
+    file: "vnftest/onap/onboard/v2/create_vsp_v2.yaml"
     input:
     -
       parameter_name: "vendor_id"
@@ -75,19 +70,25 @@ steps:
     output:
     -
       parameter_name: "vsp_id"
-      value: "[vspId]"
+      value: "[itemId]"
+    -
+      parameter_name: "vsp_version_id"
+      value: "[version][id]"
   runner:
     type: Iteration
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/upload_package.yaml"
+    file: "vnftest/onap/onboard/v2/upload_package_v2.yaml"
     input:
     -
       parameter_name: "vsp_id"
       value: "{vsp_id}"
+    -
+      parameter_name: "vsp_version_id"
+      value: "{vsp_version_id}"
     -
       parameter_name: "package_file_path"
       value: "{context.vnf_descriptor.package_location}"
@@ -96,57 +97,69 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/process_package.yaml"
+    file: "vnftest/onap/onboard/v2/process_package_v2.yaml"
     input:
     -
       parameter_name: "vsp_id"
       value: "{vsp_id}"
+    -
+      parameter_name: "vsp_version_id"
+      value: "{vsp_version_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+#-
+#  type: RestCall
+#  options:
+#    file: "vnftest/onap/onboard/v2/checkin_vsp_v2.yaml"
+#    input:
+#    -
+#      parameter_name: "vsp_id"
+#      value: "{vsp_id}"
+#    -
+#      parameter_name: "vsp_version_id"
+#      value: "{vsp_version_id}"
+#  runner:
+#    type: Iteration
+#    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v2/submit_vsp_v2.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+    -
+      parameter_name: "vsp_version_id"
+      value: "{vsp_version_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/checkin_vsp.yaml"
+    file: "vnftest/onap/onboard/v2/create_package_vsp_v2.yaml"
     input:
     -
       parameter_name: "vsp_id"
       value: "{vsp_id}"
+    -
+      parameter_name: "vsp_version_id"
+      value: "{vsp_version_id}"
   runner:
     type: Iteration
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/submit_vsp.yaml"
-    input:
-    -
-      parameter_name: "vsp_id"
-      value: "{vsp_id}"
-  runner:
-    type: Iteration
-    run_step: "setup,run"
-
--
-  type: OnapApiCall
-  options:
-    file: "onap/onboard/create_package_vsp.yaml"
-    input:
-    -
-      parameter_name: "vsp_id"
-      value: "{vsp_id}"
-  runner:
-    type: Iteration
-    run_step: "setup,run"
-
--
-  type: OnapApiCall
-  options:
-    file: "onap/onboard/import_vsp.yaml"
+    file: "vnftest/onap/onboard/v2/import_vsp_v2.yaml"
     input:
     -
       parameter_name: "vsp_name"
@@ -164,9 +177,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/submit_resource_for_testing.yaml"
+    file: "vnftest/onap/onboard/v2/submit_resource_for_testing_v2.yaml"
     input:
     -
       parameter_name: "resource_id"
@@ -176,9 +189,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/start_resource_test.yaml"
+    file: "vnftest/onap/onboard/v2/start_resource_test_v2.yaml"
     input:
     -
       parameter_name: "resource_id"
@@ -188,9 +201,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/accept_resource_test.yaml"
+    file: "vnftest/onap/onboard/v2/accept_resource_test_v2.yaml"
     input:
     -
       parameter_name: "resource_id"
@@ -217,9 +230,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/add_service.yaml"
+    file: "vnftest/onap/onboard/v2/add_service_v2.yaml"
     input:
     -
       parameter_name: "service_name"
@@ -236,9 +249,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/add_resource_instance.yaml"
+    file: "vnftest/onap/onboard/v2/add_resource_instance_v2.yaml"
     input:
     -
       parameter_name: "resource_instance_unique_id"
@@ -268,9 +281,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/submit_service_for_testing.yaml"
+    file: "vnftest/onap/onboard/v2/submit_service_for_testing_v2.yaml"
     input:
     -
       parameter_name: "sdc_service_id"
@@ -280,9 +293,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/start_service_test.yaml"
+    file: "vnftest/onap/onboard/v2/start_service_test_v2.yaml"
     input:
     -
       parameter_name: "sdc_service_id"
@@ -291,9 +304,9 @@ steps:
     type: Iteration
     run_step: "setup,run"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/accept_service_test.yaml"
+    file: "vnftest/onap/onboard/v2/accept_service_test_v2.yaml"
     input:
     -
       parameter_name: "sdc_service_id"
@@ -307,9 +320,9 @@ steps:
     run_step: "setup,run"
 
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/approve_distribution.yaml"
+    file: "vnftest/onap/onboard/v2/approve_distribution_v2.yaml"
     input:
     -
       parameter_name: "service_version_id"
@@ -318,9 +331,9 @@ steps:
     type: Iteration
     run_step: "setup,run"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/distribute.yaml"
+    file: "vnftest/onap/onboard/v2/distribute_v2.yaml"
     input:
     -
       parameter_name: "service_version_id"
@@ -352,9 +365,9 @@ steps:
     type: Iteration
     run_step: "setup,run"
 -
-  type: OnapApiCall
+  type: RestCall
   options:
-    file: "onap/onboard/monitor_distribution.yaml"
+    file: "vnftest/onap/onboard/v2/monitor_distribution_v2.yaml"
     input:
     -
       parameter_name: "distributed_service_id"

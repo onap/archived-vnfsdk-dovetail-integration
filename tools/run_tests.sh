@@ -30,6 +30,8 @@ export PY_VER
 COVER_DIR_NAME="./tools/"
 export COVER_DIR_NAME
 
+export CONF_FILE="${PWD}/tools/vnftest_test_config.yaml"
+
 run_tests() {
     echo "Get external libs needed for unit test"
 

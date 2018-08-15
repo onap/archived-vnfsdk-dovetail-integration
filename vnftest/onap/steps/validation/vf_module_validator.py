@@ -14,11 +14,11 @@
 
 from __future__ import absolute_import
 
-from vnftest.common import openstack_utils, utils
-
-from vnftest.onap.onap_api_call import OnapApiCall
 import logging
 
+from vnftest.steps.rest_call import RestCall
+
+from vnftest.common import openstack_utils, utils
 from vnftest.steps import base
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +57,8 @@ class VfModuleValidator(base.Step):
                                'value': self.vf_module_instance_id}
                               ]
         step_conf['output'] = {'heat_stack_id': '[heat-stack-id]'}
-        onap_api_call = OnapApiCall(step_conf, self.context, self.input_params)
-        output = onap_api_call.run({})
+        options = {'options': step_conf}
+        rest_call = RestCall(options, self.context, self.input_params)
+        output = rest_call.run({})
         return output['heat_stack_id']
 

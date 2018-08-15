@@ -11,30 +11,16 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-# vnftest comment: this is a modified copy of
-# yardstick/tests/unit/benchmark/core/test_testcase.py
 
-from __future__ import absolute_import
-import unittest
+---
 
-from vnftest.core import testcase
+schema: "vnftest:suite:0.1"
 
-
-class Arg(object):
-
-    def __init__(self):
-        self.casename = ('onap_vnftest_onboard-v1',)
-
-
-class TestcaseUT(unittest.TestCase):
-
-    def test_list_all(self):
-        t = testcase.Testcase()
-        result = t.list_all("")
-        self.assertIsInstance(result, list)
-
-    def test_show(self):
-        t = testcase.Testcase()
-        casename = Arg()
-        result = t.show(casename)
-        self.assertTrue(result)
+name: "onap-basic-lifecycle"
+test_cases:
+-
+    file_name: vnftest/test_config/onap/test_cases/onap_vnftest_onboard-v1.yaml
+-
+    file_name: vnftest/test_config/onap/test_cases/onap_vnftest_instantiate-v1.yaml
+#-
+#    file_name: vnftest/test_config/onap/test_cases/onap_vnftest_terminate.yaml

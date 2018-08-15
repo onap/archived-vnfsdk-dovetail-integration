@@ -1,0 +1,374 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+
+---
+schema: "vnftest:task:0.1"
+description: >
+    Vnftest TC001 config file;
+    Onboard VNF package to SDC
+{% set rnd = range(10000)|random %}
+{% set vsp_name = vsp_name or ['test_vsp_', rnd ]|join %}
+{% set vendor_name = vendor_name or ['test_vendor_', rnd ]|join %}
+{% set service_name = service_name or ['test_service_', rnd ]|join %}
+{% set resource_instance_name = resource_instance_name or ["test_resource_instance_", rnd ]|join %}
+{% set resource_instance_unique_id = resource_instance_unique_id or ['\"\u007Bresource_version_id\u007D_', rnd, '\"']|join %}
+steps:
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/create_vlm_v1.yaml"
+    input:
+    -
+      parameter_name: "vendor_name"
+      value: {{vendor_name}}
+    output:
+    -
+      parameter_name: "vendor_id"
+      value: "[value]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/checkin_vlm_v1.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      value: "{vendor_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/submit_vlm_v1.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      value: "{vendor_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/create_vsp_v1.yaml"
+    input:
+    -
+      parameter_name: "vendor_id"
+      value: "{vendor_id}"
+    -
+      parameter_name: "vsp_name"
+      value: {{vsp_name}}
+    output:
+    -
+      parameter_name: "vsp_id"
+      value: "[vspId]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/upload_package_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+    -
+      parameter_name: "package_file_path"
+      value: "{context.vnf_descriptor.package_location}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/process_package_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/checkin_vsp_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/submit_vsp_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/create_package_vsp_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/import_vsp_v1.yaml"
+    input:
+    -
+      parameter_name: "vsp_name"
+      value: {{vsp_name}}
+    -
+      parameter_name: "vsp_id"
+      value: "{vsp_id}"
+    output:
+    -
+      parameter_name: "resource_id"
+      value: "[uniqueId]"
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/submit_resource_for_testing_v1.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/start_resource_test_v1.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/accept_resource_test_v1.yaml"
+    input:
+    -
+      parameter_name: "resource_id"
+      value: "{resource_id}"
+    output:
+    -
+      parameter_name: "resource_version_id"
+      value: "[allVersions][1.0]"
+    -
+      parameter_name: "resource_model_invariant_id"
+      value: "[invariantUUID]"
+    -
+      parameter_name: "resource_model_version_id"
+      value: "[uuid]"
+    -
+      parameter_name: "resource_model_name"
+      value: "[name]"
+    -
+      parameter_name: "resource_model_version"
+      value: "[version]"
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/add_service_v1.yaml"
+    input:
+    -
+      parameter_name: "service_name"
+      value: {{service_name}}
+    output:
+    -
+      parameter_name: "sdc_service_id"
+      value: "[uniqueId]"
+    -
+      parameter_name: "service_model_name"
+      value: "[name]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/add_resource_instance_v1.yaml"
+    input:
+    -
+      parameter_name: "resource_instance_unique_id"
+      value: {{resource_instance_unique_id}}
+    -
+      parameter_name: "resource_instance_name"
+      value: {{resource_instance_name}}
+    -
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
+    -
+      parameter_name: "resource_version_id"
+      value: "{resource_version_id}"
+    output:
+    -
+      parameter_name: "resource_model_customization_id"
+      value: "[customizationUUID]"
+    -
+      parameter_name: "resource_model_customization_name"
+      value: "[normalizedName]"
+    -
+      parameter_name: "resource_instance_model_name"
+      value: "[name]"
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/submit_service_for_testing_v1.yaml"
+    input:
+    -
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/start_service_test_v1.yaml"
+    input:
+    -
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/accept_service_test_v1.yaml"
+    input:
+    -
+      parameter_name: "sdc_service_id"
+      value: "{sdc_service_id}"
+    output:
+    -
+      parameter_name: "service_version_id"
+      value: "[allVersions][1.0]"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/approve_distribution_v1.yaml"
+    input:
+    -
+      parameter_name: "service_version_id"
+      value: "{service_version_id}"
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/distribute_v1.yaml"
+    input:
+    -
+      parameter_name: "service_version_id"
+      value: "{service_version_id}"
+    output:
+    -
+      parameter_name: "distributed_service_id"
+      value: "[uuid]"
+    -
+      parameter_name: "service_model_invariant_id"
+      value: "[invariantUUID]"
+    -
+      parameter_name: "service_model_version_id"
+      value: "[uuid]"
+    -
+      parameter_name: "service_model_normalized_name"
+      value: "[normalizedName]"
+    -
+      parameter_name: "service_model_name"
+      value: "[name]"
+    -
+      parameter_name: "service_model_version"
+      value: "[version]"
+    -
+      parameter_name: "vf_modules_list"
+      type: VfModuleCrawler
+
+  runner:
+    type: Iteration
+    run_step: "setup,run"
+-
+  type: RestCall
+  options:
+    file: "vnftest/onap/onboard/v1/monitor_distribution_v1.yaml"
+    input:
+    -
+      parameter_name: "distributed_service_id"
+      value: "{distributed_service_id}"
+    output:
+    -
+      parameter_name: "distribution_status"
+      value: "[distributionStatusOfServiceList][0][deployementStatus]"
+  sla:
+    action: assert
+    value: "{distribution_status}"
+    equals: "Distributed"
+    retries: 5
+    interval: 5
+
+context:
+  type: CSAR

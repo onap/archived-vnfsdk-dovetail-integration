@@ -17,9 +17,9 @@
 from __future__ import absolute_import
 from oslo_config import cfg
 
-import vnftest.common.utils as utils
+import vnftest.common.import_utils as import_utils
 
-utils.import_modules_from_package("vnftest.dispatcher")
+import_utils.import_modules_from_package("vnftest.dispatcher")
 
 CONF = cfg.CONF
 OPTS = [

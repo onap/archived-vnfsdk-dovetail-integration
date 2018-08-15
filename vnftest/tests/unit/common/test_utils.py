@@ -28,6 +28,7 @@ import unittest
 import vnftest
 from vnftest import ssh
 from vnftest.common import utils
+from vnftest.common import import_utils
 from vnftest.common import constants
 
 
@@ -62,7 +63,7 @@ class ImportModulesFromPackageTestCase(unittest.TestCase):
             (os.path.join(vnftest_root, 'foo', 'bar'), [], ['baz.txt', 'qux.rst'])
         ])
 
-        utils.import_modules_from_package('foo.bar')
+        import_utils.import_modules_from_package('foo.bar')
 
     @mock.patch('vnftest.common.utils.os.walk')
     @mock.patch.object(importlib, 'import_module')
@@ -73,7 +74,7 @@ class ImportModulesFromPackageTestCase(unittest.TestCase):
             (os.path.join(vnftest_root, 'foo', os.pardir, 'bar'), [], ['baz.py'])
         ])
 
-        utils.import_modules_from_package('foo.bar')
+        import_utils.import_modules_from_package('foo.bar')
         mock_import_module.assert_called_once_with('bar.baz')
 
 

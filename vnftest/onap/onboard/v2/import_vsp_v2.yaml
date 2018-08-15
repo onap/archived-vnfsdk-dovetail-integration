@@ -1,0 +1,64 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+---
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/resources
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+
+body:
+  artifacts:
+  toscaArtifacts:
+  contactId: {{sdc_designer_user}}
+  categories:
+  -
+    name: Application L4+
+    normalizedName: application l4+
+    uniqueId: resourceNewCategory.application l4+
+    icons: null
+    subcategories:
+    -
+      name: Firewall
+      normalizedName: firewall
+      uniqueId: resourceNewCategory.application l4+.firewall
+      icons:
+      -
+        firewall
+      groupings: null
+      ownerId: null
+    ownerId: null
+  description: dovetail initiated
+  icon: defaulticon
+  componentInstancesProperties:
+  componentInstancesAttributes:
+  name: {{vsp_name}}
+  tags:
+  -
+    {{vsp_name}}
+  capabilities:
+  requirements:
+  deploymentArtifacts:
+  componentType: RESOURCE
+  vendorName: dovetailVendor
+  vendorRelease: 1.0
+  componentInstances: []
+  properties: []
+  attributes: []
+  groups: []
+  resourceType: VF
+  csarUUID: {{vsp_id}}
+  csarVersion: 1.0

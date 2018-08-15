@@ -1,0 +1,57 @@
+##############################################################################
+# Copyright 2018 EuropeanSoftwareMarketingLtd.
+# ===================================================================
+#  Licensed under the ApacheLicense, Version2.0 (the"License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under
+# the License
+##############################################################################
+---
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_designer_user}}
+  Accept: application/json
+
+body:
+  artifacts:
+  toscaArtifacts:
+  contactId: {{sdc_designer_user}}
+  categories:
+  -
+    name: Network L4+
+    normalizedName: network l4+
+    uniqueId: serviceNewCategory.network l4+
+    icons:
+    -
+      network_l_4
+
+    subcategories: null
+    ownerId: null
+  description: service test
+  icon: defaulticon
+  componentInstancesProperties:
+  componentInstancesAttributes:
+  name: {{service_name}}
+  tags:
+  -
+    {{service_name}}
+
+  capabilities:
+  requirements:
+  deploymentArtifacts:
+  componentType: SERVICE
+  projectCode: 100100
+  componentInstances: []
+  properties: []
+  attributes: []
+  groups: []
+  ecompGeneratedNaming: true
+  serviceApiArtifacts:

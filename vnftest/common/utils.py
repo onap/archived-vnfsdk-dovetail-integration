@@ -15,11 +15,9 @@
 # yardstick/common/utils.py
 
 import collections
-import formatter
 from contextlib import closing
 import datetime
 import errno
-import importlib
 from string import Formatter
 
 import ipaddress
@@ -28,7 +26,6 @@ import os
 import random
 import socket
 import subprocess
-import sys
 
 import pkg_resources
 import six
@@ -36,7 +33,6 @@ from flask import jsonify
 from six.moves import configparser
 from oslo_serialization import jsonutils
 import xml.etree.ElementTree
-import vnftest
 
 from vnftest.common.exceptions import ResourceNotFound
 
@@ -72,31 +68,6 @@ def findsubclasses(cls):
 
         getallnativesubclasses(cls)
     return class_implementations[cls.__name__]
-
-
-def import_modules_from_package(package):
-    """Import modules given a package name
-
-    :param: package - Full package name. For example: rally.deploy.engines
-    """
-    vnftest_root = os.path.dirname(os.path.dirname(vnftest.__file__))
-    path = os.path.join(vnftest_root, *package.split('.'))
-    for root, _, files in os.walk(path):
-        matches = (filename for filename in files if filename.endswith('.py')
-                   and not filename.startswith('__'))
-        new_package = os.path.relpath(root, vnftest_root).replace(os.sep,
-                                                                    '.')
-        module_names = set(
-            '{}.{}'.format(new_package, filename.rsplit('.py', 1)[0])
-            for filename in matches)
-        # Find modules which haven't already been imported
-        missing_modules = module_names.difference(sys.modules)
-        logger.debug('Importing modules: %s', missing_modules)
-        for module_name in missing_modules:
-            try:
-                importlib.import_module(module_name)
-            except (ImportError, SyntaxError):
-                logger.exception('Unable to import module %s', module_name)
 
 
 def makedirs(d):
@@ -496,19 +467,20 @@ def element_tree_to_dict(element_tree):
 
 
 def resource_as_string(path):
-    split_path = os.path.split(path)
-    package = split_path[0].replace("/", ".")
-    if not pkg_resources.resource_exists(package, split_path[1]):
-        raise ResourceNotFound(resource=path)
-    return pkg_resources.resource_string(package, split_path[1])
+    resource = load_resource(path)
+    return resource.read()
 
 
 def load_resource(path):
-    split_path = os.path.split(path)
-    package = split_path[0].replace("/", ".")
-    if not pkg_resources.resource_exists(package, split_path[1]):
-        raise ResourceNotFound(resource=path)
-    return pkg_resources.resource_stream(package, split_path[1])
+    try:
+        return open(path)
+    except Exception:
+        logger.info("path not loaded as file, trying load as package")
+        split_path = os.path.split(path)
+        package = split_path[0].replace("/", ".")
+        if not pkg_resources.resource_exists(package, split_path[1]):
+            raise ResourceNotFound(resource=path)
+        return pkg_resources.resource_stream(package, split_path[1])
 
 
 def format(st, params):

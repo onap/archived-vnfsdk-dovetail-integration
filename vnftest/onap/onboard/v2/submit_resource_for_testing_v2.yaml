@@ -11,17 +11,14 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-
 ---
 method: POST
-url: http://{{sdc_ip}}:{{sdc_port}}/onboarding-api/v1.0/vendor-license-models
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/resources/{{resource_id}}/lifecycleState/certificationRequest
 headers:
   Content-Type: application/json
-  Authorization: Basic SW5mcmFQb3J0YWxDbGllbnQ6cGFzc3dvcmQxJA==
+  Authorization: Basic YmVlcDpib29w
   USER_ID: {{sdc_designer_user}}
   Accept: application/json
 
 body:
-  vendorName: {{vendor_name}}
-  description: vlm via dovetail
-  iconRef: icon
+  userRemarks: resource submited for testing

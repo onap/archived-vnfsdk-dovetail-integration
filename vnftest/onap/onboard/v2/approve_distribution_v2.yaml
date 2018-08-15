@@ -11,30 +11,13 @@
 # See the License for the specific language governing permissions and limitations under
 # the License
 ##############################################################################
-# vnftest comment: this is a modified copy of
-# yardstick/tests/unit/benchmark/core/test_testcase.py
-
-from __future__ import absolute_import
-import unittest
-
-from vnftest.core import testcase
-
-
-class Arg(object):
-
-    def __init__(self):
-        self.casename = ('onap_vnftest_onboard-v1',)
-
-
-class TestcaseUT(unittest.TestCase):
-
-    def test_list_all(self):
-        t = testcase.Testcase()
-        result = t.list_all("")
-        self.assertIsInstance(result, list)
-
-    def test_show(self):
-        t = testcase.Testcase()
-        casename = Arg()
-        result = t.show(casename)
-        self.assertTrue(result)
+---
+method: POST
+url: http://{{sdc_ip}}:{{sdc_catalog_port}}/sdc1/feProxy/rest/v1/catalog/services/{{service_version_id}}/distribution-state/approve
+headers:
+  Content-Type: application/json
+  Authorization: Basic YmVlcDpib29w
+  USER_ID: {{sdc_governance_user}}
+  Accept: application/json
+body:
+  userRemarks: approved

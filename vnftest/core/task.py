@@ -72,7 +72,7 @@ class Task(object):     # pragma: no cover
         output_config['DEFAULT']['dispatcher'] = out_types
 
     def start(self, args, **kwargs):
-        Context.initialize(args.vnfdescriptor)
+        Context.initialize(args.vnfdescriptor, args.environment)
         atexit.register(self.atexit_handler)
 
         task_id = getattr(args, 'task_id')
@@ -195,7 +195,6 @@ class Task(object):     # pragma: no cover
         output_config.setdefault('dispatcher_http', {})
         output_config.setdefault('dispatcher_file', {})
         output_config.setdefault('dispatcher_influxdb', {})
-        output_config.setdefault('nsb', {})
 
     def _set_output_config(self, output_config, file_path):
         try:

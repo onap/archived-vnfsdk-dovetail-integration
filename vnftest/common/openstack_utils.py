@@ -40,35 +40,34 @@ creds = {}
 # *********************************************
 #   CREDENTIALS
 # *********************************************
+def initialize(openstack_env_config):
+    keystone_api_version = openstack_env_config.get('OS_IDENTITY_API_VERSION', None)
+
+    if keystone_api_version is None or keystone_api_version == '2':
+        keystone_v3 = False
+        creds['tenant_name'] = openstack_env_config['OS_TENANT_NAME']
+    else:
+        keystone_v3 = True
+        creds['tenant_name'] = openstack_env_config['OS_PROJECT_NAME']
+        creds['project_name'] = openstack_env_config['OS_PROJECT_NAME']
+
+    creds["username"] = openstack_env_config["OS_USERNAME"]
+    creds["password"] = openstack_env_config["OS_PASSWORD"]
+    creds["auth_url"] = openstack_env_config["OS_AUTH_URL"]
+    creds["tenant_id"] = openstack_env_config["OS_TENANT_ID"]
+
+    if keystone_v3:
+        if 'OS_USER_DOMAIN_NAME' in openstack_env_config:
+            creds.update({
+                "user_domain_name": openstack_env_config['OS_USER_DOMAIN_NAME']
+            })
+        if 'OS_PROJECT_DOMAIN_NAME' in openstack_env_config:
+            creds.update({
+                "project_domain_name": openstack_env_config['OS_PROJECT_DOMAIN_NAME']
+            })
+
+
 def get_credentials():
-    """Returns a creds dictionary filled with parsed from env"""
-    if len(creds) == 0:
-        # The most common way to pass these info to the script is to do it
-        # through environment variables.
-        keystone_api_version = os.getenv('OS_IDENTITY_API_VERSION')
-
-        if keystone_api_version is None or keystone_api_version == '2':
-            keystone_v3 = False
-            creds['tenant_name'] = os.environ.get('OS_TENANT_NAME')
-        else:
-            keystone_v3 = True
-            creds['tenant_name'] = os.environ.get('OS_PROJECT_NAME')
-            creds['project_name'] = os.environ.get('OS_PROJECT_NAME')
-
-        creds["username"] = os.environ.get("OS_USERNAME")
-        creds["password"] = os.environ.get("OS_PASSWORD")
-        creds["auth_url"] = os.environ.get("OS_AUTH_URL")
-        creds["tenant_id"] = os.environ.get("OS_TENANT_ID")
-
-        if keystone_v3:
-            if os.getenv('OS_USER_DOMAIN_NAME') is not None:
-                creds.update({
-                    "user_domain_name": os.getenv('OS_USER_DOMAIN_NAME')
-                })
-            if os.getenv('OS_PROJECT_DOMAIN_NAME') is not None:
-                creds.update({
-                    "project_domain_name": os.getenv('OS_PROJECT_DOMAIN_NAME')
-                })
     return creds
 
 
