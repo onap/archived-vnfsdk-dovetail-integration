@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_9d5c5eef",
+        "filename": "etc/vnftest/environments/environment_sample.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 741
+      },
+      "writtenOn": "2018-08-20T03:56:03Z",
+      "side": 1,
+      "message": "can you make them as place holder instead of hard coding the ips",
+      "range": {
+        "startLine": 17,
+        "startChar": 2,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "2d1100d02a1c50c49a2ef1e05faa6553266f45bf",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3d73ca81",
+        "filename": "etc/vnftest/environments/environment_sample.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 741
+      },
+      "writtenOn": "2018-08-20T03:56:03Z",
+      "side": 1,
+      "message": "here too",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 38,
+        "endChar": 30
+      },
+      "revId": "2d1100d02a1c50c49a2ef1e05faa6553266f45bf",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
