@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Moshe Hoadley <moshehoa@amdocs.com>
+Code-Review+2: Chris Donley <christopher.donley@huawei.com>
+Submitted-by: Chris Donley <christopher.donley@huawei.com>
+Submitted-at: Tue, 21 Aug 2018 21:28:08 +0000
+Reviewed-on: https://gerrit.onap.org/r/60727
+Project: vnfsdk/dovetail-integration
+Branch: refs/heads/master
