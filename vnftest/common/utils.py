@@ -156,7 +156,7 @@ def get_port_mac(sshclient, port):
 
 def get_port_ip(sshclient, port):
     cmd = "ifconfig %s |grep 'inet addr' |awk '{print $2}' " \
-        "|cut -d ':' -f2 " % port
+          "|cut -d ':' -f2 " % port
     status, stdout, stderr = sshclient.execute(cmd)
 
     if status:
@@ -483,24 +483,37 @@ def load_resource(path):
         return pkg_resources.resource_stream(package, split_path[1])
 
 
-def format(st, params):
-    if not isinstance(st, basestring):
-        return st
+def format(in_obj, params):
+    if isinstance(in_obj, list):
+        ret_list = []
+        for item in in_obj:
+            item = format(item, params)
+            ret_list.append(item)
+        return ret_list
+    if isinstance(in_obj, dict):
+        ret_dict = {}
+        for k, v in in_obj.items():
+            v = format(v, params)
+            ret_dict[k] = v
+        return ret_dict
+    if not isinstance(in_obj, basestring):
+        return in_obj
+
     dotdict(params)
     ret_str = ""
     ret_obj = None
     for literal_text, field_name, format_spec, conversion in \
-            Formatter().parse(st):
+            Formatter().parse(in_obj):
         if field_name is None:
             ret_str = ret_str + literal_text
         else:
-            dict = ret_obj or params
+            tmp_dict = ret_obj or params
             try:
-                value = dict[field_name]
+                value = tmp_dict[field_name]
             except KeyError:
-                dict = dotdict(dict)
+                tmp_dict = dotdict(tmp_dict)
                 field_name = '{' + field_name + '}'
-                value = field_name.format(**dict)
+                value = field_name.format(**tmp_dict)
             if isinstance(value, basestring):
                 ret_str = ret_str + value
             else:

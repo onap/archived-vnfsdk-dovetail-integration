@@ -64,7 +64,7 @@ class TaskTestCase(unittest.TestCase):
         runner.get_output.return_value = {}
         runner.get_result.return_value = []
         mock_base_runner.Runner.get.return_value = runner
-        t._run([step], False, "vnftest.out")
+        t._run([step], False, "vnftest.out", {})
         self.assertTrue(runner.run.called)
 
     def test_parse_suite_no_constraint_no_args(self):

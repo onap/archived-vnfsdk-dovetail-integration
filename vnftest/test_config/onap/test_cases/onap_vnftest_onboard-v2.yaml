@@ -91,7 +91,7 @@ steps:
       value: "{vsp_version_id}"
     -
       parameter_name: "package_file_path"
-      value: "{context.vnf_descriptor.package_location}"
+      value: {{vnf_package_location}}
   runner:
     type: Iteration
     run_step: "setup,run"

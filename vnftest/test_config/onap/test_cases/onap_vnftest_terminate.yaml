@@ -25,7 +25,7 @@ description: >
 {% set vf_modules_list = vf_modules_list or {}%}
 
 steps:
-{% for vf_module_definition in vnf_descriptor.vf_modules %}
+{% for vf_module_definition in vf_modules %}
   {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
 -
   type: RestCall
@@ -58,7 +58,7 @@ steps:
       value: {{service_model_customization_id}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: {{tenant_id}}
     
     output:
     -
