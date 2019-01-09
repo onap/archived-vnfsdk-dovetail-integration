@@ -19,7 +19,8 @@ import logging
 import os
 import urllib2
 import requests
-
+import sys
+import traceback
 from vnftest.common import utils
 
 logger = logging.getLogger(__name__)
@@ -39,8 +40,9 @@ def call(url, method, headers, data, logger):
         f = urllib2.urlopen(req)
         return_code = f.code
         response_body = f.read()
-        headers = f.headers
-        content_type = headers.dict['content-type'] if 'content-type' in headers.dict else 'application/json'
+        headers = f.headers.dict
+
+        content_type = headers['content-type'] if 'content-type' in headers else 'application/json'
         f.close()
         if len(str(response_body)) == 0:
             response_body = "{}"
@@ -48,9 +50,12 @@ def call(url, method, headers, data, logger):
             response_body = utils.xml_to_dict(response_body)
         else:
             response_body = json.loads(response_body)
-        result = {'return_code': return_code, 'body': response_body}
+        result = {'return_code': return_code, 'body': response_body, 'headers': headers}
         return result
-
+    except urllib2.HTTPError as e:
+        error_message = e.read()
+        logger.exception(error_message)
+        raise RuntimeError(error_message)
     except Exception as e:
         message = "Cannot read content from {}, exception: {}".format(url, e)
         logger.exception(message)
@@ -64,8 +69,8 @@ def upload_file(url, headers, file, logger):
     logger.debug("Upload file. URL: {}".format(url))
     response = None
     try:
-        response = requests.post(url, headers=headers, files=file)
-        return {'return_code': response.status_code, 'body': response.json()}
+        response = requests.post(url, headers=headers, files=file, verify=False)
+        return {'return_code': response.status_code, 'body': response.json(), 'headers': response.headers}
     except Exception as e:
         message = "Error while uploading file to {}, exception: {}".format(url, e)
         logger.exception(message)
