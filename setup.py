@@ -22,23 +22,6 @@ setup(
     version="1.1.0",
     packages=find_packages(),
     include_package_data=True,
-    package_data={
-        'vnftest': [
-            'onap/onboard/v1/*.yaml',
-            'onap/onboard/v2/*.yaml',
-            'onap/lifecycle/*.yaml',
-            'onap/lifecycle/v1/*.yaml',
-            'onap/lifecycle/v2/*.yaml',
-            'onap/steps/validation/*.yaml',
-            'test_config/onap/test_cases/*.yaml',
-            'test_config/onap/test_suites/*.yaml'
-        ],
-        'etc': [
-            'vnftest/*.yaml',
-            'vnftest/*.conf',
-            'vnftest/vnf_descriptors/*.yaml'
-        ]
-    },
     data_files=[('/etc/vnftest/', ['etc/vnftest/vnftest.yaml'])],
     url="https://www.onap.org",
     entry_points={

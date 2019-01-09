@@ -53,10 +53,10 @@ steps:
       value: {{cloud_owner}}
     -
       parameter_name: "tenant_id"
-      value: "{context.creds.tenant_id}"
+      value: {{tenant_id}}
     -
       parameter_name: "tenant_name"
-      value: "{context.creds.tenant_name}"
+      value: {{tenant_name}}
   runner:
     type: Iteration
     run_step: "setup,run"
@@ -82,7 +82,7 @@ steps:
       value: {{cloud_owner}}
     -
       parameter_name: "tenant_id"
-      value: "{context.creds.tenant_id}"
+      value: {{tenant_id}}
 -
   type: RestCall
   options:
@@ -169,7 +169,7 @@ steps:
       value: {{resource_model_customization_name}}
     -
       parameter_name: "tenant_id"
-      value: "{context.creds.tenant_id}"
+      value: {{tenant_id}}
     -
       parameter_name: "service_model_name"
       value: {{service_model_name}}
@@ -216,7 +216,7 @@ steps:
     type: Iteration
     run_step: "setup,run"
 
-{% for vf_module_definition in vnf_descriptor.vf_modules %}
+{% for vf_module_definition in vf_modules %}
   {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
   {% set vnf_name = ['test_vnf_', rnd, '_', vf_module_definition.module_name ]|join %}
 -
@@ -284,7 +284,7 @@ steps:
       value: {{vf_module.customizationUUID}}
     -
       parameter_name: "tenant_id"
-      value: "{context.creds.tenant_id}"
+      value: {{tenant_id}}
     -
       parameter_name: "service_model_name"
       value: {{service_model_name}}
