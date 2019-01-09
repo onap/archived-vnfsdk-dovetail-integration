@@ -22,10 +22,12 @@ description: >
 {% set vnf_instance_id = vnf_instance_id or '\"\u007Bvnf_instance_id\u007D\"' %}
 {% set vf_module_instance_id = vf_module_instance_id or '\"\u007Bvf_module_instance_id\u007D\"' %}
 {% set service_model_customization_id = service_model_customization_id or '\"\u007Bservice_model_customization_id\u007D\"' %}
+{% set vf_modules = vf_modules or {} %}
 {% set vf_modules_list = vf_modules_list or {}%}
+{% set tenant_id = tenant_id or none %}
 
 steps:
-{% for vf_module_definition in vnf_descriptor.vf_modules %}
+{% for vf_module_definition in vf_modules %}
   {% set vf_module = vf_modules_list[vf_module_definition.module_name] %}
 -
   type: RestCall
@@ -58,7 +60,7 @@ steps:
       value: {{service_model_customization_id}}
     -
       parameter_name: "tenant_id"
-      value: "{context|creds|tenant_id}"
+      value: {{tenant_id}}
     
     output:
     -

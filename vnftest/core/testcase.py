@@ -77,7 +77,6 @@ class Testcase(object):
 
     def _parse_testcase(self, testcase_info):
         kw = {}
-        kw['vnf_descriptor'] = {}
         rendered_testcase = TaskTemplate.render(testcase_info, **kw)
         testcase_cfg = yaml_load(rendered_testcase)
 

@@ -54,10 +54,6 @@ class RestCall(base.Step):
         self.input_cfg = options.get("input", {})
         self.output_cfg = options.get("output", {})
         self.sla_cfg = self.step_cfg.get('sla', {'retries': 0})
-        context_dict = {}
-        context_dict['creds'] = dotdict(self.context.creds)
-        context_dict['vnf_descriptor'] = dotdict(self.context.vnf_descriptor)
-        self.input_params['context'] = dotdict(context_dict)
         self.setup_done = True
 
     def eval_input(self, params):
@@ -90,10 +86,12 @@ class RestCall(base.Step):
     def run_impl(self, result):
         if not self.setup_done:
             self.setup()
-        params = copy.deepcopy(self.context.onap_env_config)
+        params = {}
+        params.update(copy.deepcopy(self.input_params))
         self.eval_input(params)
         execution_result = self.execute_operation(params)
         result_body = execution_result['body']
+        result_body['headers'] = execution_result.get('headers', {})
         output = Crawler.crawl(result_body, self.output_cfg)
         result.update(output)
         return output
@@ -122,9 +120,9 @@ class RestCall(base.Step):
         LOG.info(headers)
         LOG.info(body)
         if 'file' in operation:
-            file_path = operation['file']
-            LOG.info(file_path)
-            files = {'upload': open(file_path)}
+            file_conf = operation['file']
+            LOG.info(file_conf)
+            files = {file_conf['key']: open(file_conf['path'])}
             result = rest_client.upload_file(url, headers, files, LOG)
         else:
             result = rest_client.call(url,

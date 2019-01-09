@@ -82,23 +82,23 @@ if not SERVER_IP:
 
 
 # dir
-CONF_DIR = get_param('dir.conf', join(VNFTEST_ROOT_PATH, 'etc/vnftest'))
-IMAGE_DIR = get_param('dir.images', join(VNFTEST_ROOT_PATH, 'home/onap/images/'))
-PACKAGE_DIR = get_param('dir.packages', join(VNFTEST_ROOT_PATH, 'home/onap/packages/'))
+CONF_DIR = get_param('dir.conf', '/etc/vnftest')
+IMAGE_DIR = get_param('dir.images', join(VNFTEST_ROOT_PATH, '../../images/'))
+PACKAGE_DIR = get_param('dir.packages', join(VNFTEST_ROOT_PATH, '../../packages/'))
 CONF_FILE = join(CONF_DIR, 'vnftest.conf')
-REPOS_DIR = get_param('dir.repos', join(VNFTEST_ROOT_PATH, 'home/onap/repos/vnftest'))
-LOG_DIR = get_param('dir.log', join(VNFTEST_ROOT_PATH, 'var/log/vnftest/'))
+REPOS_DIR = get_param('dir.repos', join(VNFTEST_ROOT_PATH, '..'))
+LOG_DIR = get_param('dir.log', '/var/log/vnftest/')
 
-TASK_LOG_DIR = get_param('dir.tasklog', join(VNFTEST_ROOT_PATH, 'var/log/vnftest/'))
+TASK_LOG_DIR = get_param('dir.tasklog', '/var/log/vnftest/')
 CONF_SAMPLE_DIR = join(REPOS_DIR, 'etc/vnftest/')
 SAMPLE_CASE_DIR = join(REPOS_DIR, 'samples')
-TESTCASE_DIR = join(REPOS_DIR, 'vnftest/test_config/onap/test_cases/')
-TESTSUITE_DIR = join(REPOS_DIR, 'vnftest/test_config/onap/test_suites/')
+TESTCASE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_cases/')
+TESTSUITE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_suites/')
 
 # file
-DEFAULT_OUTPUT_FILE = get_param('file.output_file', join(VNFTEST_ROOT_PATH, 'tmp/vnftest.out'))
-DEFAULT_HTML_FILE = get_param('file.html_file', join(VNFTEST_ROOT_PATH, 'tmp/vnftest.htm'))
-REPORTING_FILE = get_param('file.reporting_file', join(VNFTEST_ROOT_PATH, 'tmp/report.html'))
+DEFAULT_OUTPUT_FILE = get_param('file.output_file', '/tmp/vnftest.out')
+DEFAULT_HTML_FILE = get_param('file.html_file', '/tmp/vnftest.htm')
+REPORTING_FILE = get_param('file.reporting_file', '/tmp/report.html')
 
 # api
 API_PORT = 5000

@@ -54,5 +54,5 @@ class RestCallTestCase(testtools.TestCase):
         context = Context.get("CSAR")
         context.init(context_cfg)
         t.context = context
-        output = t._run([RestCallTestCase.step], False, "vnftest.out")
+        output = t._run([RestCallTestCase.step], False, "vnftest.out", {})
         self.assertEquals(output[0]['data']['output1'], 'output1')

@@ -23,6 +23,7 @@ description: >
 {% set service_name = service_name or ['test_service_', rnd ]|join %}
 {% set resource_instance_name = resource_instance_name or ["test_resource_instance_", rnd ]|join %}
 {% set resource_instance_unique_id = resource_instance_unique_id or ['\"\u007Bresource_version_id\u007D_', rnd, '\"']|join %}
+{% set vnf_package_location = vnf_package_location or none %}
 steps:
 -
   type: RestCall
@@ -91,7 +92,7 @@ steps:
       value: "{vsp_version_id}"
     -
       parameter_name: "package_file_path"
-      value: "{context.vnf_descriptor.package_location}"
+      value: {{vnf_package_location}}
   runner:
     type: Iteration
     run_step: "setup,run"

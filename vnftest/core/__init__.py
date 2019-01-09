@@ -25,8 +25,6 @@ class Param(object):
 
     def __init__(self, kwargs):
         # list
-        self.environment = kwargs.get('environment')
-        self.vnfdescriptor = kwargs.get('vnfdescriptor')
         self.inputfile = kwargs.get('inputfile')
         self.task_args = kwargs.get('task-args')
         self.task_args_file = kwargs.get('task-args-file')
