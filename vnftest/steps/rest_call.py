@@ -122,8 +122,9 @@ class RestCall(base.Step):
         if 'file' in operation:
             file_conf = operation['file']
             LOG.info(file_conf)
-            files = {file_conf['key']: open(file_conf['path'])}
-            result = rest_client.upload_file(url, headers, files, LOG)
+            with utils.load_resource(file_conf['path']) as stream:
+                files = {file_conf['key']: stream}
+                result = rest_client.upload_file(url, headers, files, LOG)
         else:
             result = rest_client.call(url,
                                       operation['method'],

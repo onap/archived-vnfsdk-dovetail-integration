@@ -471,9 +471,9 @@ def resource_as_string(path):
     return resource.read()
 
 
-def load_resource(path):
+def load_resource(path, mode="r"):
     try:
-        return open(path)
+        return open(path, mode)
     except Exception:
         logger.info("path not loaded as file, trying load as package")
         split_path = os.path.split(path)

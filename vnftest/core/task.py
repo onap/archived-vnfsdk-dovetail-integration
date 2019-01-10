@@ -124,7 +124,7 @@ class Task(object):     # pragma: no cover
             task_args = task_args_list[i]
             try:
                 if task_args_file:
-                    with open(task_args_file) as f:
+                    with utils.load_resource(task_args_file) as f:
                         inputs.update(parse_task_args("task_args_file", f.read()))
                 inputs.update(parse_task_args("task_args", task_args))
             except TypeError:
@@ -392,7 +392,7 @@ class TaskParser(object):       # pragma: no cover
         LOG.info("\nParsing suite file:%s", self.path)
 
         try:
-            with open(self.path) as stream:
+            with utils.load_resource(self.path) as stream:
                 cfg = yaml_load(stream)
         except IOError as ioerror:
             LOG.error("Open suite file failed", ioerror)
