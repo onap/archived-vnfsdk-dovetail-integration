@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 # import ast
+import os
 import re
 import uuid
 
@@ -120,7 +121,9 @@ class Report(object):
                                 "Timestamp": self.Timestamp,
                                 "task_id": self.task_id,
                                 "table": table_vals})
-        with open(consts.DEFAULT_HTML_FILE, "w") as file_open:
+        file_name = 'vnftest_' + str(self.task_id) + '.htm'
+        report_file = os.path.join(consts.REPORT_DIR, file_name)
+        with open(report_file, "w") as file_open:
             file_open.write(Template_html.render(Context_html))
 
-        print("Report generated. View /tmp/vnftest.htm")
+        print("Report generated. View " + report_file)

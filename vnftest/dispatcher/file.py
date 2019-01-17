@@ -16,6 +16,8 @@
 
 from __future__ import absolute_import
 
+import os
+
 from vnftest.dispatcher.base import Base as DispatchBase
 from vnftest.common import constants as consts
 from vnftest.common import utils
@@ -29,8 +31,8 @@ class FileDispatcher(DispatchBase):
 
     def __init__(self, conf):
         super(FileDispatcher, self).__init__(conf)
-        self.target = conf['dispatcher_file'].get('file_path',
-                                                  consts.DEFAULT_OUTPUT_FILE)
 
-    def flush_result_data(self, data):
-        utils.write_json_to_file(self.target, data)
+    def flush_result_data(self, id, data):
+        file_name = 'vnftest_' + str(id) + '.out'
+        target = self.conf['dispatcher_file'].get('file_path', os.path.join(consts.REPORT_DIR, file_name))
+        utils.write_json_to_file(target, data)

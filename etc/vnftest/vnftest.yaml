@@ -16,8 +16,4 @@ dir:
   conf: /etc/nvftest
   repos: /home/onap/repos/vnftest
   log: /var/log/vnftest
-
-file:
-  output_file: /tmp/vnftest.out
-  html_file: /tmp/vnftest.htm
-  reporting_file: /tmp/report.html
+  report: /tmp

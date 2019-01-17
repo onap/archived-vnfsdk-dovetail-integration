@@ -41,7 +41,7 @@ class HttpDispatcher(DispatchBase):
         self.timeout = int(http_conf.get('timeout', 5))
         self.target = http_conf.get('target', 'http://127.0.0.1:8000/results')
 
-    def flush_result_data(self, data):
+    def flush_result_data(self, id, data):
         if self.target == '':
             # if the target was not set, do not do anything
             LOG.error('Dispatcher target was not set, no data will'
@@ -54,28 +54,25 @@ class HttpDispatcher(DispatchBase):
         self.criteria = result['criteria']
         testcases = result['testcases']
 
-        for case, data in testcases.items():
-            self._upload_case_result(case, data)
+        for testcase in testcases:
+            self._upload_case_result(testcase)
 
-    def _upload_case_result(self, case, data):
+    def _upload_case_result(self, testcase):
         try:
-            step_data = data.get('tc_data', [])[0]
+            step_data = testcase.get('steps', [])[0]
+            step_result = step_data['results'][0]
         except IndexError:
             current_time = datetime.now()
         else:
-            timestamp = float(step_data.get('timestamp', 0.0))
+            timestamp = float(step_result.get('timestamp', 0.0))
             current_time = datetime.fromtimestamp(timestamp)
 
         result = {
             "project_name": "vnftest",
-            "case_name": case,
+            "case_name": testcase['name'],
             "description": "vnftest ci step status",
-            "step": self.info.get('deploy_step'),
-            "version": self.info.get('version'),
-            "pod_name": self.info.get('pod_name'),
-            "installer": self.info.get('installer'),
             "build_tag": os.environ.get('BUILD_TAG'),
-            "criteria": data.get('criteria'),
+            "criteria": testcase.get('criteria'),
             "start_date": current_time.strftime('%Y-%m-%d %H:%M:%S'),
             "stop_date": current_time.strftime('%Y-%m-%d %H:%M:%S'),
             "trust_indicator": "",

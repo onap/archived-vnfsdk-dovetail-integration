@@ -63,14 +63,13 @@ class Testcase(object):
                 LOG.exception('Failed to load test case:\n%s\n', testcase_file)
                 raise
 
-        description, installer, deploy_steps = self._parse_testcase(
+        description, installer = self._parse_testcase(
             testcase_info)
 
         record = {
             'Name': testcase_file.split(".")[0],
             'Description': description,
-            'installer': installer,
-            'deploy_steps': deploy_steps
+            'installer': installer
         }
 
         return record
@@ -82,11 +81,8 @@ class Testcase(object):
 
         test_precondition = testcase_cfg.get('precondition', {})
         installer_type = test_precondition.get('installer_type', 'all')
-        deploy_steps = test_precondition.get('deploy_steps', 'all')
-
         description = self._get_description(testcase_cfg)
-
-        return description, installer_type, deploy_steps
+        return description, installer_type
 
     def _get_description(self, testcase_cfg):
         try:

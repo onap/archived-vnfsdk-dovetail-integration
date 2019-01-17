@@ -26,14 +26,14 @@ from vnftest.core import task
 class TaskTestCase(unittest.TestCase):
 
     def test_set_dispatchers(self):
-        t = task.Task()
+        t = task.Task({})
         output_config = {"DEFAULT": {"dispatcher": "file, http"}}
         t._set_dispatchers(output_config)
         self.assertEqual(output_config, output_config)
 
     @mock.patch.object(task, 'DispatcherBase')
     def test__do_output(self, mock_dispatcher):
-        t = task.Task()
+        t = task.Task({})
         output_config = {"DEFAULT": {"dispatcher": "file, http"}}
 
         dispatcher1 = mock.MagicMock()
@@ -44,7 +44,7 @@ class TaskTestCase(unittest.TestCase):
 
         mock_dispatcher.get = mock.MagicMock(return_value=[dispatcher1,
                                                            dispatcher2])
-        self.assertIsNone(t._do_output(output_config, {}))
+        self.assertIsNone(t._do_output(output_config))
 
     @mock.patch.object(task, 'Context')
     @mock.patch.object(task, 'base_runner')
@@ -55,16 +55,17 @@ class TaskTestCase(unittest.TestCase):
                 'interval': 1,
                 'type': 'Duration'
             },
-            'type': 'Dummy'
+            'type': 'Dummy',
+            'name': 'Dummy Step'
         }
 
-        t = task.Task()
+        t = task.Task({})
         runner = mock.Mock()
         runner.join.return_value = 0
         runner.get_output.return_value = {}
         runner.get_result.return_value = []
         mock_base_runner.Runner.get.return_value = runner
-        t._run([step], False, "vnftest.out", {})
+        t._run([step], 'dummy_case', False, "vnftest.out", {})
         self.assertTrue(runner.run.called)
 
     def test_parse_suite_no_constraint_no_args(self):
@@ -121,7 +122,7 @@ class TaskTestCase(unittest.TestCase):
     @mock.patch.object(task, 'utils')
     @mock.patch('logging.root')
     def test_set_log(self, mock_logging_root, *args):
-        task_obj = task.Task()
+        task_obj = task.Task({})
         task_obj.task_id = 'task_id'
         task_obj._set_log()
         mock_logging_root.addHandler.assert_called()

@@ -46,5 +46,5 @@ class Base(object):
         return list_dispatcher
 
     @abc.abstractmethod
-    def flush_result_data(self, data):
+    def flush_result_data(self, id, data):
         """Flush result data into permanent storage media interface."""

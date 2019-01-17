@@ -45,19 +45,19 @@ class TaskCommands(object):     # pragma: no cover
              output_file_default, default=output_file_default)
     @cliargs("--suite", help="process test suite file instead of a task file",
              action="store_true")
-    def do_start(self, args, **kwargs):
+    def do_start(self, args):
         param = change_osloobj_to_paras(args)
         self.output_file = param.output_file
 
         result = {}
         LOG.info('Task START')
         try:
-            result = Task().start(param, **kwargs)
+            result = Task(param).start()
         except Exception as e:
             self._write_error_data(e)
             LOG.exception("")
 
-        if result.get('result', {}).get('criteria') == 'PASS':
+        if result.get('criteria') == 'PASS':
             LOG.info('Task SUCCESS')
         else:
             LOG.info('Task FAILED')

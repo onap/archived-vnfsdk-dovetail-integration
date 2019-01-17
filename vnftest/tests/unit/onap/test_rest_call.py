@@ -21,6 +21,7 @@ from vnftest.core import task
 class RestCallTestCase(testtools.TestCase):
 
     step = {
+      'name': 'DummyName',
       'type': 'RestCall',
       'options': {
         'file': "dummy.yaml",
@@ -49,10 +50,10 @@ class RestCallTestCase(testtools.TestCase):
     @mock.patch('vnftest.steps.rest_call.RestCall.execute_operation_impl')
     def test_run(self, mock_execute_operation):
         mock_execute_operation.return_value = {'body': {'value': 'output1'}}
-        t = task.Task()
+        t = task.Task({})
         context_cfg = {}
         context = Context.get("CSAR")
         context.init(context_cfg)
         t.context = context
-        output = t._run([RestCallTestCase.step], False, "vnftest.out", {})
+        output = t._run([RestCallTestCase.step], 'dummy_case', False, "vnftest.out", {})
         self.assertEquals(output[0]['data']['output1'], 'output1')

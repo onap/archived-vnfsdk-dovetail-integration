@@ -146,9 +146,9 @@ report_template = """
         <hr/>
         <div>
 
-            <div>Task ID : {{result.task_id}} </div>
+            <div>Task ID : {{task_id}} </div>
             <div style="margin-top:5px;">Criteria :
-                <font> {{result.criteria}}</font>
+                <font> {{criteria}}</font>
             </div>
             <hr/>
 
@@ -160,7 +160,7 @@ report_template = """
                     <th>value</th>
                 </tr>
                 <tbody>
-                    {% for key, value in result.info.items() %}
+                    {% for key, value in info.items() %}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td>{{key}}</td>
@@ -179,12 +179,11 @@ report_template = """
                     <th>value</th>
                 </tr>
                 <tbody>
-                    {% for key, value in result.testcases.items() %}
+                    {% for testcase in testcases %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{key}}</td>
-                        <td>{{value.criteria}}</td>
-                        <td>{{value.output}}</td>
+                        <td>{{testcase.name}}</td>
+                        <td>{{testcase.criteria}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

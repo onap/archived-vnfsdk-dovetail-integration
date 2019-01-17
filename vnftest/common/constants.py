@@ -88,17 +88,13 @@ PACKAGE_DIR = get_param('dir.packages', join(VNFTEST_ROOT_PATH, '../../packages/
 CONF_FILE = join(CONF_DIR, 'vnftest.conf')
 REPOS_DIR = get_param('dir.repos', join(VNFTEST_ROOT_PATH, '..'))
 LOG_DIR = get_param('dir.log', '/var/log/vnftest/')
+REPORT_DIR = get_param('dir.report', '/tmp/')
 
 TASK_LOG_DIR = get_param('dir.tasklog', '/var/log/vnftest/')
 CONF_SAMPLE_DIR = join(REPOS_DIR, 'etc/vnftest/')
 SAMPLE_CASE_DIR = join(REPOS_DIR, 'samples')
 TESTCASE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_cases/')
 TESTSUITE_DIR = join(VNFTEST_ROOT_PATH, 'vnftest/test_config/onap/test_suites/')
-
-# file
-DEFAULT_OUTPUT_FILE = get_param('file.output_file', '/tmp/vnftest.out')
-DEFAULT_HTML_FILE = get_param('file.html_file', '/tmp/vnftest.htm')
-REPORTING_FILE = get_param('file.reporting_file', '/tmp/report.html')
 
 # api
 API_PORT = 5000
