@@ -476,19 +476,16 @@ class TaskParser(object):       # pragma: no cover
 
 
 class TaskInfo(object):
-    info_dict = {}
-    info_dict['status'] = 'IN_PROGRESS'
-    info_dict['criteria'] = 'N/A'
-    result_info_dict = {}
-    info_dict['info'] = result_info_dict
-    test_cases_list = []
-    info_dict['testcases'] = test_cases_list
-    helper_test_cases_dict = {}
-    helper_test_steps_dict = {}
-    step_id_helper = 0
 
     def __init__(self, task_id):
-        self.info_dict['task_id'] = task_id
+        self.info_dict = {'task_id': task_id, 'status': 'IN_PROGRESS', 'criteria': 'N/A'}
+        self.result_info_dict = {}
+        self.info_dict['info'] = self.result_info_dict
+        self.test_cases_list = []
+        self.info_dict['testcases'] = self.test_cases_list
+        self.helper_test_cases_dict = {}
+        self.helper_test_steps_dict = {}
+        self.step_id_helper = 0
 
     def task_end(self):
         if self.info_dict['criteria'] == 'N/A':
@@ -505,11 +502,7 @@ class TaskInfo(object):
         self.info_dict['status'] = 'FINISHED'
 
     def testcase_start(self, testcase_name):
-        testcase_dict = {}
-        testcase_dict['name'] = testcase_name
-        testcase_dict['criteria'] = 'N/A'
-        testcase_dict['status'] = 'IN_PROGRESS'
-        testcase_dict['steps'] = []
+        testcase_dict = {'name': testcase_name, 'criteria': 'N/A', 'status': 'IN_PROGRESS', 'steps': []}
         self.test_cases_list.append(testcase_dict)
         self.helper_test_cases_dict[testcase_name] = testcase_dict
 
@@ -524,11 +517,7 @@ class TaskInfo(object):
         testcase_dict['status'] = 'FINISHED'
 
     def step_add(self, testcase_name, step_name):
-        step_dict = {}
-        step_dict['name'] = step_name
-        step_dict['criteria'] = 'N/A'
-        step_dict['status'] = 'NOT_STARTED'
-        step_dict['results'] = []
+        step_dict = {'name': step_name, 'criteria': 'N/A', 'status': 'NOT_STARTED', 'results': []}
         testcase_dict = self.helper_test_cases_dict[testcase_name]
         testcase_dict['steps'].append(step_dict)
         self.step_id_helper += 1
@@ -564,7 +553,8 @@ class TaskInfo(object):
         step_dict['status'] = 'FINISHED'
 
     def result(self):
-        return self.info_dict
+        return copy.deepcopy(self.info_dict)
+
 
 def is_ip_addr(addr):
     """check if string addr is an IP address"""
