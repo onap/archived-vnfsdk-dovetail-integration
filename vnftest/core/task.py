@@ -272,6 +272,9 @@ class Task(object):     # pragma: no cover
                 runner = runner_item[1]
                 self.finalize_step(step, runner, result)
             return result
+        except Exception as e:
+            LOG.error("Case fatal error", e)
+            self.task_info.testcase_fatal(case_name)
         finally:
             self.task_info.testcase_end(case_name)
 
@@ -491,7 +494,7 @@ class TaskInfo(object):
         if self.info_dict['criteria'] == 'N/A':
             criteria = 'PASS'
             for testcase in self.info_dict['testcases']:
-                if testcase['criteria'] == 'FAIL':
+                if testcase['criteria'] == 'FAIL' or testcase['criteria'] == 'FATAL':
                     criteria = 'FAIL'
                     break
             self.info_dict['criteria'] = criteria
@@ -501,6 +504,11 @@ class TaskInfo(object):
         self.info_dict['criteria'] = 'FATAL'
         self.info_dict['status'] = 'FINISHED'
 
+    def testcase_fatal(self, testcase_name):
+        testcase_dict = self.helper_test_cases_dict[testcase_name]
+        testcase_dict['criteria'] = 'FATAL'
+        testcase_dict['status'] = 'FINISHED'
+
     def testcase_start(self, testcase_name):
         testcase_dict = {'name': testcase_name, 'criteria': 'N/A', 'status': 'IN_PROGRESS', 'steps': []}
         self.test_cases_list.append(testcase_dict)
@@ -508,13 +516,14 @@ class TaskInfo(object):
 
     def testcase_end(self, testcase_name):
         testcase_dict = self.helper_test_cases_dict[testcase_name]
-        criteria = 'PASS'
-        for step in testcase_dict['steps']:
-            if step['criteria'] == 'FAIL':
-                criteria = 'FAIL'
-                break
-        testcase_dict['criteria'] = criteria
-        testcase_dict['status'] = 'FINISHED'
+        if testcase_dict['criteria'] == 'N/A':
+            criteria = 'PASS'
+            for step in testcase_dict['steps']:
+                if step['criteria'] == 'FAIL':
+                    criteria = 'FAIL'
+                    break
+            testcase_dict['criteria'] = criteria
+            testcase_dict['status'] = 'FINISHED'
 
     def step_add(self, testcase_name, step_name):
         step_dict = {'name': step_name, 'criteria': 'N/A', 'status': 'NOT_STARTED', 'results': []}

@@ -80,7 +80,9 @@ def _worker_process(result_queue, cls, method_name, step_cfg,
             except AssertionError as assertion:
                 # SLA validation failed in step, determine what to do now
                 if sla_action == "assert":
-                    raise
+                    errors.append(assertion)
+                    LOG.info("Assersion error")
+                    fatal_error = True
                 elif sla_action == "monitor":
                     LOG.warning("SLA validation failed: %s", assertion.args)
                     errors.append(assertion.args)
