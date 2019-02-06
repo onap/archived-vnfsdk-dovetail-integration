@@ -41,7 +41,7 @@ class Crawler(object):
         output = {}
         for output_parameter in output_config:
             param_name = output_parameter['parameter_name']
-            param_value = output_parameter.get('value', "[]")
+            param_value = output_parameter.get('value', "[body]")
             crawler_type = output_parameter.get('type', 'default')
             crawler_class = Crawler.get_cls(crawler_type)
             crawler = crawler_class()

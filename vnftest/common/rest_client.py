@@ -14,24 +14,23 @@
 ##############################################################################
 
 import json
-
 import logging
 import os
 import urllib2
 import requests
-import sys
-import traceback
 from vnftest.common import utils
+from vnftest.common.yaml_loader import yaml_load
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 logger = logging.getLogger(__name__)
 os.putenv('PYTHONHTTPSVERIFY', "0")
 
 
-def post(url, headers, data, logger):
-    return call(url, 'POST', headers, data, logger)
+def post(url, headers, data):
+    return call(url, 'POST', headers, data)
 
 
-def call(url, method, headers, data, logger):
+def call(url, method, headers, data):
     data_json = json.dumps(data)
     f = None
     try:
@@ -49,7 +48,7 @@ def call(url, method, headers, data, logger):
         if 'application/xml' in content_type:
             response_body = utils.xml_to_dict(response_body)
         else:
-            response_body = json.loads(response_body)
+            response_body = yaml_load(response_body)
         result = {'return_code': return_code, 'body': response_body, 'headers': headers}
         return result
     except urllib2.HTTPError as e:
@@ -65,14 +64,17 @@ def call(url, method, headers, data, logger):
             f.close()
 
 
-def upload_file(url, headers, file, logger):
-    logger.debug("Upload file. URL: {}".format(url))
+def form_data(url, headers, form_data_content):
+    logger.debug("handle form-data. URL: {}".format(url))
     response = None
     try:
-        response = requests.post(url, headers=headers, files=file, verify=False)
-        return {'return_code': response.status_code, 'body': response.json(), 'headers': response.headers}
+        multipart_data = MultipartEncoder(fields=form_data_content)
+        headers['Content-Type'] = multipart_data.content_type
+        response = requests.post(url, headers=headers, data=multipart_data, verify=False)
+        body = yaml_load(response.text)
+        return {'return_code': response.status_code, 'body': body, 'headers': response.headers}
     except Exception as e:
-        message = "Error while uploading file to {}, exception: {}".format(url, e)
+        message = "Error handling form-data. url: {}, exception: {}".format(url, e)
         logger.exception(message)
         raise RuntimeError(message)
     finally:
