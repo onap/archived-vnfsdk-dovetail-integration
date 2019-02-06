@@ -13,15 +13,12 @@
 ##############################################################################
 from __future__ import absolute_import
 import copy
+import json
 import logging
 import time
-
-import os
 import yaml
-
 from vnftest.common import constants as consts, utils
 from vnftest.common import rest_client
-from vnftest.common.utils import dotdict
 from vnftest.common.exceptions import MandatoryKeyException, InputParameterMissing
 from vnftest.crawlers.base import Crawler
 from vnftest.steps import base
@@ -90,9 +87,7 @@ class RestCall(base.Step):
         params.update(copy.deepcopy(self.input_params))
         self.eval_input(params)
         execution_result = self.execute_operation(params)
-        result_body = execution_result['body']
-        result_body['headers'] = execution_result.get('headers', {})
-        output = Crawler.crawl(result_body, self.output_cfg)
+        output = Crawler.crawl(execution_result, self.output_cfg)
         result.update(output)
         return output
 
@@ -119,18 +114,22 @@ class RestCall(base.Step):
         LOG.info(url)
         LOG.info(headers)
         LOG.info(body)
-        if 'file' in operation:
-            file_conf = operation['file']
-            LOG.info(file_conf)
-            with utils.load_resource(file_conf['path']) as stream:
-                files = {file_conf['key']: stream}
-                result = rest_client.upload_file(url, headers, files, LOG)
+        if 'form-data' in operation:
+            form_data_content = {}
+            form_data_list = operation['form-data']
+            for form_data_item in form_data_list:
+                key = form_data_item['key']
+                if 'file' in form_data_item:
+                    form_data_content[key] = utils.load_resource(form_data_item['file'])
+                else:
+                    value_str = json.dumps(form_data_item['value'])
+                    form_data_content[key] = value_str
+            result = rest_client.form_data(url, headers, form_data_content)
         else:
             result = rest_client.call(url,
                                       operation['method'],
                                       headers,
-                                      body,
-                                      LOG)
+                                      body)
         if result['return_code'] >= 300:
             raise RuntimeError(
                 "Operation failed. return_code:{}, message:{}".format(result['return_code'], result['body']))

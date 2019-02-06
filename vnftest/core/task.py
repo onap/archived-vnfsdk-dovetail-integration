@@ -99,11 +99,11 @@ class Task(object):     # pragma: no cover
 
         if self.args.suite:
             # 1.parse suite, return suite_params info
-            task_files, task_args_list, task_args_fnames = \
-                parser.parse_suite()
+            task_files, task_args_list, task_args_fnames = parser.parse_suite()
+
         else:
             task_files = [parser.path]
-            task_args_list = [self.args.task_args]
+            task_args_list = [{}]
             task_args_fnames = [self.args.task_args_file]
 
         LOG.debug("task_files:%s, task_args_list:%s, task_args_fnames:%s",
@@ -120,9 +120,11 @@ class Task(object):     # pragma: no cover
                 task_args_file = task_args_fnames[i]
                 task_args = task_args_list[i]
                 try:
+                    inputs.update(parse_task_args("global_task_args", self.args.task_args))
                     if task_args_file:
                         with utils.load_resource(task_args_file) as f:
                             inputs.update(parse_task_args("task_args_file", f.read()))
+                    # task args from suite may override file args.
                     inputs.update(parse_task_args("task_args", task_args))
                 except TypeError:
                     raise TypeError()

@@ -33,7 +33,7 @@ class RestCallTestCase(testtools.TestCase):
         'output':
         [{
           'parameter_name': "output1",
-          'value': "[value]"
+          'value': "[body][value]"
         }]},
       'sla': {
         'action': 'assert',

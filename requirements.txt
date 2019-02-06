@@ -59,6 +59,7 @@ python-neutronclient==6.5.0     # OSI Approved  Apache Software License
 python-novaclient==9.1.1        # OSI Approved  Apache Software License
 pyzmq==16.0.2           # LGPL+BSD; OSI Approved  GNU Library or Lesser General Public License (LGPL); OSI Approved  BSD License
 requests==2.18.2        # Apache 2.0; OSI Approved  Apache Software License
+requests-toolbelt==0.8.0 # License: Apache 2.0
 requestsexceptions==1.3.0   # OSI Approved  Apache Software License
 scp==0.10.2             # LGPL
 shade==1.22.2           # OSI Approved  Apache Software License
