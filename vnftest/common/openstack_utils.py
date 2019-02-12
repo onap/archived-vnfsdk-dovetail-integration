@@ -800,7 +800,7 @@ def get_stack_resources(heat_stack_id):    # pragma: no cover
         client = get_heat_client()
         return client.resources.list(heat_stack_id)
     except Exception as e:
-        log.exception("Error [get_stack_resources(heat_stack_id)]", e)
+        log.exception("Error [get_stack_resources(heat_stack_id)]: %s", e)
 
 
 def get_stack_vms(heat_stack_id):    # pragma: no cover

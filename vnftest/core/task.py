@@ -158,7 +158,7 @@ class Task(object):     # pragma: no cover
                 LOG.info("Task %s finished in %d secs", task_files[i],
                          one_task_end_time - one_task_start_time)
         except Exception as e:
-            LOG.error("Task fatal error", e)
+            LOG.error("Task fatal error: %s", e)
             self.task_info.task_fatal()
         finally:
             self.task_info.task_end()
@@ -275,7 +275,7 @@ class Task(object):     # pragma: no cover
                 self.finalize_step(step, runner, result)
             return result
         except Exception as e:
-            LOG.error("Case fatal error", e)
+            LOG.exception('Case fatal error: %s', e)
             self.task_info.testcase_fatal(case_name)
         finally:
             self.task_info.testcase_end(case_name)

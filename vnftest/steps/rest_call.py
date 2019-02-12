@@ -141,7 +141,7 @@ class RestCall(base.Step):
             value_def = self.sla_cfg['value']
             value = utils.format(value_def, output)
             expected_value = self.sla_cfg['equals']
-            assert value == expected_value
+            assert value == expected_value, "expected: %s, found: %s" % (expected_value, value)
 
     def load_file(self, params):
         operation_template = utils.resource_as_string(self.rest_def_file)

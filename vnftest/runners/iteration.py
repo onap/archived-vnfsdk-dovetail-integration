@@ -78,10 +78,10 @@ def _worker_process(result_queue, cls, method_name, step_cfg,
                     # if we do timeout we don't care about dropping individual KPIs
                     output_queue.put(output, True, QUEUE_PUT_TIMEOUT)
             except AssertionError as assertion:
+                LOG.exception("Assertion error: %s", assertion)
                 # SLA validation failed in step, determine what to do now
                 if sla_action == "assert":
                     errors.append(assertion)
-                    LOG.info("Assersion error")
                     fatal_error = True
                 elif sla_action == "monitor":
                     LOG.warning("SLA validation failed: %s", assertion.args)
