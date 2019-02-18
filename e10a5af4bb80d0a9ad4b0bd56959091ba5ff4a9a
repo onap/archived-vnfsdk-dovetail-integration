@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Moshe Hoadley <moshehoa@amdocs.com>
+Code-Review+2: Mickael JEZEQUEL <mickael.jezequel@orange.com>
+Submitted-by: Moshe Hoadley <moshehoa@amdocs.com>
+Submitted-at: Mon, 18 Feb 2019 08:21:43 +0000
+Reviewed-on: https://gerrit.onap.org/r/78274
+Project: vnfsdk/dovetail-integration
+Branch: refs/heads/master
