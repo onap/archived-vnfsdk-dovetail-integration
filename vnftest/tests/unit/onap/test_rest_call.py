@@ -51,7 +51,7 @@ class RestCallTestCase(testtools.TestCase):
     def test_run(self, mock_execute_operation):
         mock_execute_operation.return_value = {'body': {'value': 'output1'}}
         t = task.Task({})
-        context_cfg = {}
+        context_cfg = {'task_id': '123', 'name': 'dummy'}
         context = Context.get("CSAR")
         context.init(context_cfg)
         t.context = context

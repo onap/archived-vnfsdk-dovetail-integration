@@ -475,12 +475,23 @@ def load_resource(path, mode="r"):
     try:
         return open(path, mode)
     except Exception:
-        logger.info("path not loaded as file, trying load as package")
         split_path = os.path.split(path)
         package = split_path[0].replace("/", ".")
         if not pkg_resources.resource_exists(package, split_path[1]):
             raise ResourceNotFound(resource=path)
         return pkg_resources.resource_stream(package, split_path[1])
+
+
+def resource_abs_path(path, mode="r"):
+    try:
+        open(path, mode)
+        return path
+    except Exception:
+        split_path = os.path.split(path)
+        package = split_path[0].replace("/", ".")
+        if not pkg_resources.resource_exists(package, split_path[1]):
+            raise ResourceNotFound(resource=path)
+        return pkg_resources.resource_filename(package, split_path[1])
 
 
 def format(in_obj, params):
