@@ -26,20 +26,14 @@ class Context(object):
     """Class that represents a context in the logical model"""
     list = []
 
-    @staticmethod
-    def split_name(name, sep='.'):
-        try:
-            name_iter = iter(name.split(sep))
-        except AttributeError:
-            # name is not a string
-            return None, None
-        return next(name_iter), next(name_iter, None)
-
     def __init__(self):
         Context.list.append(self)
+        self._task_id = None
+        self._name = None
 
     def init(self, attrs):
-        pass
+        self._task_id = attrs['task_id']
+        self._name = attrs['name']
 
     @staticmethod
     def get_cls(context_type):

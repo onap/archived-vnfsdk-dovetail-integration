@@ -35,7 +35,6 @@ from six.moves import filter
 from vnftest.runners import base as base_runner
 
 from vnftest.contexts.base import Context
-from vnftest.contexts.csar import CSARContext
 from vnftest.runners import base as base_runner
 from vnftest.runners.duration import DurationRunner
 from vnftest.runners.iteration import IterationRunner
@@ -61,7 +60,7 @@ class Task(object):     # pragma: no cover
     """
 
     def __init__(self, args):
-        self.context = None
+        self.contexts = None
         self.outputs = {}
         self.args = args or {}
         task_id = getattr(args, 'task_id', None)
@@ -129,10 +128,10 @@ class Task(object):     # pragma: no cover
                 except TypeError:
                     raise TypeError()
                 parser.path = task_files[i]
-                steps, run_in_parallel, meet_precondition, ret_context = \
+                steps, run_in_parallel, meet_precondition, ret_contexts = \
                     parser.parse_task(self.task_id, inputs)
 
-                self.context = ret_context
+                self.contexts = ret_contexts
 
                 if not meet_precondition:
                     LOG.info("meet_precondition is %s, please check envrionment",
@@ -150,10 +149,12 @@ class Task(object):     # pragma: no cover
                 if self.args.keep_deploy:
                     # keep deployment, forget about stack
                     # (hide it for exit handler)
-                    self.context = None
+                    self.contexts = None
                 else:
-                    self.context.undeploy()
-                    self.context = None
+                    if self.contexts is not None:
+                        for context in self.contexts:
+                            context.undeploy()
+                        self.contexts = None
                 one_task_end_time = time.time()
                 LOG.info("Task %s finished in %d secs", task_files[i],
                          one_task_end_time - one_task_start_time)
@@ -229,8 +230,10 @@ class Task(object):     # pragma: no cover
 
     def _run(self, steps, case_name, run_in_parallel, output_file, inputs):
         """Deploys context and calls runners"""
-        if self.context:
-            self.context.deploy()
+        if self.contexts is not None:
+            for context in self.contexts:
+                context.deploy()
+
         try:
             self.task_info.testcase_start(case_name)
             for step in steps:
@@ -284,9 +287,10 @@ class Task(object):     # pragma: no cover
         """handler for process termination"""
         base_runner.Runner.terminate_all()
 
-        if self.context:
+        if self.contexts:
             LOG.info("Undeploying context")
-            self.context.undeploy()
+            for context in self.contexts:
+                context.undeploy()
 
     def _parse_options(self, op):
         if isinstance(op, dict):
@@ -312,7 +316,7 @@ class Task(object):     # pragma: no cover
         LOG.info("Starting runner of type '%s'", runner_cfg["type"])
         # Previous steps output is the input of the next step.
         inputs.update(self.outputs)
-        runner.run(step_cfg, self.context, inputs)
+        runner.run(step_cfg, self.contexts, inputs)
         return runner
 
     def finalize_step(self, step, runner, result):
@@ -420,20 +424,19 @@ class TaskParser(object):       # pragma: no cover
         meet_precondition = self._check_precondition(cfg)
 
         if "context" in cfg:
-            context_cfg = cfg["context"]
+            context_cfgs = [cfg["context"]]
+        elif "contexts" in cfg:
+            context_cfgs = cfg["contexts"]
         else:
-            context_cfg = {"type": "Dummy"}
+            context_cfgs = [{"type": "Dummy"}]
 
-        name_suffix = '-{}'.format(task_id[:8])
-        try:
-            context_cfg['name'] = '{}{}'.format(context_cfg['name'],
-                                                name_suffix)
-        except KeyError:
-            pass
-        # default to CSAR context
-        context_type = context_cfg.get("type", "CSAR")
-        context = Context.get(context_type)
-        context.init(context_cfg)
+        _contexts = []
+        for cfg_attrs in context_cfgs:
+            cfg_attrs['task_id'] = task_id
+            context_type = cfg_attrs.get("type")
+            context = Context.get(context_type)
+            context.init(cfg_attrs)
+            _contexts.append(context)
 
         run_in_parallel = cfg.get("run_in_parallel", False)
 
@@ -447,7 +450,7 @@ class TaskParser(object):       # pragma: no cover
             step["task_path"] = os.path.dirname(self.path)
 
         # TODO we need something better here, a class that represent the file
-        return cfg["steps"], run_in_parallel, meet_precondition, context
+        return cfg["steps"], run_in_parallel, meet_precondition, _contexts
 
     def _check_schema(self, cfg_schema, schema_type):
         """Check if config file is using the correct schema type"""
