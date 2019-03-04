@@ -23,94 +23,16 @@ else
     COVER_DIR_NAME=$( dirname $0 )
 fi
 
-show_diff () {
-    diff -U 0 $1 $2 | awk -f $COVER_DIR_NAME/cover.awk
-}
-
 run_coverage_test() {
 
-    ALLOWED_EXTRA_MISSING=150
     # enable debugging
     set -x
 
-    # Stash uncommitted changes, checkout master and save coverage report
-    uncommited=$(git status --porcelain | grep -v "^??")
-    [[ -n ${uncommited} ]] && git stash > /dev/null
-    git checkout HEAD^
-
-    baseline_report=$(mktemp -t vnftest_coverageXXXXXXX)
-
-    find . -type f -name "*.pyc" -delete
-
     coverage run -p -m unittest discover ./vnftest/tests/unit/core
     coverage run -p -m unittest discover ./vnftest/tests/unit/onap
     coverage run -p -m unittest discover ./vnftest/tests/unit/common
     coverage combine
-
-    coverage report > ${baseline_report}
+    coverage xml
     coverage erase
 
-    # debug awk
-    tail -1 ${baseline_report}
-    baseline_missing=$(awk 'END { if (int($3) > 0) print $3 }' ${baseline_report})
-
-    if [[ -z $baseline_missing ]]; then
-        echo "Failed to determine baseline missing"
-        exit 1
-    fi
-
-    # Checkout back and unstash uncommitted changes (if any)
-    git checkout -
-    [[ -n ${uncommited} ]] && git stash pop > /dev/null
-
-    # Generate and save coverage report
-    current_report=$(mktemp -t vnftest_coverageXXXXXXX)
-
-    find . -type f -name "*.pyc" -delete
-
-    coverage run -p -m unittest discover ./vnftest/tests/unit/core
-    coverage run -p -m unittest discover ./vnftest/tests/unit/onap
-    coverage run -p -m unittest discover ./vnftest/tests/unit/common
-    coverage combine
-
-    coverage report > ${current_report}
-    coverage erase
-
-    rm -rf cover-$PY_VER
-    coverage html -d cover-$PY_VER
-
-    # debug awk
-    tail -1 ${current_report}
-    current_missing=$(awk 'END { if (int($3) > 0) print $3 }' ${current_report})
-
-    if [[ -z $current_missing ]]; then
-        echo "Failed to determine current missing"
-        exit 1
-    fi
-
-    # Show coverage details
-    new_missing=$((current_missing - baseline_missing))
-
-    echo "Missing lines allowed to introduce : ${ALLOWED_EXTRA_MISSING}"
-    echo "Missing lines introduced           : ${new_missing}"
-    echo "Missing lines in master            : ${baseline_missing}"
-    echo "Missing lines in proposed change   : ${current_missing}"
-
-    if [[ ${new_missing} -gt ${ALLOWED_EXTRA_MISSING} ]];
-    then
-        show_diff ${baseline_report} ${current_report}
-        echo "Please write more unit tests, we should keep our test coverage :( "
-        rm ${baseline_report} ${current_report}
-        exit 1
-
-    elif [[ ${new_missing} -gt 0 ]];
-    then
-        show_diff ${baseline_report} ${current_report}
-        echo "I believe you can cover all your code with 100% coverage!"
-
-    else
-        echo "Thank you! You are awesome! Keep writing unit tests! :)"
-    fi
-
-    rm ${baseline_report} ${current_report}
 }
