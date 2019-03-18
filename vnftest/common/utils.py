@@ -204,16 +204,6 @@ def result_handler(status, data):
     return jsonify(result)
 
 
-def change_obj_to_dict(obj):
-    dic = {}
-    for k, v in vars(obj).items():
-        try:
-            vars(v)
-        except TypeError:
-            dic.update({k: v})
-    return dic
-
-
 def set_dict_value(dic, keys, value):
     return_dic = dic
 
@@ -413,9 +403,26 @@ class dotdict(dict):
     __delattr__ = dict.__delitem__
 
 
+def deep_dotdict(obj):
+    if isinstance(obj, dict):
+        dot_dict = {}
+        for k, v in obj.items():
+            if isinstance(k, basestring) and not k.startswith('_'):
+                v = deep_dotdict(v)
+                dot_dict[k] = v
+        return dotdict(dot_dict)
+    if isinstance(obj, list):
+        new_list = []
+        for element in obj:
+            element = deep_dotdict(element)
+            new_list.append(element)
+        return new_list
+    return obj
+
+
 def normalize_data_struct(obj):
-    if isinstance(obj, basestring):
-        return [obj]
+    if obj is None:
+        return None
     if isinstance(obj, list):
         nomalized_list = []
         for element in obj:
@@ -424,11 +431,15 @@ def normalize_data_struct(obj):
         return nomalized_list
     if isinstance(obj, dict):
         normalized_dict = {}
-        for k, v in obj:
-            v = normalize_data_struct(v)
-            normalized_dict[k] = v
+        for k, v in obj.items():
+            if isinstance(k, basestring) and not k.startswith('_'):
+                v = normalize_data_struct(v)
+                normalized_dict[k] = v
         return normalized_dict
-    return change_obj_to_dict(obj)
+    # return obj if it is string, integer, bool ect.
+    if not hasattr(obj, '__dict__'):
+        return obj
+    return normalize_data_struct(obj.__dict__)
 
 
 def xml_to_dict(xml_str):
@@ -510,7 +521,6 @@ def format(in_obj, params):
     if not isinstance(in_obj, basestring):
         return in_obj
 
-    dotdict(params)
     ret_str = ""
     ret_obj = None
     for literal_text, field_name, format_spec, conversion in \
@@ -522,7 +532,7 @@ def format(in_obj, params):
             try:
                 value = tmp_dict[field_name]
             except KeyError:
-                tmp_dict = dotdict(tmp_dict)
+                tmp_dict = deep_dotdict(tmp_dict)
                 field_name = '{' + field_name + '}'
                 value = field_name.format(**tmp_dict)
             if isinstance(value, basestring):

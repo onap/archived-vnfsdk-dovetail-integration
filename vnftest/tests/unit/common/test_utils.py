@@ -798,19 +798,6 @@ power management:
         assert sockets == [0, 1]
 
 
-class ChangeObjToDictTestCase(unittest.TestCase):
-
-    def test_change_obj_to_dict(self):
-        class A(object):
-            def __init__(self):
-                self.name = 'vnftest'
-
-        obj = A()
-        obj_r = utils.change_obj_to_dict(obj)
-        obj_s = {'name': 'vnftest'}
-        self.assertEqual(obj_r, obj_s)
-
-
 class SetDictValueTestCase(unittest.TestCase):
 
     def test_set_dict_value(self):
