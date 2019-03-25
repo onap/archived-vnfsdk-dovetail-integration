@@ -14,60 +14,49 @@
 # vnftest comment: this is a modified copy of
 # yardstick/common/openstack_utils.py
 
-from __future__ import absolute_import
-
-import os
-import time
-import sys
+import copy
 import logging
+import os
 
-from keystoneauth1 import loading
-from keystoneauth1 import session
 from cinderclient import client as cinderclient
 from novaclient import client as novaclient
 from glanceclient import client as glanceclient
+from keystoneauth1 import loading
+from keystoneauth1 import session
 from neutronclient.neutron import client as neutronclient
-from heatclient.client import Client as heatclient
+import shade
+from shade import exc
+
+from vnftest.common import constants
+
 
 log = logging.getLogger(__name__)
 
 DEFAULT_HEAT_API_VERSION = '1'
 DEFAULT_API_VERSION = '2'
 
-creds = {}
-
 
 # *********************************************
 #   CREDENTIALS
 # *********************************************
-def initialize(openstack_env_config):
-    keystone_api_version = openstack_env_config.get('OS_IDENTITY_API_VERSION', None)
-
-    if keystone_api_version is None or keystone_api_version == '2':
-        keystone_v3 = False
-        creds['tenant_name'] = openstack_env_config['OS_TENANT_NAME']
-    else:
-        keystone_v3 = True
-        creds['tenant_name'] = openstack_env_config['OS_PROJECT_NAME']
-        creds['project_name'] = openstack_env_config['OS_PROJECT_NAME']
-
-    creds["username"] = openstack_env_config["OS_USERNAME"]
-    creds["password"] = openstack_env_config["OS_PASSWORD"]
-    creds["auth_url"] = openstack_env_config["OS_AUTH_URL"]
-    creds["tenant_id"] = openstack_env_config["OS_TENANT_ID"]
-
-    if keystone_v3:
-        if 'OS_USER_DOMAIN_NAME' in openstack_env_config:
-            creds.update({
-                "user_domain_name": openstack_env_config['OS_USER_DOMAIN_NAME']
-            })
-        if 'OS_PROJECT_DOMAIN_NAME' in openstack_env_config:
-            creds.update({
-                "project_domain_name": openstack_env_config['OS_PROJECT_DOMAIN_NAME']
-            })
-
-
 def get_credentials():
+    """Returns a creds dictionary filled with parsed from env
+
+    Keystone API version used is 3; v2 was deprecated in 2014 (Icehouse). Along
+    with this deprecation, environment variable 'OS_TENANT_NAME' is replaced by
+    'OS_PROJECT_NAME'.
+    """
+    creds = {'username': os.environ.get('OS_USERNAME'),
+             'password': os.environ.get('OS_PASSWORD'),
+             'auth_url': os.environ.get('OS_AUTH_URL'),
+             'project_name': os.environ.get('OS_PROJECT_NAME')
+             }
+
+    if os.getenv('OS_USER_DOMAIN_NAME'):
+        creds['user_domain_name'] = os.getenv('OS_USER_DOMAIN_NAME')
+    if os.getenv('OS_PROJECT_DOMAIN_NAME'):
+        creds['project_domain_name'] = os.getenv('OS_PROJECT_DOMAIN_NAME')
+
     return creds
 
 
@@ -159,11 +148,6 @@ def get_neutron_client():   # pragma: no cover
     return neutronclient.Client(get_neutron_client_version(), session=sess)
 
 
-def get_heat_client():   # pragma: no cover
-    sess = get_session()
-    return heatclient(get_heat_api_version(), session=sess)
-
-
 def get_glance_client_version():    # pragma: no cover
     try:
         api_version = os.environ['OS_IMAGE_API_VERSION']
@@ -179,223 +163,224 @@ def get_glance_client():    # pragma: no cover
     return glanceclient.Client(get_glance_client_version(), session=sess)
 
 
+def get_shade_client(**os_cloud_config):
+    """Get Shade OpenStack cloud client
+
+    By default, the input parameters given to "shade.openstack_cloud" method
+    are stored in "constants.OS_CLOUD_DEFAULT_CONFIG". The input parameters
+    passed in this function, "os_cloud_config", will overwrite the default
+    ones.
+
+    :param os_cloud_config: (kwargs) input arguments for
+                            "shade.openstack_cloud" method.
+    :return: ``shade.OpenStackCloud`` object.
+    """
+    params = copy.deepcopy(constants.OS_CLOUD_DEFAULT_CONFIG)
+    params.update(os_cloud_config)
+    return shade.openstack_cloud(**params)
+
+def get_shade_operator_client(**os_cloud_config):
+    """Get Shade Operator cloud client
+
+    :return: ``shade.OperatorCloud`` object.
+    """
+    params = copy.deepcopy(constants.OS_CLOUD_DEFAULT_CONFIG)
+    params.update(os_cloud_config)
+    return shade.operator_cloud(**params)
+
+
 # *********************************************
 #   NOVA
 # *********************************************
-def get_instances(nova_client):     # pragma: no cover
+def create_keypair(shade_client, name, public_key=None):
+    """Create a new keypair.
+
+    :param name: Name of the keypair being created.
+    :param public_key: Public key for the new keypair.
+
+    :return: Created keypair.
+    """
     try:
-        return nova_client.servers.list(search_opts={'all_tenants': 1})
-    except Exception:
-        log.exception("Error [get_instances(nova_client)]")
+        return shade_client.create_keypair(name, public_key=public_key)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_keypair(shade_client)]. "
+                  "Exception message, '%s'", o_exc.orig_message)
 
 
-def get_instance_status(nova_client, instance):     # pragma: no cover
+def create_instance_and_wait_for_active(shade_client, name, image,
+                                        flavor, auto_ip=True, ips=None,
+                                        ip_pool=None, root_volume=None,
+                                        terminate_volume=False, wait=True,
+                                        timeout=180, reuse_ips=True,
+                                        network=None, boot_from_volume=False,
+                                        volume_size='20', boot_volume=None,
+                                        volumes=None, nat_destination=None,
+                                        **kwargs):
+    """Create a virtual server instance.
+
+    :param name:(string) Name of the server.
+    :param image:(dict) Image dict, name or ID to boot with. Image is required
+                 unless boot_volume is given.
+    :param flavor:(dict) Flavor dict, name or ID to boot onto.
+    :param auto_ip: Whether to take actions to find a routable IP for
+                    the server.
+    :param ips: List of IPs to attach to the server.
+    :param ip_pool:(string) Name of the network or floating IP pool to get an
+                   address from.
+    :param root_volume:(string) Name or ID of a volume to boot from.
+                       (defaults to None - deprecated, use boot_volume)
+    :param boot_volume:(string) Name or ID of a volume to boot from.
+    :param terminate_volume:(bool) If booting from a volume, whether it should
+                            be deleted when the server is destroyed.
+    :param volumes:(optional) A list of volumes to attach to the server.
+    :param wait:(optional) Wait for the address to appear as assigned to the server.
+    :param timeout: Seconds to wait, defaults to 60.
+    :param reuse_ips:(bool)Whether to attempt to reuse pre-existing
+                     floating ips should a floating IP be needed.
+    :param network:(dict) Network dict or name or ID to attach the server to.
+                   Mutually exclusive with the nics parameter. Can also be be
+                   a list of network names or IDs or network dicts.
+    :param boot_from_volume:(bool) Whether to boot from volume. 'boot_volume'
+                            implies True, but boot_from_volume=True with
+                            no boot_volume is valid and will create a
+                            volume from the image and use that.
+    :param volume_size: When booting an image from volume, how big should
+                        the created volume be?
+    :param nat_destination: Which network should a created floating IP
+                            be attached to, if it's not possible to infer from
+                            the cloud's configuration.
+    :param meta:(optional) A dict of arbitrary key/value metadata to store for
+                this server. Both keys and values must be <=255 characters.
+    :param reservation_id: A UUID for the set of servers being requested.
+    :param min_count:(optional extension) The minimum number of servers to
+                     launch.
+    :param max_count:(optional extension) The maximum number of servers to
+                     launch.
+    :param security_groups: A list of security group names.
+    :param userdata: User data to pass to be exposed by the metadata server
+                     this can be a file type object as well or a string.
+    :param key_name:(optional extension) Name of previously created keypair to
+                    inject into the instance.
+    :param availability_zone: Name of the availability zone for instance
+                              placement.
+    :param block_device_mapping:(optional) A dict of block device mappings for
+                                this server.
+    :param block_device_mapping_v2:(optional) A dict of block device mappings
+                                   for this server.
+    :param nics:(optional extension) An ordered list of nics to be added to
+                 this server, with information about connected networks, fixed
+                 IPs, port etc.
+    :param scheduler_hints:(optional extension) Arbitrary key-value pairs
+                           specified by the client to help boot an instance.
+    :param config_drive:(optional extension) Value for config drive either
+                         boolean, or volume-id.
+    :param disk_config:(optional extension) Control how the disk is partitioned
+                       when the server is created. Possible values are 'AUTO'
+                       or 'MANUAL'.
+    :param admin_pass:(optional extension) Add a user supplied admin password.
+
+    :returns: The created server.
+    """
     try:
-        return nova_client.servers.get(instance.id).status
-    except Exception:
-        log.exception("Error [get_instance_status(nova_client)]")
+        return shade_client.create_server(
+            name, image, flavor, auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
+            root_volume=root_volume, terminate_volume=terminate_volume,
+            wait=wait, timeout=timeout, reuse_ips=reuse_ips, network=network,
+            boot_from_volume=boot_from_volume, volume_size=volume_size,
+            boot_volume=boot_volume, volumes=volumes,
+            nat_destination=nat_destination, **kwargs)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_instance(shade_client)]. "
+                  "Exception message, '%s'", o_exc.orig_message)
 
 
-def get_instance_by_name(nova_client, instance_name):   # pragma: no cover
+def attach_volume_to_server(shade_client, server_name_or_id, volume_name_or_id,
+                            device=None, wait=True, timeout=None):
+    """Attach a volume to a server.
+
+    This will attach a volume, described by the passed in volume
+    dict, to the server described by the passed in server dict on the named
+    device on the server.
+
+    If the volume is already attached to the server, or generally not
+    available, then an exception is raised. To re-attach to a server,
+    but under a different device, the user must detach it first.
+
+    :param server_name_or_id:(string) The server name or id to attach to.
+    :param volume_name_or_id:(string) The volume name or id to attach.
+    :param device:(string) The device name where the volume will attach.
+    :param wait:(bool) If true, waits for volume to be attached.
+    :param timeout: Seconds to wait for volume attachment. None is forever.
+
+    :returns: True if attached successful, False otherwise.
+    """
     try:
-        return nova_client.servers.find(name=instance_name)
-    except Exception:
-        log.exception("Error [get_instance_by_name(nova_client, '%s')]",
-                      instance_name)
-
-
-def get_instance_by_id(instance_id):   # pragma: no cover
-    try:
-        return get_nova_client().servers.find(id=instance_id)
-    except Exception:
-        log.exception("Error [get_instance_by_id(nova_client, '%s')]",
-                      instance_id)
-
-
-def get_aggregates(nova_client):    # pragma: no cover
-    try:
-        return nova_client.aggregates.list()
-    except Exception:
-        log.exception("Error [get_aggregates(nova_client)]")
-
-
-def get_availability_zones(nova_client):    # pragma: no cover
-    try:
-        return nova_client.availability_zones.list()
-    except Exception:
-        log.exception("Error [get_availability_zones(nova_client)]")
-
-
-def get_availability_zone_names(nova_client):   # pragma: no cover
-    try:
-        return [az.zoneName for az in get_availability_zones(nova_client)]
-    except Exception:
-        log.exception("Error [get_availability_zone_names(nova_client)]")
-
-
-def create_aggregate(nova_client, aggregate_name, av_zone):  # pragma: no cover
-    try:
-        nova_client.aggregates.create(aggregate_name, av_zone)
-    except Exception:
-        log.exception("Error [create_aggregate(nova_client, %s, %s)]",
-                      aggregate_name, av_zone)
-        return False
-    else:
+        server = shade_client.get_server(name_or_id=server_name_or_id)
+        volume = shade_client.get_volume(volume_name_or_id)
+        shade_client.attach_volume(
+            server, volume, device=device, wait=wait, timeout=timeout)
         return True
-
-
-def get_aggregate_id(nova_client, aggregate_name):      # pragma: no cover
-    try:
-        aggregates = get_aggregates(nova_client)
-        _id = next((ag.id for ag in aggregates if ag.name == aggregate_name))
-    except Exception:
-        log.exception("Error [get_aggregate_id(nova_client, %s)]",
-                      aggregate_name)
-    else:
-        return _id
-
-
-def add_host_to_aggregate(nova_client, aggregate_name,
-                          compute_host):    # pragma: no cover
-    try:
-        aggregate_id = get_aggregate_id(nova_client, aggregate_name)
-        nova_client.aggregates.add_host(aggregate_id, compute_host)
-    except Exception:
-        log.exception("Error [add_host_to_aggregate(nova_client, %s, %s)]",
-                      aggregate_name, compute_host)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [attach_volume_to_server(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
         return False
-    else:
-        return True
 
 
-def create_aggregate_with_host(nova_client, aggregate_name, av_zone,
-                               compute_host):    # pragma: no cover
+def delete_instance(shade_client, name_or_id, wait=False, timeout=180,
+                    delete_ips=False, delete_ip_retry=1):
+    """Delete a server instance.
+
+    :param name_or_id: name or ID of the server to delete
+    :param wait:(bool) If true, waits for server to be deleted.
+    :param timeout:(int) Seconds to wait for server deletion.
+    :param delete_ips:(bool) If true, deletes any floating IPs associated with
+                      the instance.
+    :param delete_ip_retry:(int) Number of times to retry deleting
+                           any floating ips, should the first try be
+                           unsuccessful.
+    :returns: True if delete succeeded, False otherwise.
+    """
     try:
-        create_aggregate(nova_client, aggregate_name, av_zone)
-        add_host_to_aggregate(nova_client, aggregate_name, compute_host)
-    except Exception:
-        log.exception("Error [create_aggregate_with_host("
-                      "nova_client, %s, %s, %s)]",
-                      aggregate_name, av_zone, compute_host)
+        return shade_client.delete_server(
+            name_or_id, wait=wait, timeout=timeout, delete_ips=delete_ips,
+            delete_ip_retry=delete_ip_retry)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [delete_instance(shade_client, '%s')]. "
+                  "Exception message: %s", name_or_id,
+                  o_exc.orig_message)
         return False
-    else:
-        return True
 
 
-def create_keypair(nova_client, name, key_path=None):    # pragma: no cover
+def get_server(shade_client, name_or_id=None, filters=None, detailed=False,
+               bare=False):
+    """Get a server by name or ID.
+
+    :param name_or_id: Name or ID of the server.
+    :param filters:(dict) A dictionary of meta data to use for further
+                   filtering.
+    :param detailed:(bool) Whether or not to add detailed additional
+                    information.
+    :param bare:(bool) Whether to skip adding any additional information to the
+                server record.
+
+    :returns: A server ``munch.Munch`` or None if no matching server is found.
+    """
     try:
-        with open(key_path) as fpubkey:
-            keypair = get_nova_client().keypairs.create(name=name, public_key=fpubkey.read())
-            return keypair
-    except Exception:
-        log.exception("Error [create_keypair(nova_client)]")
-
-
-def create_instance(json_body):    # pragma: no cover
-    try:
-        return get_nova_client().servers.create(**json_body)
-    except Exception:
-        log.exception("Error create instance failed")
-        return None
-
-
-def create_instance_and_wait_for_active(json_body):    # pragma: no cover
-    SLEEP = 3
-    VM_BOOT_TIMEOUT = 180
-    nova_client = get_nova_client()
-    instance = create_instance(json_body)
-    count = VM_BOOT_TIMEOUT / SLEEP
-    for n in range(count, -1, -1):
-        status = get_instance_status(nova_client, instance)
-        if status.lower() == "active":
-            return instance
-        elif status.lower() == "error":
-            log.error("The instance went to ERROR status.")
-            return None
-        time.sleep(SLEEP)
-    log.error("Timeout booting the instance.")
-    return None
-
-
-def attach_server_volume(server_id, volume_id, device=None):    # pragma: no cover
-    try:
-        get_nova_client().volumes.create_server_volume(server_id, volume_id, device)
-    except Exception:
-        log.exception("Error [attach_server_volume(nova_client, '%s', '%s')]",
-                      server_id, volume_id)
-        return False
-    else:
-        return True
-
-
-def delete_instance(nova_client, instance_id):      # pragma: no cover
-    try:
-        nova_client.servers.force_delete(instance_id)
-    except Exception:
-        log.exception("Error [delete_instance(nova_client, '%s')]",
-                      instance_id)
-        return False
-    else:
-        return True
-
-
-def remove_host_from_aggregate(nova_client, aggregate_name,
-                               compute_host):  # pragma: no cover
-    try:
-        aggregate_id = get_aggregate_id(nova_client, aggregate_name)
-        nova_client.aggregates.remove_host(aggregate_id, compute_host)
-    except Exception:
-        log.exception("Error remove_host_from_aggregate(nova_client, %s, %s)",
-                      aggregate_name, compute_host)
-        return False
-    else:
-        return True
-
-
-def remove_hosts_from_aggregate(nova_client,
-                                aggregate_name):   # pragma: no cover
-    aggregate_id = get_aggregate_id(nova_client, aggregate_name)
-    hosts = nova_client.aggregates.get(aggregate_id).hosts
-    assert(
-        all(remove_host_from_aggregate(nova_client, aggregate_name, host)
-            for host in hosts))
-
-
-def delete_aggregate(nova_client, aggregate_name):  # pragma: no cover
-    try:
-        remove_hosts_from_aggregate(nova_client, aggregate_name)
-        nova_client.aggregates.delete(aggregate_name)
-    except Exception:
-        log.exception("Error [delete_aggregate(nova_client, %s)]",
-                      aggregate_name)
-        return False
-    else:
-        return True
-
-
-def get_server_by_name(name):   # pragma: no cover
-    try:
-        return get_nova_client().servers.list(search_opts={'name': name})[0]
-    except IndexError:
-        log.exception('Failed to get nova client')
-        raise
+        return shade_client.get_server(name_or_id=name_or_id, filters=filters,
+                                       detailed=detailed, bare=bare)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [get_server(shade_client, '%s')]. "
+                  "Exception message: %s", name_or_id, o_exc.orig_message)
 
 
 def create_flavor(name, ram, vcpus, disk, **kwargs):   # pragma: no cover
     try:
-        return get_nova_client().flavors.create(name, ram, vcpus, disk, **kwargs)
-    except Exception:
+        return get_nova_client().flavors.create(name, ram, vcpus,
+                                                disk, **kwargs)
+    except Exception:  # pylint: disable=broad-except
         log.exception("Error [create_flavor(nova_client, %s, %s, %s, %s, %s)]",
                       name, ram, disk, vcpus, kwargs['is_public'])
         return None
-
-
-def get_image_by_name(name):    # pragma: no cover
-    images = get_nova_client().images.list()
-    try:
-        return next((a for a in images if a.name == name))
-    except StopIteration:
-        log.exception('No image matched')
 
 
 def get_flavor_id(nova_client, flavor_name):    # pragma: no cover
@@ -408,116 +393,167 @@ def get_flavor_id(nova_client, flavor_name):    # pragma: no cover
     return flavor_id
 
 
-def get_flavor_by_name(name):   # pragma: no cover
-    flavors = get_nova_client().flavors.list()
+def get_flavor(shade_client, name_or_id, filters=None, get_extra=True):
+    """Get a flavor by name or ID.
+
+    :param name_or_id: Name or ID of the flavor.
+    :param filters: A dictionary of meta data to use for further filtering.
+    :param get_extra: Whether or not the list_flavors call should get the extra
+    flavor specs.
+
+    :returns: A flavor ``munch.Munch`` or None if no matching flavor is found.
+    """
     try:
-        return next((a for a in flavors if a.name == name))
-    except StopIteration:
-        log.exception('No flavor matched')
-
-
-def check_status(status, name, iterations, interval):   # pragma: no cover
-    for i in range(iterations):
-        try:
-            server = get_server_by_name(name)
-        except IndexError:
-            log.error('Cannot found %s server', name)
-            raise
-
-        if server.status == status:
-            return True
-
-        time.sleep(interval)
-    return False
+        return shade_client.get_flavor(name_or_id, filters=filters,
+                                       get_extra=get_extra)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [get_flavor(shade_client, '%s')]. "
+                  "Exception message: %s", name_or_id, o_exc.orig_message)
 
 
 def delete_flavor(flavor_id):    # pragma: no cover
     try:
         get_nova_client().flavors.delete(flavor_id)
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         log.exception("Error [delete_flavor(nova_client, %s)]", flavor_id)
         return False
     else:
         return True
 
 
-def delete_keypair(nova_client, key):     # pragma: no cover
+def delete_keypair(shade_client, name):
+    """Delete a keypair.
+
+    :param name: Name of the keypair to delete.
+
+    :returns: True if delete succeeded, False otherwise.
+    """
     try:
-        nova_client.keypairs.delete(key=key)
-        return True
-    except Exception:
-        log.exception("Error [delete_keypair(nova_client)]")
+        return shade_client.delete_keypair(name)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [delete_neutron_router(shade_client, '%s')]. "
+                  "Exception message: %s", name, o_exc.orig_message)
         return False
 
 
 # *********************************************
 #   NEUTRON
 # *********************************************
-def get_network_by_name(network_name):       # pragma: no cover
+def create_neutron_net(shade_client, network_name, shared=False,
+                       admin_state_up=True, external=False, provider=None,
+                       project_id=None):
+    """Create a neutron network.
+
+    :param network_name:(string) name of the network being created.
+    :param shared:(bool) whether the network is shared.
+    :param admin_state_up:(bool) set the network administrative state.
+    :param external:(bool) whether this network is externally accessible.
+    :param provider:(dict) a dict of network provider options.
+    :param project_id:(string) specify the project ID this network
+                      will be created on (admin-only).
+    :returns:(string) the network id.
+    """
     try:
-        networks = get_neutron_client().list_networks()['networks']
-        return next((n for n in networks if n['name'] == network_name), None)
-    except Exception:
-        log.exception("Error [get_instance_by_id(nova_client, '%s')]",
-                      network_name)
-
-
-def get_network_id(neutron_client, network_name):       # pragma: no cover
-    networks = neutron_client.list_networks()['networks']
-    return next((n['id'] for n in networks if n['name'] == network_name), None)
-
-
-def get_port_id_by_ip(neutron_client, ip_address):      # pragma: no cover
-    ports = neutron_client.list_ports()['ports']
-    return next((i['id'] for i in ports for j in i.get(
-        'fixed_ips') if j['ip_address'] == ip_address), None)
-
-
-def create_neutron_net(neutron_client, json_body):      # pragma: no cover
-    try:
-        network = neutron_client.create_network(body=json_body)
-        return network['network']['id']
-    except Exception:
-        log.error("Error [create_neutron_net(neutron_client)]")
-        raise Exception("operation error")
+        networks = shade_client.create_network(
+            name=network_name, shared=shared, admin_state_up=admin_state_up,
+            external=external, provider=provider, project_id=project_id)
+        return networks['id']
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_neutron_net(shade_client)]."
+                  "Exception message, '%s'", o_exc.orig_message)
         return None
 
 
-def delete_neutron_net(neutron_client, network_id):      # pragma: no cover
+def delete_neutron_net(shade_client, network_id):
     try:
-        neutron_client.delete_network(network_id)
-        return True
-    except Exception:
-        log.error("Error [delete_neutron_net(neutron_client, '%s')]" % network_id)
+        return shade_client.delete_network(network_id)
+    except exc.OpenStackCloudException:
+        log.error("Error [delete_neutron_net(shade_client, '%s')]", network_id)
         return False
 
 
-def create_neutron_subnet(neutron_client, json_body):      # pragma: no cover
+def create_neutron_subnet(shade_client, network_name_or_id, cidr=None,
+                          ip_version=4, enable_dhcp=False, subnet_name=None,
+                          tenant_id=None, allocation_pools=None,
+                          gateway_ip=None, disable_gateway_ip=False,
+                          dns_nameservers=None, host_routes=None,
+                          ipv6_ra_mode=None, ipv6_address_mode=None,
+                          use_default_subnetpool=False):
+    """Create a subnet on a specified network.
+
+    :param network_name_or_id:(string) the unique name or ID of the
+                              attached network. If a non-unique name is
+                              supplied, an exception is raised.
+    :param cidr:(string) the CIDR.
+    :param ip_version:(int) the IP version.
+    :param enable_dhcp:(bool) whether DHCP is enable.
+    :param subnet_name:(string) the name of the subnet.
+    :param tenant_id:(string) the ID of the tenant who owns the network.
+    :param allocation_pools: A list of dictionaries of the start and end
+                            addresses for the allocation pools.
+    :param gateway_ip:(string) the gateway IP address.
+    :param disable_gateway_ip:(bool) whether gateway IP address is enabled.
+    :param dns_nameservers: A list of DNS name servers for the subnet.
+    :param host_routes: A list of host route dictionaries for the subnet.
+    :param ipv6_ra_mode:(string) IPv6 Router Advertisement mode.
+                        Valid values are: 'dhcpv6-stateful',
+                        'dhcpv6-stateless', or 'slaac'.
+    :param ipv6_address_mode:(string) IPv6 address mode.
+                             Valid values are: 'dhcpv6-stateful',
+                             'dhcpv6-stateless', or 'slaac'.
+    :param use_default_subnetpool:(bool) use the default subnetpool for
+                                  ``ip_version`` to obtain a CIDR. It is
+                                  required to pass ``None`` to the ``cidr``
+                                  argument when enabling this option.
+    :returns:(string) the subnet id.
+    """
     try:
-        subnet = neutron_client.create_subnet(body=json_body)
-        return subnet['subnets'][0]['id']
-    except Exception:
-        log.error("Error [create_neutron_subnet")
-        raise Exception("operation error")
+        subnet = shade_client.create_subnet(
+            network_name_or_id, cidr=cidr, ip_version=ip_version,
+            enable_dhcp=enable_dhcp, subnet_name=subnet_name,
+            tenant_id=tenant_id, allocation_pools=allocation_pools,
+            gateway_ip=gateway_ip, disable_gateway_ip=disable_gateway_ip,
+            dns_nameservers=dns_nameservers, host_routes=host_routes,
+            ipv6_ra_mode=ipv6_ra_mode, ipv6_address_mode=ipv6_address_mode,
+            use_default_subnetpool=use_default_subnetpool)
+        return subnet['id']
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_neutron_subnet(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
         return None
 
 
-def create_neutron_router(neutron_client, json_body):      # pragma: no cover
+def create_neutron_router(shade_client, name=None, admin_state_up=True,
+                          ext_gateway_net_id=None, enable_snat=None,
+                          ext_fixed_ips=None, project_id=None):
+    """Create a logical router.
+
+    :param name:(string) the router name.
+    :param admin_state_up:(bool) the administrative state of the router.
+    :param ext_gateway_net_id:(string) network ID for the external gateway.
+    :param enable_snat:(bool) enable Source NAT (SNAT) attribute.
+    :param ext_fixed_ips: List of dictionaries of desired IP and/or subnet
+                          on the external network.
+    :param project_id:(string) project ID for the router.
+
+    :returns:(string) the router id.
+    """
     try:
-        router = neutron_client.create_router(json_body)
-        return router['router']['id']
-    except Exception:
-        log.error("Error [create_neutron_router(neutron_client)]")
-        raise Exception("operation error")
-        return None
+        router = shade_client.create_router(
+            name, admin_state_up, ext_gateway_net_id, enable_snat,
+            ext_fixed_ips, project_id)
+        return router['id']
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_neutron_router(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
 
 
-def delete_neutron_router(neutron_client, router_id):      # pragma: no cover
+def delete_neutron_router(shade_client, router_id):
     try:
-        neutron_client.delete_router(router=router_id)
-        return True
-    except Exception:
-        log.error("Error [delete_neutron_router(neutron_client, '%s')]" % router_id)
+        return shade_client.delete_router(router_id)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [delete_neutron_router(shade_client, '%s')]. "
+                  "Exception message: %s", router_id, o_exc.orig_message)
         return False
 
 
@@ -525,288 +561,344 @@ def remove_gateway_router(neutron_client, router_id):      # pragma: no cover
     try:
         neutron_client.remove_gateway_router(router_id)
         return True
-    except Exception:
-        log.error("Error [remove_gateway_router(neutron_client, '%s')]" % router_id)
+    except Exception:  # pylint: disable=broad-except
+        log.error("Error [remove_gateway_router(neutron_client, '%s')]",
+                  router_id)
         return False
 
 
-def remove_interface_router(neutron_client, router_id, subnet_id,
-                            **json_body):      # pragma: no cover
-    json_body.update({"subnet_id": subnet_id})
+def remove_router_interface(shade_client, router, subnet_id=None,
+                            port_id=None):
+    """Detach a subnet from an internal router interface.
+
+    At least one of subnet_id or port_id must be supplied. If you specify both
+    subnet and port ID, the subnet ID must correspond to the subnet ID of the
+    first IP address on the port specified by the port ID.
+    Otherwise an error occurs.
+
+    :param router: The dict object of the router being changed
+    :param subnet_id:(string) The ID of the subnet to use for the interface
+    :param port_id:(string) The ID of the port to use for the interface
+    :returns: True on success
+    """
     try:
-        neutron_client.remove_interface_router(router=router_id,
-                                               body=json_body)
+        shade_client.remove_router_interface(
+            router, subnet_id=subnet_id, port_id=port_id)
         return True
-    except Exception:
-        log.error("Error [remove_interface_router(neutron_client, '%s', "
-                  "'%s')]" % (router_id, subnet_id))
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [remove_interface_router(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
         return False
 
 
-def create_floating_ip(neutron_client, extnet_id):      # pragma: no cover
-    props = {'floating_network_id': extnet_id}
+def create_floating_ip(shade_client, network_name_or_id=None, server=None,
+                       fixed_address=None, nat_destination=None,
+                       port=None, wait=False, timeout=60):
+    """Allocate a new floating IP from a network or a pool.
+
+    :param network_name_or_id: Name or ID of the network
+                               that the floating IP should come from.
+    :param server: Server dict for the server to create
+                  the IP for and to which it should be attached.
+    :param fixed_address: Fixed IP to attach the floating ip to.
+    :param nat_destination: Name or ID of the network
+                           that the fixed IP to attach the floating
+                           IP to should be on.
+    :param port: The port ID that the floating IP should be
+                attached to. Specifying a port conflicts with specifying a
+                server,fixed_address or nat_destination.
+    :param wait: Whether to wait for the IP to be active.Only applies
+                if a server is provided.
+    :param timeout: How long to wait for the IP to be active.Only
+                   applies if a server is provided.
+
+    :returns:Floating IP id and address
+    """
     try:
-        ip_json = neutron_client.create_floatingip({'floatingip': props})
-        fip_addr = ip_json['floatingip']['floating_ip_address']
-        fip_id = ip_json['floatingip']['id']
-    except Exception:
-        log.error("Error [create_floating_ip(neutron_client)]")
-        return None
-    return {'fip_addr': fip_addr, 'fip_id': fip_id}
+        fip = shade_client.create_floating_ip(
+            network=network_name_or_id, server=server,
+            fixed_address=fixed_address, nat_destination=nat_destination,
+            port=port, wait=wait, timeout=timeout)
+        return {'fip_addr': fip['floating_ip_address'], 'fip_id': fip['id']}
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [create_floating_ip(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
 
 
-def delete_floating_ip(nova_client, floatingip_id):      # pragma: no cover
+def delete_floating_ip(shade_client, floating_ip_id, retry=1):
     try:
-        nova_client.floating_ips.delete(floatingip_id)
+        return shade_client.delete_floating_ip(floating_ip_id=floating_ip_id,
+                                               retry=retry)
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [delete_floating_ip(shade_client,'%s')]. "
+                  "Exception message: %s", floating_ip_id, o_exc.orig_message)
+        return False
+
+
+def create_security_group_rule(shade_client, secgroup_name_or_id,
+                               port_range_min=None, port_range_max=None,
+                               protocol=None, remote_ip_prefix=None,
+                               remote_group_id=None, direction='ingress',
+                               ethertype='IPv4', project_id=None):
+    """Create a new security group rule
+
+    :param secgroup_name_or_id:(string) The security group name or ID to
+                               associate with this security group rule. If a
+                               non-unique group name is given, an exception is
+                               raised.
+    :param port_range_min:(int) The minimum port number in the range that is
+                          matched by the security group rule. If the protocol
+                          is TCP or UDP, this value must be less than or equal
+                          to the port_range_max attribute value. If nova is
+                          used by the cloud provider for security groups, then
+                          a value of None will be transformed to -1.
+    :param port_range_max:(int) The maximum port number in the range that is
+                          matched by the security group rule. The
+                          port_range_min attribute constrains the
+                          port_range_max attribute. If nova is used by the
+                          cloud provider for security groups, then a value of
+                          None will be transformed to -1.
+    :param protocol:(string) The protocol that is matched by the security group
+                    rule. Valid values are None, tcp, udp, and icmp.
+    :param remote_ip_prefix:(string) The remote IP prefix to be associated with
+                            this security group rule. This attribute matches
+                            the specified IP prefix as the source IP address of
+                            the IP packet.
+    :param remote_group_id:(string) The remote group ID to be associated with
+                           this security group rule.
+    :param direction:(string) Ingress or egress: The direction in which the
+                     security group rule is applied.
+    :param ethertype:(string) Must be IPv4 or IPv6, and addresses represented
+                     in CIDR must match the ingress or egress rules.
+    :param project_id:(string) Specify the project ID this security group will
+                      be created on (admin-only).
+
+    :returns: True on success.
+    """
+
+    try:
+        shade_client.create_security_group_rule(
+            secgroup_name_or_id, port_range_min=port_range_min,
+            port_range_max=port_range_max, protocol=protocol,
+            remote_ip_prefix=remote_ip_prefix, remote_group_id=remote_group_id,
+            direction=direction, ethertype=ethertype, project_id=project_id)
         return True
-    except Exception:
-        log.error("Error [delete_floating_ip(nova_client, '%s')]" % floatingip_id)
+    except exc.OpenStackCloudException as op_exc:
+        log.error("Failed to create_security_group_rule(shade_client). "
+                  "Exception message: %s", op_exc.orig_message)
         return False
 
 
-def get_security_groups(neutron_client):      # pragma: no cover
+def create_security_group_full(shade_client, sg_name,
+                               sg_description, project_id=None):
+    security_group = shade_client.get_security_group(sg_name)
+
+    if security_group:
+        log.info("Using existing security group '%s'...", sg_name)
+        return security_group['id']
+
+    log.info("Creating security group  '%s'...", sg_name)
     try:
-        security_groups = neutron_client.list_security_groups()[
-            'security_groups']
-        return security_groups
-    except Exception:
-        log.error("Error [get_security_groups(neutron_client)]")
-        return None
+        security_group = shade_client.create_security_group(
+            sg_name, sg_description, project_id=project_id)
+    except (exc.OpenStackCloudException,
+            exc.OpenStackCloudUnavailableFeature) as op_exc:
+        log.error("Error [create_security_group(shade_client, %s, %s)]. "
+                  "Exception message: %s", sg_name, sg_description,
+                  op_exc.orig_message)
+        return
 
+    log.debug("Security group '%s' with ID=%s created successfully.",
+              security_group['name'], security_group['id'])
 
-def get_security_group_id(neutron_client, sg_name):      # pragma: no cover
-    security_groups = get_security_groups(neutron_client)
-    id = ''
-    for sg in security_groups:
-        if sg['name'] == sg_name:
-            id = sg['id']
-            break
-    return id
+    log.debug("Adding ICMP rules in security group '%s'...", sg_name)
+    if not create_security_group_rule(shade_client, security_group['id'],
+                                      direction='ingress', protocol='icmp'):
+        log.error("Failed to create the security group rule...")
+        shade_client.delete_security_group(sg_name)
+        return
 
+    log.debug("Adding SSH rules in security group '%s'...", sg_name)
+    if not create_security_group_rule(shade_client, security_group['id'],
+                                      direction='ingress', protocol='tcp',
+                                      port_range_min='22',
+                                      port_range_max='22'):
+        log.error("Failed to create the security group rule...")
+        shade_client.delete_security_group(sg_name)
+        return
 
-def create_security_group(neutron_client, sg_name, sg_description):      # pragma: no cover
-    json_body = {'security_group': {'name': sg_name,
-                                    'description': sg_description}}
-    try:
-        secgroup = neutron_client.create_security_group(json_body)
-        return secgroup['security_group']
-    except Exception:
-        log.error("Error [create_security_group(neutron_client, '%s', "
-                  "'%s')]" % (sg_name, sg_description))
-        return None
-
-
-def create_secgroup_rule(neutron_client, sg_id, direction, protocol,
-                         port_range_min=None, port_range_max=None,
-                         **json_body):      # pragma: no cover
-    # We create a security group in 2 steps
-    # 1 - we check the format and set the json body accordingly
-    # 2 - we call neturon client to create the security group
-
-    # Format check
-    json_body.update({'security_group_rule': {'direction': direction,
-                     'security_group_id': sg_id, 'protocol': protocol}})
-    # parameters may be
-    # - both None => we do nothing
-    # - both Not None => we add them to the json description
-    # but one cannot be None is the other is not None
-    if (port_range_min is not None and port_range_max is not None):
-        # add port_range in json description
-        json_body['security_group_rule']['port_range_min'] = port_range_min
-        json_body['security_group_rule']['port_range_max'] = port_range_max
-        log.debug("Security_group format set (port range included)")
-    else:
-        # either both port range are set to None => do nothing
-        # or one is set but not the other => log it and return False
-        if port_range_min is None and port_range_max is None:
-            log.debug("Security_group format set (no port range mentioned)")
-        else:
-            log.error("Bad security group format."
-                      "One of the port range is not properly set:"
-                      "range min: {},"
-                      "range max: {}".format(port_range_min,
-                                             port_range_max))
-            return False
-
-    # Create security group using neutron client
-    try:
-        neutron_client.create_security_group_rule(json_body)
-        return True
-    except Exception:
-        log.exception("Impossible to create_security_group_rule,"
-                      "security group rule probably already exists")
-        return False
-
-
-def create_security_group_full(neutron_client,
-                               sg_name, sg_description):      # pragma: no cover
-    sg_id = get_security_group_id(neutron_client, sg_name)
-    if sg_id != '':
-        log.info("Using existing security group '%s'..." % sg_name)
-    else:
-        log.info("Creating security group  '%s'..." % sg_name)
-        SECGROUP = create_security_group(neutron_client,
-                                         sg_name,
-                                         sg_description)
-        if not SECGROUP:
-            log.error("Failed to create the security group...")
-            return None
-
-        sg_id = SECGROUP['id']
-
-        log.debug("Security group '%s' with ID=%s created successfully."
-                  % (SECGROUP['name'], sg_id))
-
-        log.debug("Adding ICMP rules in security group '%s'..."
-                  % sg_name)
-        if not create_secgroup_rule(neutron_client, sg_id,
-                                    'ingress', 'icmp'):
-            log.error("Failed to create the security group rule...")
-            return None
-
-        log.debug("Adding SSH rules in security group '%s'..."
-                  % sg_name)
-        if not create_secgroup_rule(
-                neutron_client, sg_id, 'ingress', 'tcp', '22', '22'):
-            log.error("Failed to create the security group rule...")
-            return None
-
-        if not create_secgroup_rule(
-                neutron_client, sg_id, 'egress', 'tcp', '22', '22'):
-            log.error("Failed to create the security group rule...")
-            return None
-    return sg_id
+    if not create_security_group_rule(shade_client, security_group['id'],
+                                      direction='egress', protocol='tcp',
+                                      port_range_min='22',
+                                      port_range_max='22'):
+        log.error("Failed to create the security group rule...")
+        shade_client.delete_security_group(sg_name)
+        return
+    return security_group['id']
 
 
 # *********************************************
 #   GLANCE
 # *********************************************
-def get_image_id(glance_client, image_name):    # pragma: no cover
-    images = glance_client.images.list()
-    return next((i.id for i in images if i.name == image_name), None)
+def create_image(shade_client, name, filename=None, container='images',
+                 md5=None, sha256=None, disk_format=None,
+                 container_format=None, disable_vendor_agent=True,
+                 wait=False, timeout=3600, allow_duplicates=False, meta=None,
+                 volume=None, **kwargs):
+    """Upload an image.
 
-
-def create_image(glance_client, image_name, file_path, disk_format,
-                 container_format, min_disk, min_ram, protected, tag,
-                 public, **kwargs):    # pragma: no cover
-    if not os.path.isfile(file_path):
-        log.error("Error: file %s does not exist." % file_path)
-        return None
+    :param name:(str) Name of the image to create. If it is a pathname of an
+                image, the name will be constructed from the extensionless
+                basename of the path.
+    :param filename:(str) The path to the file to upload, if needed.
+    :param container:(str) Name of the container in swift where images should
+                     be uploaded for import if the cloud requires such a thing.
+    :param md5:(str) md5 sum of the image file. If not given, an md5 will
+            be calculated.
+    :param sha256:(str) sha256 sum of the image file. If not given, an md5
+                  will be calculated.
+    :param disk_format:(str) The disk format the image is in.
+    :param container_format:(str) The container format the image is in.
+    :param disable_vendor_agent:(bool) Whether or not to append metadata
+                                flags to the image to inform the cloud in
+                                question to not expect a vendor agent to be running.
+    :param wait:(bool) If true, waits for image to be created.
+    :param timeout:(str) Seconds to wait for image creation.
+    :param allow_duplicates:(bool) If true, skips checks that enforce unique
+                            image name.
+    :param meta:(dict) A dict of key/value pairs to use for metadata that
+                bypasses automatic type conversion.
+    :param volume:(str) Name or ID or volume object of a volume to create an
+                  image from.
+    Additional kwargs will be passed to the image creation as additional
+    metadata for the image and will have all values converted to string
+    except for min_disk, min_ram, size and virtual_size which will be
+    converted to int.
+    If you are sure you have all of your data types correct or have an
+    advanced need to be explicit, use meta. If you are just a normal
+    consumer, using kwargs is likely the right choice.
+    If a value is in meta and kwargs, meta wins.
+    :returns: Image id
+    """
     try:
-        image_id = get_image_id(glance_client, image_name)
+        image_id = shade_client.get_image_id(name)
         if image_id is not None:
-            log.info("Image %s already exists." % image_name)
-        else:
-            log.info("Creating image '%s' from '%s'...", image_name, file_path)
-
-            image = glance_client.images.create(name=image_name,
-                                                visibility=public,
-                                                disk_format=disk_format,
-                                                container_format=container_format,
-                                                min_disk=min_disk,
-                                                min_ram=min_ram,
-                                                tags=tag,
-                                                protected=protected,
-                                                **kwargs)
-            image_id = image.id
-            with open(file_path) as image_data:
-                glance_client.images.upload(image_id, image_data)
+            log.info("Image %s already exists.", name)
+            return image_id
+        log.info("Creating image '%s'", name)
+        image = shade_client.create_image(
+            name, filename=filename, container=container, md5=md5, sha256=sha256,
+            disk_format=disk_format, container_format=container_format,
+            disable_vendor_agent=disable_vendor_agent, wait=wait, timeout=timeout,
+            allow_duplicates=allow_duplicates, meta=meta, volume=volume, **kwargs)
+        image_id = image["id"]
         return image_id
-    except Exception:
-        log.error("Error [create_glance_image(glance_client, '%s', '%s', '%s')]",
-                  image_name, file_path, public)
-        return None
+    except exc.OpenStackCloudException as op_exc:
+        log.error("Failed to create_image(shade_client). "
+                  "Exception message: %s", op_exc.orig_message)
 
 
-def delete_image(glance_client, image_id):    # pragma: no cover
+def delete_image(shade_client, name_or_id, wait=False, timeout=3600,
+                 delete_objects=True):
     try:
-        glance_client.images.delete(image_id)
+        return shade_client.delete_image(name_or_id, wait=wait,
+                                         timeout=timeout,
+                                         delete_objects=delete_objects)
 
-    except Exception:
-        log.exception("Error [delete_flavor(glance_client, %s)]", image_id)
+    except exc.OpenStackCloudException as op_exc:
+        log.error("Failed to delete_image(shade_client). "
+                  "Exception message: %s", op_exc.orig_message)
         return False
-    else:
-        return True
+
+
+def list_images(shade_client=None):
+    if shade_client is None:
+        shade_client = get_shade_client()
+
+    try:
+        return shade_client.list_images()
+    except exc.OpenStackCloudException as o_exc:
+        log.error("Error [list_images(shade_client)]."
+                  "Exception message, '%s'", o_exc.orig_message)
+        return False
 
 
 # *********************************************
 #   CINDER
 # *********************************************
-def get_volume_id(volume_name):    # pragma: no cover
-    volumes = get_cinder_client().volumes.list()
-    return next((v.id for v in volumes if v.name == volume_name), None)
+def get_volume_id(shade_client, volume_name):
+    return shade_client.get_volume_id(volume_name)
 
 
-def create_volume(cinder_client, volume_name, volume_size,
-                  volume_image=False):    # pragma: no cover
+def get_volume(shade_client, name_or_id, filters=None):
+    """Get a volume by name or ID.
+
+    :param name_or_id: Name or ID of the volume.
+    :param filters: A dictionary of meta data to use for further filtering.
+
+    :returns: A volume ``munch.Munch`` or None if no matching volume is found.
+    """
+    return shade_client.get_volume(name_or_id, filters=filters)
+
+
+def create_volume(shade_client, size, wait=True, timeout=None,
+                  image=None, **kwargs):
+    """Create a volume.
+
+    :param size: Size, in GB of the volume to create.
+    :param name: (optional) Name for the volume.
+    :param description: (optional) Name for the volume.
+    :param wait: If true, waits for volume to be created.
+    :param timeout: Seconds to wait for volume creation. None is forever.
+    :param image: (optional) Image name, ID or object from which to create
+                  the volume.
+
+    :returns: The created volume object.
+
+    """
     try:
-        if volume_image:
-            volume = cinder_client.volumes.create(name=volume_name,
-                                                  size=volume_size,
-                                                  imageRef=volume_image)
-        else:
-            volume = cinder_client.volumes.create(name=volume_name,
-                                                  size=volume_size)
-        return volume
-    except Exception:
-        log.exception("Error [create_volume(cinder_client, %s)]",
-                      (volume_name, volume_size))
-        return None
+        return shade_client.create_volume(size, wait=wait, timeout=timeout,
+                                          image=image, **kwargs)
+    except (exc.OpenStackCloudException, exc.OpenStackCloudTimeout) as op_exc:
+        log.error("Failed to create_volume(shade_client). "
+                  "Exception message: %s", op_exc.orig_message)
 
 
-def delete_volume(cinder_client, volume_id, forced=False):      # pragma: no cover
+def delete_volume(shade_client, name_or_id=None, wait=True, timeout=None):
+    """Delete a volume.
+
+    :param name_or_id:(string) Name or unique ID of the volume.
+    :param wait:(bool) If true, waits for volume to be deleted.
+    :param timeout:(string) Seconds to wait for volume deletion. None is forever.
+
+    :return:  True on success, False otherwise.
+    """
     try:
-        if forced:
-            try:
-                cinder_client.volumes.detach(volume_id)
-            except:
-                log.error(sys.exc_info()[0])
-            cinder_client.volumes.force_delete(volume_id)
-        else:
-            while True:
-                volume = get_cinder_client().volumes.get(volume_id)
-                if volume.status.lower() == 'available':
-                    break
-            cinder_client.volumes.delete(volume_id)
-        return True
-    except Exception:
-        log.exception("Error [delete_volume(cinder_client, '%s')]" % volume_id)
+        return shade_client.delete_volume(name_or_id=name_or_id,
+                                          wait=wait, timeout=timeout)
+    except (exc.OpenStackCloudException, exc.OpenStackCloudTimeout) as o_exc:
+        log.error("Error [delete_volume(shade_client,'%s')]. "
+                  "Exception message: %s", name_or_id, o_exc.orig_message)
         return False
 
 
-def detach_volume(server_id, volume_id):      # pragma: no cover
+def detach_volume(shade_client, server_name_or_id, volume_name_or_id,
+                  wait=True, timeout=None):
+    """Detach a volume from a server.
+
+    :param server_name_or_id: The server name or id to detach from.
+    :param volume_name_or_id: The volume name or id to detach.
+    :param wait: If true, waits for volume to be detached.
+    :param timeout: Seconds to wait for volume detachment. None is forever.
+
+    :return: True on success.
+    """
     try:
-        get_nova_client().volumes.delete_server_volume(server_id, volume_id)
+        volume = shade_client.get_volume(volume_name_or_id)
+        server = get_server(shade_client, name_or_id=server_name_or_id)
+        shade_client.detach_volume(server, volume, wait=wait, timeout=timeout)
         return True
-    except Exception:
-        log.exception("Error [detach_server_volume(nova_client, '%s', '%s')]",
-                      server_id, volume_id)
+    except (exc.OpenStackCloudException, exc.OpenStackCloudTimeout) as o_exc:
+        log.error("Error [detach_volume(shade_client)]. "
+                  "Exception message: %s", o_exc.orig_message)
         return False
-# *********************************************
-#   HEAT
-# *********************************************
-
-
-def get_stack(heat_stack_id):    # pragma: no cover
-    try:
-        client = get_heat_client()
-        return client.stacks.get(heat_stack_id)
-    except Exception as e:
-        log.exception("Error [get_stack(heat_stack_id)]", e)
-
-
-def get_stack_resources(heat_stack_id):    # pragma: no cover
-    try:
-        client = get_heat_client()
-        return client.resources.list(heat_stack_id)
-    except Exception as e:
-        log.exception("Error [get_stack_resources(heat_stack_id)]: %s", e)
-
-
-def get_stack_vms(heat_stack_id):    # pragma: no cover
-    resources = get_stack_resources(heat_stack_id)
-    ret_vms = []
-    for resource in resources:
-        if resource.resource_type == "OS::Nova::Server":
-            ret_vms.append(resource)
-    return ret_vms

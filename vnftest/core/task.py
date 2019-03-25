@@ -25,6 +25,7 @@ import copy
 import logging
 import sys
 import time
+import traceback
 import uuid
 
 import ipaddress
@@ -32,6 +33,7 @@ import os
 import yaml
 from jinja2 import Environment
 from six.moves import filter
+
 from vnftest.runners import base as base_runner
 
 from vnftest.contexts.base import Context
@@ -160,6 +162,7 @@ class Task(object):     # pragma: no cover
                          one_task_end_time - one_task_start_time)
         except Exception as e:
             LOG.error("Task fatal error: %s", e)
+            traceback.print_exc()
             self.task_info.task_fatal()
         finally:
             self.task_info.task_end()
@@ -170,11 +173,6 @@ class Task(object):     # pragma: no cover
         total_end_time = time.time()
         LOG.info("Total finished in %d secs",
                  total_end_time - total_start_time)
-
-        step = steps[0]
-        LOG.info("To generate report, execute command "
-                 "'vnftest report generate %(task_id)s %(tc)s'", step)
-        LOG.info("Task ALL DONE, exiting")
         return self.task_info.result()
 
     def _generate_reporting(self):
@@ -279,6 +277,7 @@ class Task(object):     # pragma: no cover
             return result
         except Exception as e:
             LOG.exception('Case fatal error: %s', e)
+            traceback.print_exc()
             self.task_info.testcase_fatal(case_name)
         finally:
             self.task_info.testcase_end(case_name)
@@ -316,6 +315,7 @@ class Task(object):     # pragma: no cover
         LOG.info("Starting runner of type '%s'", runner_cfg["type"])
         # Previous steps output is the input of the next step.
         inputs.update(self.outputs)
+        _resolve_step_options(step_cfg, self.contexts, inputs)
         runner.run(step_cfg, self.contexts, inputs)
         return runner
 
@@ -328,6 +328,22 @@ class Task(object):     # pragma: no cover
                 "{0} runner status {1}".format(runner.__execution_type__, status))
         LOG.info("Runner ended")
         result.extend(step_result_list)
+
+
+def _resolve_step_options(step_cfg, contexts, inputs):
+    inputs = copy.deepcopy(inputs)
+    contexts_dict = {}
+    inputs['context'] = contexts_dict
+    if contexts is not None:
+        for context in contexts:
+            context_as_dict = utils.normalize_data_struct(context)
+            contexts_dict[context.assigned_name] = context_as_dict
+    options = step_cfg.get("options", {})
+    resolved_options = {}
+    for k, v in options.items():
+        v = utils.format(v, inputs)
+        resolved_options[k] = v
+    step_cfg["options"] = resolved_options
 
 
 class TaskParser(object):       # pragma: no cover

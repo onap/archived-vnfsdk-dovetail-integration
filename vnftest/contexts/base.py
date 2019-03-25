@@ -13,27 +13,69 @@
 ##############################################################################
 import abc
 import six
-from vnftest.common import openstack_utils
 
 import vnftest.common.utils as utils
-import yaml
 import logging
+
+from vnftest.common import constants
+
 LOG = logging.getLogger(__name__)
+
+
+class Flags(object):
+    """Class to represent the status of the flags in a context"""
+
+    _FLAGS = {'no_setup': False,
+              'no_teardown': False,
+              'os_cloud_config': constants.OS_CLOUD_DEFAULT_CONFIG}
+
+    def __init__(self, **kwargs):
+        for name, value in self._FLAGS.items():
+            setattr(self, name, value)
+
+        for name, value in ((name, value) for (name, value) in kwargs.items()
+                            if name in self._FLAGS):
+            setattr(self, name, value)
+
+    def parse(self, **kwargs):
+        """Read in values matching the flags stored in this object"""
+        if not kwargs:
+            return
+
+        for name, value in ((name, value) for (name, value) in kwargs.items()
+                            if name in self._FLAGS):
+            setattr(self, name, value)
 
 
 @six.add_metaclass(abc.ABCMeta)
 class Context(object):
     """Class that represents a context in the logical model"""
-    list = []
+    _list = []
 
     def __init__(self):
-        Context.list.append(self)
+        Context._list.append(self)
+        self._flags = Flags()
         self._task_id = None
         self._name = None
+        self._name_task_id = None
 
     def init(self, attrs):
         self._task_id = attrs['task_id']
         self._name = attrs['name']
+        self._flags.parse(**attrs.get('flags', {}))
+        self._name_task_id = '{}-{}'.format(
+            self._name, self._task_id[:8])
+
+    @property
+    def name(self):
+        if self._flags.no_setup or self._flags.no_teardown:
+            return self._name
+        else:
+            return self._name_task_id
+
+    @property
+    def assigned_name(self):
+        return self._name
 
     @staticmethod
     def get_cls(context_type):
@@ -50,7 +92,7 @@ class Context(object):
         return Context.get_cls(context_type)()
 
     def _delete_context(self):
-        Context.list.remove(self)
+        Context._list.remove(self)
 
     @abc.abstractmethod
     def deploy(self):

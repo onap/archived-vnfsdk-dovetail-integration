@@ -61,26 +61,6 @@ def get_param(key, default=''):
             raise
         return default
 
-
-try:
-    SERVER_IP = get_param('api.server_ip')
-except KeyError:
-    try:
-        from pyroute2 import IPDB
-    except ImportError:
-        SERVER_IP = '172.17.0.1'
-    else:
-        with IPDB() as ip:
-            try:
-                SERVER_IP = ip.routes['default'].gateway
-            except KeyError:
-                # during unittests ip.routes['default'] can be invalid
-                SERVER_IP = '127.0.0.1'
-
-if not SERVER_IP:
-    SERVER_IP = '127.0.0.1'
-
-
 # dir
 CONF_DIR = get_param('dir.conf', '/etc/vnftest')
 IMAGE_DIR = get_param('dir.images', join(VNFTEST_ROOT_PATH, '../../images/'))
@@ -111,6 +91,14 @@ BASE_URL = 'http://localhost:5000'
 ENV_ACTION_API = BASE_URL + '/vnftest/env/action'
 ASYNC_TASK_API = BASE_URL + '/vnftest/asynctask'
 
+# flags
+IS_EXISTING = 'is_existing'
+IS_PUBLIC = 'is_public'
+
 # general
 TESTCASE_PRE = 'onap_vnftest_'
 TESTSUITE_PRE = 'onap_'
+
+
+# OpenStack cloud default config parameters
+OS_CLOUD_DEFAULT_CONFIG = {'verify': False}
