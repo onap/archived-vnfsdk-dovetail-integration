@@ -335,7 +335,6 @@ class HeatContext(Context):
     def deploy(self):
         """deploys template into a stack using cloud"""
         LOG.info("Deploying context '%s' START", self.name)
-
         # self.key_filename = ''.join(
         #     [consts.VNFTEST_ROOT_PATH,
         #      '/vnftest/resources/files/vnftest_key-',
@@ -378,6 +377,7 @@ class HeatContext(Context):
                     self.stack.outputs[server.floating_ip["stack_name"]]
 
         LOG.info("Deploying context '%s' DONE", self.name)
+        return self.stack.outputs
 
     @staticmethod
     def _port_net_is_existing(port_info):

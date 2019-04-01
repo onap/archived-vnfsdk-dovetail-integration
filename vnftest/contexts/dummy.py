@@ -30,11 +30,10 @@ class DummyContext(Context):
         super(DummyContext, self).__init__()
 
     def init(self, attrs):
-        pass
+        super(DummyContext, self).init(attrs)
 
     def deploy(self):
-        """don't need to deploy"""
-        pass
+        return {"out1": "dummy1", "out2": "dummy2"}
 
     def undeploy(self):
         """don't need to undeploy"""

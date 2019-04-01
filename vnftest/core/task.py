@@ -227,16 +227,21 @@ class Task(object):     # pragma: no cover
             dispatcher.flush_result_data(self.task_id, self.task_info.result())
 
     def _run(self, steps, case_name, run_in_parallel, output_file, inputs):
-        """Deploys context and calls runners"""
-        if self.contexts is not None:
-            for context in self.contexts:
-                context.deploy()
-
         try:
             self.task_info.testcase_start(case_name)
             for step in steps:
                 step_unique_id = self.task_info.step_add(case_name, step['name'])
                 step['step_unique_id'] = step_unique_id
+
+            """Deploys context and calls runners"""
+            if self.contexts is not None:
+                for context in self.contexts:
+                    output = None
+                    try:
+                        self.task_info.context_deploy_start(case_name, context.assigned_name)
+                        output = context.deploy()
+                    finally:
+                        self.task_info.context_deploy_end(case_name, context.assigned_name, output)
 
             background_runners = []
             result = []
@@ -509,6 +514,7 @@ class TaskInfo(object):
         self.info_dict['testcases'] = self.test_cases_list
         self.helper_test_cases_dict = {}
         self.helper_test_steps_dict = {}
+        self.helper_contexts_dict = {}
         self.step_id_helper = 0
 
     def task_end(self):
@@ -531,7 +537,7 @@ class TaskInfo(object):
         testcase_dict['status'] = 'FINISHED'
 
     def testcase_start(self, testcase_name):
-        testcase_dict = {'name': testcase_name, 'criteria': 'N/A', 'status': 'IN_PROGRESS', 'steps': []}
+        testcase_dict = {'name': testcase_name, 'criteria': 'N/A', 'status': 'IN_PROGRESS', 'steps': [], 'contexts': []}
         self.test_cases_list.append(testcase_dict)
         self.helper_test_cases_dict[testcase_name] = testcase_dict
 
@@ -581,6 +587,21 @@ class TaskInfo(object):
         else:
             step_dict['criteria'] = 'PASS'
         step_dict['status'] = 'FINISHED'
+
+    def context_deploy_start(self, testcase_name, context_name):
+        context_dict = {'name': context_name, 'status': 'IN_PROGRESS', 'output': []}
+        testcase_dict = self.helper_test_cases_dict[testcase_name]
+        testcase_dict['contexts'].append(context_dict)
+        context_unique_id = testcase_name + '_' + context_name
+        self.helper_contexts_dict[context_unique_id] = context_dict
+
+    def context_deploy_end(self, testcase_name, context_name, output):
+        context_unique_id = testcase_name + '_' + context_name
+        context_dict = self.helper_contexts_dict[context_unique_id]
+        if output is not None:
+            for k, v in output.items():
+                context_dict['output'].append({'type': 'String', 'key': k, 'value': str(v)})
+        context_dict['status'] = 'FINISHED'
 
     def result(self):
         return copy.deepcopy(self.info_dict)
