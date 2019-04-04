@@ -1131,6 +1131,15 @@ class TestUtils(unittest.TestCase):
         result = utils.normalize_data_struct(dummy_class)
         self.assertEqual(result, {'aaa': 'aaa', 'bbb': ["1", "2"], 'ccc': {"x": "y"}})
 
+    def test_obj_to_dict_cyclic(self):
+        dummy_class = DummyClass()
+        dummy_class.bbb.append(dummy_class)
+        dummy_class.ccc["z"] = dummy_class
+
+        result = utils.normalize_data_struct(dummy_class)
+        self.assertTrue(result is result['bbb'][2])
+        self.assertTrue(result is result['ccc']['z'])
+
     def test_load_resource(self):
         input_str = "vnftest/tests/unit/common/config_sample.yaml"
         resource = utils.load_resource(input_str)

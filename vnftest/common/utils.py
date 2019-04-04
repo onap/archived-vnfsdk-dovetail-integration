@@ -420,26 +420,32 @@ def deep_dotdict(obj):
     return obj
 
 
-def normalize_data_struct(obj):
+def normalize_data_struct(obj, cache={}):
     if obj is None:
         return None
+    if id(obj) in cache.keys():
+        return cache[id(obj)]
     if isinstance(obj, list):
-        nomalized_list = []
+        normalized_list = []
         for element in obj:
-            element = normalize_data_struct(element)
-            nomalized_list.append(element)
-        return nomalized_list
+            element = normalize_data_struct(element, cache)
+            normalized_list.append(element)
+        return normalized_list
     if isinstance(obj, dict):
         normalized_dict = {}
         for k, v in obj.items():
             if isinstance(k, basestring) and not k.startswith('_'):
-                v = normalize_data_struct(v)
+                v = normalize_data_struct(v, cache)
                 normalized_dict[k] = v
         return normalized_dict
     # return obj if it is string, integer, bool ect.
     if not hasattr(obj, '__dict__'):
         return obj
-    return normalize_data_struct(obj.__dict__)
+    obj_as_dict = {}
+    cache[id(obj)] = obj_as_dict
+    normalized = normalize_data_struct(obj.__dict__, cache)
+    obj_as_dict.update(normalized)
+    return obj_as_dict
 
 
 def xml_to_dict(xml_str):
