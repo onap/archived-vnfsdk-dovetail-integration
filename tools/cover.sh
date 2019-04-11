@@ -31,6 +31,7 @@ run_coverage_test() {
     coverage run -p -m unittest discover ./vnftest/tests/unit/core
     coverage run -p -m unittest discover ./vnftest/tests/unit/onap
     coverage run -p -m unittest discover ./vnftest/tests/unit/common
+    coverage run -p -m unittest discover ./vnftest/tests/unit/context
     coverage combine
     coverage xml
     coverage erase

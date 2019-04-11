@@ -57,7 +57,7 @@ def _worker_process(result_queue, cls, method_name, step_cfg,
 
     method = getattr(step, method_name)
 
-    sla_action = None
+    sla_action = "assert"
     if "sla" in step_cfg:
         sla_action = step_cfg["sla"].get("action", "assert")
     if "run" in run_step:

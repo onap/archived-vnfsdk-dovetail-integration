@@ -67,6 +67,8 @@ class TaskTestCase(unittest.TestCase):
         mock_base_runner.Runner.get.return_value = runner
         t._run([step], 'dummy_case', False, "vnftest.out", {})
         self.assertTrue(runner.run.called)
+        results = t.task_info.result()
+        self.assertEqual(results["testcases"][0]["status"], "FINISHED")
 
     def test_parse_suite_no_constraint_no_args(self):
         SAMPLE_step_PATH = "no_constraint_no_args_step_sample.yaml"
