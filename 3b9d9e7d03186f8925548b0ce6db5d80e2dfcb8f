@@ -1,0 +1,9 @@
+Code-Review+2: Moshe Hoadley <moshehoa@amdocs.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Gao Weitao <victor.gao@huawei.com>
+Verified+1: Gao Weitao <victor.gao@huawei.com>
+Submitted-by: Gao Weitao <victor.gao@huawei.com>
+Submitted-at: Thu, 11 Apr 2019 08:55:14 +0000
+Reviewed-on: https://gerrit.onap.org/r/85017
+Project: vnfsdk/dovetail-integration
+Branch: refs/heads/master
