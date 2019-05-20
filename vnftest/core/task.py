@@ -449,7 +449,7 @@ class TaskParser(object):       # pragma: no cover
         elif "contexts" in cfg:
             context_cfgs = cfg["contexts"]
         else:
-            context_cfgs = [{"type": "Dummy"}]
+            context_cfgs = [{"type": "Dummy", "name": "Dummy"}]
 
         _contexts = []
         for cfg_attrs in context_cfgs:
